@@ -5,8 +5,6 @@ Resources:
       "AttributeDefinitions":
         - "AttributeName": "id"
           "AttributeType": "S"
-        - "AttributeName": "data"
-          "AttributeType": "S"
       "KeySchema":
         - "AttributeName": "id"
           "KeyType": "HASH"
