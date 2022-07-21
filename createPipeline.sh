@@ -1,5 +1,5 @@
 branch=main
-if [ -z "$UNIT_FIVE_REPO_NAME" ] ; then
+if [ -z "$CAPSTONE_REPO_NAME" ] ; then
   echo "Your environment variables are not properly configured.  Make sure that you have filled out setupEnvironment.sh and that script is set to run as part of your PATH"
   exit 1
 fi
@@ -16,9 +16,9 @@ fi
 
 
 echo "Outputting parameters for the pipeline..."
-echo "Project name: $UNIT_FIVE_PROJECT_NAME"
+echo "Project name: $CAPSTONE_PROJECT_NAME"
 echo "Github UserName: $GITHUB_USERNAME"
-echo "Repo path: $UNIT_FIVE_REPO_NAME"
+echo "Repo path: $CAPSTONE_REPO_NAME"
 echo "Branch: $branch"
 
-aws cloudformation create-stack --stack-name $UNIT_FIVE_PROJECT_NAME-$GITHUB_USERNAME --template-url https://ata-deployment-scripts.s3.us-east-1.amazonaws.com/CICDPipeline-Unit5.yml --parameters ParameterKey=ProjectName,ParameterValue=$UNIT_FIVE_PROJECT_NAME ParameterKey=GithubUserName,ParameterValue=$GITHUB_USERNAME ParameterKey=Repo,ParameterValue=$UNIT_FIVE_REPO_NAME ParameterKey=Branch,ParameterValue=$branch ParameterKey=GithubToken,ParameterValue=$GITHUB_TOKEN --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND
+aws cloudformation create-stack --stack-name $CAPSTONE_PROJECT_NAME-$GITHUB_USERNAME --template-url https://ata-deployment-scripts.s3.us-east-1.amazonaws.com/CICDPipeline-Capstone.yml --parameters ParameterKey=ProjectName,ParameterValue=$CAPSTONE_PROJECT_NAME ParameterKey=GithubUserName,ParameterValue=$GITHUB_USERNAME ParameterKey=Repo,ParameterValue=$CAPSTONE_REPO_NAME ParameterKey=Branch,ParameterValue=$branch ParameterKey=GithubToken,ParameterValue=$GITHUB_TOKEN --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND

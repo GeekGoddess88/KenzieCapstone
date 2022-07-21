@@ -3,7 +3,7 @@ plugins {
 }
 
 checkstyle {
-    def suppressionFile = rootProject.file('Utilities/ATACheckstyle/configuration/checkstyle/unit1/suppressions.xml')
+    def suppressionFile = rootProject.file('Utilities/ATACheckstyle/configuration/checkstyle/unit3/suppressions.xml')
     configProperties.put('checkstyle.suppression.filter', suppressionFile)
 }
 

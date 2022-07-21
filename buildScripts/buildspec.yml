@@ -4,13 +4,13 @@ phases:
   build:
     commands:
       - echo "build phase"
-      - ./gradlew :ReferralServiceLambda:build
+      - ./gradlew :ServiceLambda:build
       - ./gradlew :Application:build
   post_build:
     commands:
       - bash -c "if [ /"$CODEBUILD_BUILD_SUCCEEDING/" == /"0/" ]; then exit 1; fi"
       - echo "post-build phase"
-      - aws cloudformation package --template-file ReferralService-template.yml --s3-bucket $ARTIFACT_BUCKET --output-template-file referral-service.yml
+      - aws cloudformation package --template-file LambdaService-template.yml --s3-bucket $ARTIFACT_BUCKET --output-template-file lambda-service.yml
       - aws s3 cp Application/build/libs/Application-0.0.1-SNAPSHOT.jar s3://$ARTIFACT_BUCKET/
       - aws cloudformation package --template-file Application-template.yml --s3-bucket $ARTIFACT_BUCKET --output-template-file application.yml
 reports:

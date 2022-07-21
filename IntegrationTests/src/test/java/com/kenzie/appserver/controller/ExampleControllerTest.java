@@ -13,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.UUID;
-
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,15 +34,14 @@ class ExampleControllerTest {
 
     @Test
     public void getById_Exists() throws Exception {
-        String id = UUID.randomUUID().toString();
+
         String name = mockNeat.strings().valStr();
 
-        Example example = new Example(id, name);
-        Example persistedExample = exampleService.addNewExample(example);
+        Example persistedExample = exampleService.addNewExample(name);
         mvc.perform(get("/example/{id}", persistedExample.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("id")
-                        .value(is(id)))
+                        .isString())
                 .andExpect(jsonPath("name")
                         .value(is(name)))
                 .andExpect(status().isOk());

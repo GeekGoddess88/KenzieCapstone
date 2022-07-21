@@ -19,15 +19,11 @@ dist
 
 # Ignore Gradle build output directory
 build
+bin
 
 .project
 .settings
 
-invoke/*.json
-
 /aws.xml
-/Solution/src/main/.aws-sam/
-/Application/src/main/.aws-sam/
-/Solution/out.yml
-/Solution/bucket-name.txt
-/Application/out.yml
+
+lambda-service-development.yml

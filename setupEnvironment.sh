@@ -10,13 +10,13 @@
 
 # Fill out the following values
 # The path of your repo on github.  Don't but the whole URL, just the part after github.com/
-export LBC_REPO_NAME=ATA-LBC-Project
-export LBC_GROUP_NAME=tygary
+export CAPSTONE_REPO_NAME=ATA-Capstone-Project
+export CAPSTONE_GROUP_NAME=tygary
 
 # Do not modify the rest of these unless you have been instructed to do so.
-export LBC_PROJECT_NAME=lbcproject
-export LBC_PIPELINE_STACK=$LBC_PROJECT_NAME-$LBC_GROUP_NAME
-export LBC_ARTIFACT_BUCKET=$LBC_PROJECT_NAME-$LBC_GROUP_NAME-artifacts
-export LBC_DEPLOY_STACK=$LBC_PROJECT_NAME-$LBC_GROUP_NAME-application
-export LBC_APPLICATION_NAME=$LBC_PROJECT_NAME-$LBC_GROUP_NAME-application
-export LBC_ENVIRONMENT_NAME=$LBC_PROJECT_NAME-$LBC_GROUP_NAME-environment-dev
+export CAPSTONE_PROJECT_NAME=capstone
+export CAPSTONE_PIPELINE_STACK=$CAPSTONE_PROJECT_NAME-$CAPSTONE_GROUP_NAME
+export CAPSTONE_ARTIFACT_BUCKET=$CAPSTONE_PROJECT_NAME-$CAPSTONE_GROUP_NAME-artifacts
+export CAPSTONE_APPLICATION_STACK=$CAPSTONE_PROJECT_NAME-$GITHUB_USERNAME-application
+export CAPSTONE_SERVICE_STACK=$CAPSTONE_PROJECT_NAME-$GITHUB_USERNAME-service
+export CAPSTONE_SERVICE_STACK_DEV=$CAPSTONE_PROJECT_NAME-$GITHUB_USERNAME-service-dev

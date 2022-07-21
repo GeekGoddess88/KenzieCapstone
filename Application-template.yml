@@ -8,7 +8,7 @@ Parameters:
 
   ApplicationName:
     Type: String
-    Default: unitproject5
+    Default: capstone
 
   EnvironmentName:
     Type: String
@@ -16,7 +16,7 @@ Parameters:
 
   AppS3Bucket:
     Type: String
-    Default: unitproject5-ijsalman-artifacts
+    Default: capstone-ijsalman-artifacts
 
   AppS3Key:
     Type: String
