@@ -37,13 +37,13 @@ public class ExampleController {
     }
 
     @PostMapping
-    public ResponseEntity<ExampleResponse> addNewConcert(@RequestBody ExampleCreateRequest exampleCreateRequest) {
-        exampleService.addNewExample(exampleCreateRequest.getName());
+    public ResponseEntity<ExampleResponse> addNewExample(@RequestBody ExampleCreateRequest exampleCreateRequest) {
+        Example example = exampleService.addNewExample(exampleCreateRequest.getName());
 
         ExampleResponse exampleResponse = new ExampleResponse();
-        exampleResponse.setId(exampleResponse.getId());
-        exampleResponse.setName(exampleResponse.getName());
+        exampleResponse.setId(example.getId());
+        exampleResponse.setName(example.getName());
 
-        return ResponseEntity.created(URI.create("/example/" + exampleResponse.getId())).body(exampleResponse);
+        return ResponseEntity.ok(exampleResponse);
     }
 }

@@ -44,7 +44,7 @@ class ExampleControllerTest {
                         .isString())
                 .andExpect(jsonPath("name")
                         .value(is(name)))
-                .andExpect(status().isOk());
+                .andExpect(status().is2xxSuccessful());
     }
 
     @Test
@@ -64,6 +64,6 @@ class ExampleControllerTest {
                         .exists())
                 .andExpect(jsonPath("name")
                         .value(is(name)))
-                .andExpect(status().isCreated());
+                .andExpect(status().is2xxSuccessful());
     }
 }
