@@ -14,6 +14,7 @@ phases:
       - aws s3 cp Application/build/libs/Application-0.0.1-SNAPSHOT.jar s3://$ARTIFACT_BUCKET/
       - aws cloudformation package --template-file Application-template.yml --s3-bucket $ARTIFACT_BUCKET --output-template-file application.yml
       - rm -rf Frontend/node_modules
+      - rm -rf Frontend/.gradle
 reports:
   app-jacoco-report:
     files:
