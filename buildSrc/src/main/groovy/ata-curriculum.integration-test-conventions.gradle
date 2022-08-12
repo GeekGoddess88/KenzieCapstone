@@ -2,15 +2,7 @@ plugins {
   id 'idea'
 }
 
-repositories {
-  maven {
-    url = uri("https://maven.pkg.github.com/KenzieAcademy-SoftwareEngineering/kenzie-java-test-infrastructure")
-    credentials {
-      username = "kenzie-gradle"
-      password = "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"
-    }
-  }
-}
+
 
 sourceSets {
   integrationTest {

@@ -7,7 +7,7 @@ Follow the instructions in the course for completing the group Capstone project.
 You must do this for the ServiceLambda to work!
 
 ```
-aws cloudformation create-stack --stack-name lambda-table --template-body file://LambdaExampleTable.yaml --capabilities CAPABILITY_IAM
+aws cloudformation create-stack --stack-name lambda-table --template-body file://LambdaExampleTable.yml --capabilities CAPABILITY_IAM
 ```
 
 ### To deploy the CI/CD Pipeline
