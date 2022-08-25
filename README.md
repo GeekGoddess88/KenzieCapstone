@@ -2,6 +2,11 @@
 
 Follow the instructions in the course for completing the group Capstone project.
 
+### Fill out the environment variables
+Complete `setupEnvironment.sh` with the group repo name and the github username of the team member holding the repo.
+Confirm these are in lower case.
+The repo owner should confirm that all team members have been added to collaborate on the repo.
+
 ### To create the Lambda Example table in DynamoDB:
 
 You must do this for the ServiceLambda to work!
