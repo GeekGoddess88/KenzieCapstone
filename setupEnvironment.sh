@@ -1,4 +1,4 @@
-# Step One- Fill out the UNIT_TWO_REPO_NAME and GITHUB_USERNAME
+# Step One- Fill out the CAPSTONE_REPO_NAME and CAPSTONE_GROUP_NAME.
 
 # Step Two - configure your shell to always have these variables.
 # For OSX / Linux
@@ -7,10 +7,14 @@
 # For Windows
 # Copy and paste ALL of the properties below into your .bashrc file in your home directory
 
+# In IntelligJ Terminal
+# Type source setupEnvironment.sh
+
+# Confirm set up by using echo $CAPSTONE_REPO_NAME
 
 # Fill out the following values
 # The path of your repo on github.  Don't but the whole URL, just the part after github.com/
-export CAPSTONE_REPO_NAME=ATA-Capstone-Project
+export CAPSTONE_REPO_NAME=ata-capstone-project-
 export CAPSTONE_GROUP_NAME=tygary
 
 # Do not modify the rest of these unless you have been instructed to do so.
