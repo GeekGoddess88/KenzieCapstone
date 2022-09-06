@@ -1,4 +1,11 @@
-# Step One- Fill out the CAPSTONE_REPO_NAME and GITHUB_GROUP_NAME in all LOWERCASE.
+# Step One- Fill out the two requested variables.
+
+# Fill out the following values
+# The path of your repo on github. Don't include the whole URL, just the part after github.com/KenzieAcademy-SoftwareEngineering/
+export CAPSTONE_REPO_NAME=ata-capstone-project-bestjavaprogrammer
+
+# Fill out the following value with the group name in all lowercase and no spaces or special characters.
+export GITHUB_GROUP_NAME=REPLACE_WITH_YOUR_GROUP_NAME
 
 # Step Two - configure your shell to always have these variables.
 # For OSX / Linux
@@ -12,10 +19,7 @@
 
 # Confirm set up by using echo $CAPSTONE_REPO_NAME and it should return what you typed in.
 
-# Fill out the following values
-# The path of your repo on github. Don't include the whole URL, just the part after github.com/KenzieAcademy-SoftwareEngineering/
-export GITHUB_GROUP_NAME=REPLACE_WITH_YOUR_GROUP_NAME
-export CAPSTONE_REPO_NAME=ata-capstone-project-$GITHUB_USERNAME
+
 
 # Do not modify the rest of these unless you have been instructed to do so.
 export CAPSTONE_PROJECT_NAME=capstone
