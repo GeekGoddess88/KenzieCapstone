@@ -5,7 +5,7 @@ TEMPLATE=LambdaService-template.yml
 source ./setupEnvironment.sh
 
 if [ -z "$GITHUB_GROUP_NAME" ] || [ "$GITHUB_GROUP_NAME" == "replacewithyourgroupname" ] ; then
-  echo "Your environment variable GITHUB_GROUP_NAME is not properly configured.  Make sure that you have added it to your .bash_profile"
+  echo "Your environment variable GITHUB_GROUP_NAME is not properly configured.  Make sure that you have set it properly in setupEnvironment.sh"
   exit 1
 fi
 
