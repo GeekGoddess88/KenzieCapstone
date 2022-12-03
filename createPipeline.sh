@@ -1,4 +1,7 @@
 branch=main
+
+source ./setupEnvironment.sh
+
 if [ -z "$CAPSTONE_REPO_NAME" ] ; then
   echo "Your environment variables are not properly configured.  Make sure that you have filled out setupEnvironment.sh and that script is set to run as part of your PATH"
   exit 1
@@ -9,7 +12,7 @@ if [ -z "$GITHUB_TOKEN" ] ; then
   exit 1
 fi
 
-if [ -z "$GITHUB_GROUP_NAME" ] ; then
+if [ -z "$GITHUB_GROUP_NAME" ] || [ "$GITHUB_GROUP_NAME" == "replacewithyourgroupname" ] ; then
   echo "Your environment variable GITHUB_GROUP_NAME is not properly configured.  Make sure that you have added it to your .bash_profile"
   exit 1
 fi
