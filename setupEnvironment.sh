@@ -6,7 +6,7 @@
 #This must match the casing of the repo name in github EXACTLY.
 #If the casing is different you will have issues.
 #for example if the username was tHisIS-bOb this would read:
-#export UNIT_TWO_REPO_NAME=ata-capstone-project-tHisIS-bOb
+#export CAPSTONE_REPO_NAME=ata-capstone-project-tHisIS-bOb
 export CAPSTONE_REPO_NAME=ata-capstone-project-YourActualGithubUsername
 
 # Fill out the following value with the group name in all lowercase and no spaces or special characters.
