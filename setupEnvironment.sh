@@ -2,10 +2,15 @@
 
 # Fill out the following values
 # The path of your repo on github. Don't include the whole URL, just the part after github.com/KenzieAcademy-SoftwareEngineering/
-export CAPSTONE_REPO_NAME=ata-capstone-project-bestjavaprogrammer
+#replace YourActualGithubUsername with the Github username of the member who created the repo matching the case exactly
+#This must match the casing of the repo name in github EXACTLY.
+#If the casing is different you will have issues.
+#for example if the username was tHisIS-bOb this would read:
+#export CAPSTONE_REPO_NAME=ata-capstone-project-tHisIS-bOb
+export CAPSTONE_REPO_NAME=ata-capstone-project-YourActualGithubUsername
 
 # Fill out the following value with the group name in all lowercase and no spaces or special characters.
-export GITHUB_GROUP_NAME=REPLACE_WITH_YOUR_GROUP_NAME
+export GITHUB_GROUP_NAME=replacewithyourgroupname
 
 # Step Two - configure your shell to always have these variables.
 # For OSX / Linux
