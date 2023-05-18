@@ -97,7 +97,8 @@ public class EndpointUtility {
             if (statusCode == 200) {
                 return httpResponse.body();
             } else {
-                throw new ApiGatewayException("GET request failed: " + statusCode + " status code received");
+                throw new ApiGatewayException("POST request failed: " + statusCode + " status code received."
+                        + "\n body: " + httpResponse.body());
             }
         } catch (IOException | InterruptedException e) {
             return e.getMessage();
@@ -122,7 +123,8 @@ public class EndpointUtility {
             if (statusCode == 200) {
                 return httpResponse.body();
             } else {
-                throw new ApiGatewayException("GET request failed: " + statusCode + " status code received");
+                throw new ApiGatewayException("GET request failed: " + statusCode + " status code received"
+                        + "\n body: " + httpResponse.body());
             }
         } catch (IOException | InterruptedException e) {
             return e.getMessage();
