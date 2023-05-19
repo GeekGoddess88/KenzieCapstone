@@ -27,3 +27,6 @@ bin
 /aws.xml
 
 lambda-service-development.yml
+
+package-lock.json
+yarn.lock

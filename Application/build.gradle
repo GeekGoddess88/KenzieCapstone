@@ -45,6 +45,8 @@ dependencies {
 
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
     testImplementation 'net.andreinc:mockneat:0.4.8'
+
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
 }
 
 processResources {
@@ -72,7 +74,7 @@ repositories {
 }
 
 task copyFrontend(type: Copy) {
-    dependsOn(":Frontend:yarn_build")
+    dependsOn(":Frontend:npm_run_build")
 
     from("../Frontend/dist")
     into("build/resources/main/static")
@@ -82,6 +84,9 @@ compileJava.dependsOn(copyFrontend)
 
 task bootRunDev {
     bootRun.configure {
+        systemProperty "server.error.whitelabel.enabled", 'false'
+        systemProperty "spring.devtools.restart.enabled", 'true'
+        systemProperty "compiler.automake.allow.when.app.running", 'true'
         systemProperty "spring.profiles.active", 'local'
     }
 }
