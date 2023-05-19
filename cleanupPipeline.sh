@@ -8,16 +8,16 @@ if [ -z "$GITHUB_GROUP_NAME" ] || [ "$GITHUB_GROUP_NAME" == "replacewithyourgrou
   exit 1
 fi
 
-echo "Deleting Application CAPSTONE_APPLICATION_STACK"
+echo "Deleting Application $CAPSTONE_APPLICATION_STACK"
 aws cloudformation delete-stack --stack-name $CAPSTONE_APPLICATION_STACK
-echo "Deleting Application CAPSTONE_SERVICE_STACK"
+echo "Deleting Application $CAPSTONE_SERVICE_STACK"
 aws cloudformation delete-stack --stack-name $CAPSTONE_SERVICE_STACK
 
-echo "Waiting for deletion of Application CAPSTONE_APPLICATION_STACK"
+echo "Waiting for deletion of Application $CAPSTONE_APPLICATION_STACK"
 echo "This may take 2-3 minutes...  But if takes more than 5 minutes then it may have failed. Check your CloudFormation Stack on the AWS UI for errors."
 aws cloudformation wait stack-delete-complete --stack-name $CAPSTONE_APPLICATION_STACK
 
-echo "Waiting for deletion of Service CAPSTONE_SERVICE_STACK"
+echo "Waiting for deletion of Service $CAPSTONE_SERVICE_STACK"
 echo "This may take 2-3 minutes...  But if takes more than 5 minutes then it may have failed. Check your CloudFormation Stack on the AWS UI for errors."
 aws cloudformation wait stack-delete-complete --stack-name $CAPSTONE_SERVICE_STACK
 
