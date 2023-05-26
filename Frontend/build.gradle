@@ -2,6 +2,8 @@ plugins {
     id("com.github.node-gradle.node") version "3.4.0"
 }
 
-yarn_build {
-    dependsOn("yarn_install")
+npm_build {
+    dependsOn("npm_install")
+    dependsOn("npm_run_clean")
+    tasks.findByName('npm_run_clean').mustRunAfter 'npm_install'
 }
