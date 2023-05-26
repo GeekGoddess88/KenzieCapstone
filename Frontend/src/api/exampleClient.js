@@ -41,7 +41,7 @@ export default class ExampleClient extends BaseClass {
             const response = await this.client.get(`/example/${id}`);
             return response.data;
         } catch (error) {
-            this.handleError("getConcert", error, errorCallback)
+            this.handleError("getExample", error, errorCallback)
         }
     }
 
