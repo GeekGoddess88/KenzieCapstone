@@ -22,13 +22,28 @@ echo "This may take 2-3 minutes...  But if takes more than 5 minutes then it may
 aws cloudformation wait stack-delete-complete --stack-name $CAPSTONE_SERVICE_STACK
 
 echo "Checking Artifact Bucket $CAPSTONE_ARTIFACT_BUCKET"
-if [ -z "$(aws s3api head-bucket --bucket "$CAPSTONE_ARTIFACT_BUCKET" 2>&1)" ] ; then
-  echo "Deleting Artifact Bucket $CAPSTONE_ARTIFACT_BUCKET"
-  aws s3 rm s3://$CAPSTONE_ARTIFACT_BUCKET --recursive
-  aws s3api delete-objects --bucket $CAPSTONE_ARTIFACT_BUCKET --delete "$(aws s3api list-object-versions --bucket $CAPSTONE_ARTIFACT_BUCKET --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}')" 1>/dev/null
-  aws s3api delete-objects --bucket $CAPSTONE_ARTIFACT_BUCKET --delete "$(aws s3api list-object-versions --bucket $CAPSTONE_ARTIFACT_BUCKET --query='{Objects: DeleteMarkers[].{Key:Key,VersionId:VersionId}}')" 1>/dev/null
-  aws s3 rb --force s3://$CAPSTONE_ARTIFACT_BUCKET
+VAR1="$(aws s3api head-bucket --bucket "$CAPSTONE_ARTIFACT_BUCKET" 2>&1)" || true
+
+if [ -z VAR1 ] || ( [[ ${VAR1:2:17} != "An error occurred" ]] && [[ ${VAR1:1:17} != "An error occurred" ]] ); then
+  echo "Deleting Artifact Bucket $CAPSTONE_ARTIFACT_BUCKET" ;
+  aws s3 rm s3://$CAPSTONE_ARTIFACT_BUCKET --recursive ;
+  {
+    aws s3api delete-objects --bucket $CAPSTONE_ARTIFACT_BUCKET --delete "$(aws s3api list-object-versions --bucket $CAPSTONE_ARTIFACT_BUCKET --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}')" 1>/dev/null
+  } || {
+    echo "Deleting objects failed. Check your S3 Bucket on the AWS UI for errors."
+  } ;
+  {
+    aws s3api delete-objects --bucket $CAPSTONE_ARTIFACT_BUCKET --delete "$(aws s3api list-object-versions --bucket $CAPSTONE_ARTIFACT_BUCKET --query='{Objects: DeleteMarkers[].{Key:Key,VersionId:VersionId}}')" 1>/dev/null
+  } || {
+    echo "Deleting marked objects failed. Check your S3 Bucket on the AWS UI for errors."
+  } ;
+  {
+    aws s3 rb --force s3://$CAPSTONE_ARTIFACT_BUCKET
+  } || {
+    echo "Deleting Bucket $CAPSTONE_ARTIFACT_BUCKET failed. Check your S3 Bucket on the AWS UI for errors."
+  } ;
 fi
+echo ""
 
 echo "Deleting Pipeline $CAPSTONE_PIPELINE_STACK"
 aws cloudformation delete-stack --stack-name $CAPSTONE_PIPELINE_STACK
