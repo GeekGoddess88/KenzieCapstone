@@ -1,8 +1,7 @@
 package com.kenzie.capstone.service;
 
-import com.kenzie.capstone.service.dao.ExampleDao;
-import com.kenzie.capstone.service.model.ExampleData;
-import com.kenzie.capstone.service.model.ExampleRecord;
+import com.kenzie.capstone.service.dao.IngredientDAO;
+import com.kenzie.capstone.service.model.IngredientRecord;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -24,12 +23,12 @@ class LambdaServiceTest {
      *  expenseService.getExpenseById
      *  ------------------------------------------------------------------------ **/
 
-    private ExampleDao exampleDao;
+    private IngredientDAO exampleDao;
     private LambdaService lambdaService;
 
     @BeforeAll
     void setup() {
-        this.exampleDao = mock(ExampleDao.class);
+        this.exampleDao = mock(IngredientDAO.class);
         this.lambdaService = new LambdaService(exampleDao);
     }
 
@@ -42,17 +41,17 @@ class LambdaServiceTest {
         String data = "somedata";
 
         // WHEN
-        ExampleData response = this.lambdaService.setExampleData(data);
+        IngredientDAO response = this.lambdaService.setExampleData(data);
 
         // THEN
-        verify(exampleDao, times(1)).setExampleData(idCaptor.capture(), dataCaptor.capture());
+        verify(exampleDao, times(1)).setId(idCaptor.capture(), dataCaptor.capture());
 
         assertNotNull(idCaptor.getValue(), "An ID is generated");
         assertEquals(data, dataCaptor.getValue(), "The data is saved");
 
         assertNotNull(response, "A response is returned");
         assertEquals(idCaptor.getValue(), response.getId(), "The response id should match");
-        assertEquals(data, response.getData(), "The response data should match");
+        assertEquals(data, response.getId(), "The response data should match");
     }
 
     @Test
@@ -62,24 +61,24 @@ class LambdaServiceTest {
         // GIVEN
         String id = "fakeid";
         String data = "somedata";
-        ExampleRecord record = new ExampleRecord();
+        IngredientRecord record = new IngredientRecord();
         record.setId(id);
-        record.setData(data);
+        record.setName(data);
 
 
-        when(exampleDao.getExampleData(id)).thenReturn(Arrays.asList(record));
+        when(exampleDao.getId(id)).thenReturn(Arrays.asList(record));
 
         // WHEN
-        ExampleData response = this.lambdaService.getExampleData(id);
+        IngredientDAO response = this.lambdaService.getExampleData(id);
 
         // THEN
-        verify(exampleDao, times(1)).getExampleData(idCaptor.capture());
+        verify(exampleDao, times(1)).getId(idCaptor.capture());
 
         assertEquals(id, idCaptor.getValue(), "The correct id is used");
 
         assertNotNull(response, "A response is returned");
         assertEquals(id, response.getId(), "The response id should match");
-        assertEquals(data, response.getData(), "The response data should match");
+        assertEquals(data, response.getId(), "The response data should match");
     }
 
     // Write additional tests here

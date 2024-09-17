@@ -7,10 +7,10 @@
 #If the casing is different you will have issues.
 #for example if the username was tHisIS-bOb this would read:
 #export CAPSTONE_REPO_NAME=ata-capstone-project-tHisIS-bOb
-export CAPSTONE_REPO_NAME=ata-capstone-project-YourActualGithubUsername
+export CAPSTONE_REPO_NAME=ata-capstone-project-nicki-cotterill
 
 # Fill out the following value with the group name in all lowercase and no spaces or special characters.
-export GITHUB_GROUP_NAME=replacewithyourgroupname
+export GITHUB_GROUP_NAME=capstone_coffee
 
 # Step Two - configure your shell to always have these variables.
 # For OSX / Linux
@@ -33,3 +33,4 @@ export CAPSTONE_ARTIFACT_BUCKET=$CAPSTONE_PROJECT_NAME-$GITHUB_GROUP_NAME-artifa
 export CAPSTONE_APPLICATION_STACK=$CAPSTONE_PROJECT_NAME-$GITHUB_GROUP_NAME-application
 export CAPSTONE_SERVICE_STACK=$CAPSTONE_PROJECT_NAME-$GITHUB_GROUP_NAME-service
 export CAPSTONE_SERVICE_STACK_DEV=$CAPSTONE_PROJECT_NAME-$GITHUB_GROUP_NAME-service-dev
+

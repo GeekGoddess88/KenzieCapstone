@@ -1,41 +1,75 @@
 package com.kenzie.capstone.service.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kenzie.capstone.service.model.ExampleData;
+import com.kenzie.capstone.service.LambdaService;
+import com.kenzie.capstone.service.dao.DrinkDAO;
+import com.kenzie.capstone.service.dao.IngredientDAO;
+import com.kenzie.capstone.service.model.DrinkRecord;
+import com.kenzie.capstone.service.model.IngredientRecord;
+
+import java.util.List;
 
 
 public class LambdaServiceClient {
 
-    private static final String GET_EXAMPLE_ENDPOINT = "example/{id}";
-    private static final String SET_EXAMPLE_ENDPOINT = "example";
+    private final LambdaService lambdaService;
+    private final EndpointUtility endpointUtility;
 
-    private ObjectMapper mapper;
 
-    public LambdaServiceClient() {
-        this.mapper = new ObjectMapper();
+    public LambdaServiceClient(LambdaService lambdaService, EndpointUtility endpointUtility) {
+        this.lambdaService = lambdaService;
+        this.endpointUtility = endpointUtility;
     }
 
-    public ExampleData getExampleData(String id) {
-        EndpointUtility endpointUtility = new EndpointUtility();
-        String response = endpointUtility.getEndpoint(GET_EXAMPLE_ENDPOINT.replace("{id}", id));
-        ExampleData exampleData;
-        try {
-            exampleData = mapper.readValue(response, ExampleData.class);
-        } catch (Exception e) {
-            throw new ApiGatewayException("Unable to map deserialize JSON: " + e);
-        }
-        return exampleData;
+    public DrinkRecord findDrinkById(String drinkId) throws Exception {
+        String functionName = endpointUtility.getDrinkFunctionName();
+        return lambdaService.findById(functionName, drinkId);
     }
 
-    public ExampleData setExampleData(String data) {
-        EndpointUtility endpointUtility = new EndpointUtility();
-        String response = endpointUtility.postEndpoint(SET_EXAMPLE_ENDPOINT, data);
-        ExampleData exampleData;
-        try {
-            exampleData = mapper.readValue(response, ExampleData.class);
-        } catch (Exception e) {
-            throw new ApiGatewayException("Unable to map deserialize JSON: " + e);
-        }
-        return exampleData;
+    public List<DrinkRecord> findAllDrinks() throws Exception {
+        String functionName = endpointUtility.getFindAllDrinksFunctionName();
+        return lambdaService.findAllDrinks(functionName);
     }
+
+    public void saveDrink(DrinkRecord drinkRecord) throws Exception {
+        String functionName = endpointUtility.getSaveDrinkFunctionName();
+        lambdaService.saveDrink(functionName, drinkRecord);
+    }
+
+    public void updateDrink(DrinkRecord drinkRecord) throws Exception {
+        String functionName = endpointUtility.getUpdateDrinkFunctionName();
+        lambdaService.updateDrink(functionName, drinkRecord);
+    }
+
+    public void deleteDrinkById(String drinkId) throws Exception {
+        String functionName = endpointUtility.getDeleteDrinkFunctionName();
+        lambdaService.deleteDrinkById(functionName, drinkId);
+    }
+
+    public IngredientRecord findById(String ingredientId) throws Exception {
+        String functionName = endpointUtility.getIngredientFunctionName();
+        return lambdaService.findIngredientById(functionName, ingredientId);
+    }
+
+    public List<IngredientRecord> findAll() throws Exception {
+        String functionName = endpointUtility.getFindAllIngredientsFunctionName();
+        return lambdaService.findAllIngredients(functionName);
+    }
+
+    public void saveIngredient(IngredientRecord ingredientRecord) throws Exception {
+        String functionName = endpointUtility.getSaveIngredientFunctionName();
+        lambdaService.saveIngredient(functionName, ingredientRecord);
+    }
+
+    public void updateIngredient(IngredientRecord ingredientRecord) throws Exception {
+        String functionName = endpointUtility.getUPdateIngredientFunctionName();
+        lambdaService.updateIngredient(functionName, ingredientRecord);
+    }
+
+    public void deleteIngredientById(String ingredientId) throws Exception {
+        String functionName = endpointUtility.getDeleteIngredientFunctionName();
+        lambdaService.deleteIngredientById(functionName, ingredientId);
+    }
+
+
 }

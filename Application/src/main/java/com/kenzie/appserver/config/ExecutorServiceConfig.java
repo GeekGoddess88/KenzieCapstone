@@ -13,8 +13,9 @@ public class ExecutorServiceConfig {
     @Bean
     public TaskExecutor executorService() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(4);
-        executor.setMaxPoolSize(4);
+        executor.setCorePoolSize(10);
+        executor.setMaxPoolSize(20);
+        executor.setQueueCapacity(50);
         executor.setThreadNamePrefix("default_task_executor_thread");
         executor.initialize();
         return executor;

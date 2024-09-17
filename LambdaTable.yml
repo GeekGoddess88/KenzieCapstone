@@ -1,0 +1,41 @@
+Resources:
+  # DynamoDB table for Drinks
+  DrinksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      "AttributeDefinitions":
+        - "AttributeName": "id"
+          "AttributeType": "S"
+        - "AttributeName": "name"
+          "AttributeType": "S"
+        - "AttributeName": "recipe"
+          "AttributeType": "S"
+        - "AttributeName": "ingredients"
+          "AttributeType": "L"
+      "KeySchema":
+        - "AttributeName": "id"
+          "KeyType": "HASH"
+      BillingMode: PAY_PER_REQUEST
+      TableName: "Drinks"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: false
+
+
+  # DynamoDB table for IngredientsTable
+  IngredientsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      "AttributeDefinitions":
+       - "AttributeName": "id"
+         "AttributeType": "S"
+       - "AttributeName": "name"
+         "AttributeType": "S"
+       - "AttributeName": "quantity"
+         "AttributeType": "N"
+      "KeySchema":
+       - "AttributeName": "id"
+         "KeyType": "HASH"
+      BillingMode: PAY_PER_REQUEST
+      TableName: "Ingredients"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: false

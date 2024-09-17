@@ -1,6 +1,9 @@
 package com.kenzie.appserver.config;
 
+import com.kenzie.capstone.service.LambdaService;
+import com.kenzie.capstone.service.client.EndpointUtility;
 import com.kenzie.capstone.service.client.LambdaServiceClient;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -8,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 public class LambdaServiceClientConfiguration {
 
     @Bean
-    public LambdaServiceClient referralServiceClient() {
-        return new LambdaServiceClient();
+    public LambdaServiceClient lambdaServiceClient(LambdaService lambdaService, EndpointUtility endpointUtility) {
+        return new LambdaServiceClient(lambdaService, endpointUtility);
     }
 }

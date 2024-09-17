@@ -1,18 +1,19 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
-Description: An AWS Lambda application that calls the Lambda API.
+Description: An AWS Lambda application for handling Drinks and Ingredients.
 Parameters:
   EnvironmentName:
     Type: String
     Default: dev
 Resources:
-  GetExampleDataFunction:
+  # Lambda function to get a drink by ID
+  GetDrinkByIdFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
-      Handler: com.kenzie.capstone.service.lambda.GetExampleData
+      Handler: com.kenzie.capstone.service.lambda.GetDrinkById::handleRequest
       Runtime: java11
-      Description: Get Example Data for given id
+      Description: Get Drink Data by id
       MemorySize: 512
       Timeout: 240
       # Function's execution role
@@ -28,15 +29,16 @@ Resources:
         UpdateResource:
           Type: Api
           Properties:
-            Path: /example/{id}
+            Path: /drink/{id}
             Method: get
-  SetExampleDataFunction:
+   # Lambda function to save or update a drink
+  SaveDrinkFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
-      Handler: com.kenzie.capstone.service.lambda.SetExampleData
+      Handler: com.kenzie.capstone.service.lambda.SaveDrink::handleRequest
       Runtime: java11
-      Description: Set Example Data
+      Description: Save or update Drink Data
       MemorySize: 512
       Timeout: 240
       # Function's execution role
@@ -52,6 +54,105 @@ Resources:
         UpdateResource:
           Type: Api
           Properties:
-            Path: /example/
+            Path: /drink
             Method: post
-
+# Lambda function to delete a drink by ID
+  DeleteDrinkFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
+      Handler: com.kenzie.capstone.service.lambda.DeleteDrink::handleRequest
+      Runtime: java11
+      Description: Delete Drink Data by ID
+      MemorySize: 512
+      Timeout: 240
+      # Function's execution role
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - AWSLambdaVPCAccessExecutionRole
+        - AmazonS3FullAccess
+        - AmazonDynamoDBFullAccess
+      Tracing: Active
+      Events:
+        UpdateResource:
+          Type: Api
+          Properties:
+            Path: /drink/{id}
+            Method: delete
+# Lambda function to get an ingredient by ID
+  GetIngredientByIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
+      Handler: com.kenzie.capstone.service.lambda.GetIngredientById::handleRequest
+      Runtime: java11
+      Description: Get Ingredient Data by ID
+      MemorySize: 512
+      Timeout: 240
+      # Function's execution role
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - AWSLambdaVPCAccessExecutionRole
+        - AmazonS3FullAccess
+        - AmazonDynamoDBFullAccess
+      Tracing: Active
+      Events:
+        UpdateResource:
+          Type: Api
+          Properties:
+            Path: /ingredient/{id}
+            Method: get
+# Lambda function to save or update an ingredient
+  SaveIngredientFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
+      Handler: com.kenzie.capstone.service.lambda.SaveIngredient::handleRequest
+      Runtime: java11
+      Description: Save or update Ingredient Data
+      MemorySize: 512
+      Timeout: 240
+      # Function's execution role
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - AWSLambdaVPCAccessExecutionRole
+        - AmazonS3FullAccess
+        - AmazonDynamoDBFullAccess
+      Tracing: Active
+      Events:
+        UpdateResource:
+          Type: Api
+          Properties:
+            Path: /ingredient
+            Method: post
+# Lambda function to delete an ingredient by ID
+  DeleteIngredientFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
+      Handler: com.kenzie.capstone.service.lambda.DeleteIngredient::handleRequest
+      Runtime: java11
+      Description: Delete Ingredient Data by ID
+      MemorySize: 512
+      Timeout: 240
+      # Function's execution role
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - AWSLambdaVPCAccessExecutionRole
+        - AmazonS3FullAccess
+        - AmazonDynamoDBFullAccess
+      Tracing: Active
+      Events:
+        UpdateResource:
+          Type: Api
+          Properties:
+            Path: /ingredient/{id}
+            Method: delete            
