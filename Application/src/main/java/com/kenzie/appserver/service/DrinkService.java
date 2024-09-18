@@ -18,24 +18,17 @@ public class DrinkService {
 
     private final DrinkDAO cachingDAO;
     private final DrinkDAO nonCachingDAO;
-    private final LambdaServiceClient lambdaServiceClient;
+    private final ExecutorService executorService;
 
 
-    public DrinkService(DrinkDAO cachingDAO, DrinkDAO nonCachingDAO, LambdaServiceClient lambdaServiceClient) {
+    public DrinkService(DrinkDAO cachingDAO, DrinkDAO nonCachingDAO, ExecutorService executorService) {
         this.cachingDAO = cachingDAO;
         this.nonCachingDAO = nonCachingDAO;
-        this.lambdaServiceClient = lambdaServiceClient;
+        this.executorService = executorService;
     }
 
     public DrinkRecord findById(String id) {
-        DrinkRecord drinkRecord = cachingDAO.findById(id);
-        if (drinkRecord == null) {
-            drinkRecord = nonCachingDAO.findById(id);
-            if (drinkRecord != null) {
-                cachingDAO.save(drinkRecord);
-            }
-        }
-        return drinkRecord;
+        return cachingDAO.findById(id);
     }
 
     public List<DrinkRecord> findAllDrinks() {
@@ -43,32 +36,22 @@ public class DrinkService {
     }
 
     public void saveDrink(DrinkRecord drink) {
-        cachingDAO.save(drink);
-        nonCachingDAO.save(drink);
-        try {
-            lambdaServiceClient.saveDrink(drink);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        executorService.submit(() -> {
+            cachingDAO.save(drink);
+        });
     }
 
     public void updateDrink(String id, DrinkRecord drink) {
-        cachingDAO.update(id, drink);
-        nonCachingDAO.update(id, drink);
-        try {
-            lambdaServiceClient.saveDrink(drink);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        executorService.submit(() -> {
+            nonCachingDAO.update(id, drink);
+            cachingDAO.update(id, drink);
+        });
     }
 
     public void deleteDrink(String id) {
-        cachingDAO.delete(id);
-        nonCachingDAO.delete(id);
-        try {
-            lambdaServiceClient.deleteDrinkById(id);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        executorService.submit(() -> {
+            nonCachingDAO.delete(id);
+            cachingDAO.delete(id);
+        });
     }
 }
