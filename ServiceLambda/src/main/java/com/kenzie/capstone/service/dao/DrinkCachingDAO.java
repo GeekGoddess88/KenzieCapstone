@@ -15,12 +15,12 @@ import java.util.Optional;
 
 public class DrinkCachingDAO implements DrinkDAO{
 
-    private final DrinkNonCachingDAO nonCachingDAO;
+    private final DrinkDAO nonCachingDAO;
     private final CacheClient cacheClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Inject
-    public DrinkCachingDAO(DrinkNonCachingDAO nonCachingDAO, CacheClient cacheClient) {
+    public DrinkCachingDAO(DrinkDAO nonCachingDAO, CacheClient cacheClient) {
         this.nonCachingDAO = nonCachingDAO;
         this.cacheClient = cacheClient;
     }
@@ -33,16 +33,19 @@ public class DrinkCachingDAO implements DrinkDAO{
         if (cachedValue.isPresent()) {
             try {
                 return objectMapper.readValue(cachedValue.get(), DrinkRecord.class);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
         DrinkRecord drinkRecord = nonCachingDAO.findById(id);
         if (drinkRecord != null) {
-            cacheDrinkRecord(drinkRecord);
+            try {
+                cacheClient.setValue(cacheKey, 3600, objectMapper.writeValueAsString(drinkRecord));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-
         return drinkRecord;
     }
 
@@ -54,28 +57,26 @@ public class DrinkCachingDAO implements DrinkDAO{
     @Override
     public void save(DrinkRecord drinkRecord) {
         nonCachingDAO.save(drinkRecord);
-        cacheDrinkRecord(drinkRecord);
+        try {
+            cacheClient.setValue("drink:" + drinkRecord.getId(), 3600, objectMapper.writeValueAsString(drinkRecord));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void update(String id, DrinkRecord drinkRecord) {
         nonCachingDAO.update(id, drinkRecord);
-        cacheDrinkRecord(drinkRecord);
+        try {
+            cacheClient.setValue("drink:" + drinkRecord.getId(), 3600, objectMapper.writeValueAsString(drinkRecord));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void delete(String id) {
         nonCachingDAO.delete(id);
         cacheClient.invalidate("drink:" + id);
-    }
-
-    private void cacheDrinkRecord(DrinkRecord drinkRecord) {
-        try {
-            String cacheKey = "drink:" + drinkRecord.getId();
-            String serializedDrink = objectMapper.writeValueAsString(drinkRecord);
-            cacheClient.setValue(cacheKey, 3600, serializedDrink);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

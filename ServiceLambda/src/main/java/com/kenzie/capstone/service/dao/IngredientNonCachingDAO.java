@@ -32,6 +32,11 @@ public class IngredientNonCachingDAO implements IngredientDAO {
     }
 
     @Override
+    public void update(String id, IngredientRecord ingredientRecord) {
+        dynamoDBMapper.save(ingredientRecord);
+    }
+
+    @Override
     public void delete(String id) {
         IngredientRecord ingredientRecord = findById(id);
         if (ingredientRecord != null) {

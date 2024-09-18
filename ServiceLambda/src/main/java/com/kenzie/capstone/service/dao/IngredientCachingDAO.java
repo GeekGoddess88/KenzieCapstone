@@ -27,7 +27,7 @@ public class IngredientCachingDAO implements IngredientDAO {
 
     @Override
     public IngredientRecord findById(String id) {
-        String cacheKey = "Ingredient_" + id;
+        String cacheKey = "Ingredient:" + id;
         Optional<String> cachedValue = cacheClient.getValue(cacheKey);
 
         if (cachedValue.isPresent()) {
@@ -42,11 +42,10 @@ public class IngredientCachingDAO implements IngredientDAO {
         if (ingredientRecord != null) {
             try {
                 cacheClient.setValue(cacheKey, 3600, objectMapper.writeValueAsString(ingredientRecord));
-            } catch (JsonProcessingException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-
         return ingredientRecord;
     }
 
@@ -59,8 +58,18 @@ public class IngredientCachingDAO implements IngredientDAO {
     public void save(IngredientRecord ingredientRecord) {
         ingredientDAO.save(ingredientRecord);
         try {
-            cacheClient.setValue("ingredient_" + ingredientRecord.getId(), 3600, objectMapper.writeValueAsString(ingredientRecord));
-        } catch (JsonProcessingException e) {
+            cacheClient.setValue("ingredient:" + ingredientRecord.getId(), 3600, objectMapper.writeValueAsString(ingredientRecord));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void update(String id, IngredientRecord ingredientRecord) {
+        ingredientDAO.update(id, ingredientRecord);
+        try {
+            cacheClient.setValue("ingredient:" + ingredientRecord.getId(), 3600, objectMapper.writeValueAsString(ingredientRecord));
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -20,36 +20,27 @@ public class DaoModule {
 
     @Singleton
     @Provides
-    @Named("DynamoDBMapper")
+    public DrinkDAO provideDrinkNonCachingDAO(DynamoDBMapper dynamoDBMapper) {
+        return new DrinkNonCachingDAO(dynamoDBMapper);
+    }
+
+    @Singleton
+    @Provides
+    public DrinkDAO provideDrinkCachingDAO(DrinkDAO nonCachingDAO, CacheClient cacheClient) {
+        return new DrinkCachingDAO(nonCachingDAO, cacheClient);
+    }
+
+    @Singleton
+    @Provides
     public IngredientDAO provideIngredientNonCachingDAO(DynamoDBMapper dynamoDBMapper) {
         return new IngredientNonCachingDAO(dynamoDBMapper);
     }
 
     @Singleton
     @Provides
-    @Named("DynamoDBMapper")
-    public DrinkDAO provideDrinkNonCachingDAO(DynamoDBMapper dynamoDBMapper) {
-        return new DrinkNonCachingDAO(dynamoDBMapper)
-    }
-
-
-    @Singleton
-    @Provides
-    @Named("IngredientDAO")
     public IngredientDAO provideIngredientCachingDAO(IngredientDAO nonCachingDAO, CacheClient cacheClient) {
         return new IngredientCachingDAO(nonCachingDAO, cacheClient);
     }
-
-
-
-    @Singleton
-    @Provides
-    @Named("DrinkDAO")
-    public DrinkDAO provideDrinkCachingDAO(DrinkDAO nonCachingDAO, CacheClient cacheClient) {
-        return new DrinkCachingDAO(nonCachingDAO, cacheClient);
-    }
-
-
 
     @Provides
     @Singleton
