@@ -26,7 +26,7 @@ public class DaoModule {
 
     @Singleton
     @Provides
-    public DrinkDAO provideDrinkCachingDAO(DrinkDAO nonCachingDAO, CacheClient cacheClient) {
+    public DrinkDAO provideDrinkCachingDAO(DrinkNonCachingDAO nonCachingDAO, CacheClient cacheClient) {
         return new DrinkCachingDAO(nonCachingDAO, cacheClient);
     }
 

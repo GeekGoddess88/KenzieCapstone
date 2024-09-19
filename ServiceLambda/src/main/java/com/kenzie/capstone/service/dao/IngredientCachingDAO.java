@@ -2,6 +2,7 @@ package com.kenzie.capstone.service.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.kenzie.capstone.service.caching.CacheClient;
 import com.kenzie.capstone.service.model.IngredientInterface;
 import com.kenzie.capstone.service.model.IngredientRecord;
@@ -14,38 +15,25 @@ import java.util.Optional;
 
 public class IngredientCachingDAO implements IngredientDAO {
 
-    private final IngredientDAO ingredientDAO;
+    private final IngredientNonCachingDAO ingredientDAO;
     private final CacheClient cacheClient;
-    private final ObjectMapper objectMapper;
 
     @Inject
-    public IngredientCachingDAO(IngredientDAO ingredientDAO, CacheClient cacheClient) {
+    public IngredientCachingDAO(IngredientNonCachingDAO ingredientDAO, CacheClient cacheClient) {
         this.ingredientDAO = ingredientDAO;
         this.cacheClient = cacheClient;
-        this.objectMapper = new ObjectMapper();
     }
 
     @Override
     public IngredientRecord findById(String id) {
-        String cacheKey = "Ingredient:" + id;
-        Optional<String> cachedValue = cacheClient.getValue(cacheKey);
+        Optional<String> cachedValue = cacheClient.getValue(id);
 
         if (cachedValue.isPresent()) {
-            try {
-                return objectMapper.readValue(cachedValue.get(), IngredientRecord.class);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            return deserializeIngredient(cachedValue.get());
         }
 
         IngredientRecord ingredientRecord = ingredientDAO.findById(id);
-        if (ingredientRecord != null) {
-            try {
-                cacheClient.setValue(cacheKey, 3600, objectMapper.writeValueAsString(ingredientRecord));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        cacheClient.setValue(id, 3600, serializeIngredient(ingredientRecord));
         return ingredientRecord;
     }
 
@@ -57,26 +45,26 @@ public class IngredientCachingDAO implements IngredientDAO {
     @Override
     public void save(IngredientRecord ingredientRecord) {
         ingredientDAO.save(ingredientRecord);
-        try {
-            cacheClient.setValue("ingredient:" + ingredientRecord.getId(), 3600, objectMapper.writeValueAsString(ingredientRecord));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        cacheClient.setValue(ingredientRecord.getId(), 3600, serializeIngredient(ingredientRecord));
     }
 
     @Override
     public void update(String id, IngredientRecord ingredientRecord) {
         ingredientDAO.update(id, ingredientRecord);
-        try {
-            cacheClient.setValue("ingredient:" + ingredientRecord.getId(), 3600, objectMapper.writeValueAsString(ingredientRecord));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        cacheClient.setValue(id, 3600, serializeIngredient(ingredientRecord));
     }
 
     @Override
     public void delete(String id) {
         ingredientDAO.delete(id);
-        cacheClient.invalidate("Ingredient_" + id);
+        cacheClient.invalidate(id);
+    }
+
+    private String serializeIngredient(IngredientRecord ingredientRecord) {
+        return new Gson().toJson(ingredientRecord);
+    }
+
+    private IngredientRecord deserializeIngredient(String json) {
+        return new Gson().fromJson(json, IngredientRecord.class);
     }
 }

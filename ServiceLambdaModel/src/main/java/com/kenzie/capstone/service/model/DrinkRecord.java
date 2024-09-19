@@ -1,5 +1,7 @@
 package com.kenzie.capstone.service.model;
 
+import com.kenzie.capstone.service.model.IngredientInterface;
+
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;

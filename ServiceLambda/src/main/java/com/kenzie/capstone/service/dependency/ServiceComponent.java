@@ -2,6 +2,8 @@ package com.kenzie.capstone.service.dependency;
 
 import com.kenzie.capstone.service.LambdaService;
 
+import com.kenzie.capstone.service.dao.DrinkCachingDAO;
+import com.kenzie.capstone.service.dao.DrinkDAO;
 import dagger.Component;
 
 import javax.inject.Singleton;

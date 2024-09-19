@@ -1,6 +1,7 @@
 package com.kenzie.capstone.service.caching;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kenzie.capstone.service.dependency.DaggerServiceComponent;
 import redis.clients.jedis.Jedis;
 
 import javax.inject.Inject;
@@ -11,45 +12,54 @@ public class CacheClient {
     public CacheClient() {}
 
     public void setValue(String key, int seconds, String value) {
-        try (Jedis jedis = DaggerServiceComponent.create().provideJedis()) {
-            jedis.setex(key, seconds, value);
+        checkNonNullKey(key);
+        Jedis cache = null;
+        try {
+            cache = DaggerServiceComponent.create().provideJedis();
+            cache.setex(key, seconds, value);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        } finally {
+            if (cache != null) {
+                cache.close();
+            }
         }
     }
 
     public Optional<String> getValue(String key) {
-        try (Jedis jedis = DaggerServiceComponent.create().provideJedis()) {
-            return Optional.ofNullable(jedis.get(key));
+        checkNonNullKey(key);
+        Jedis cache = null;
+        try {
+            cache = DaggerServiceComponent.create().provideJedis();
+            String value = cache.get(key);
+            return Optional.ofNullable(value);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        } finally {
+            if (cache != null) {
+                cache.close();
+            }
         }
     }
 
     public void invalidate(String key) {
-        try (Jedis jedis = DaggerServiceComponent.create().provideJedis()) {
-            checkNonNullKey(key);
-            jedis.del(key);
+        checkNonNullKey(key);
+        Jedis cache = null;
+        try {
+            cache = DaggerServiceComponent.create().provideJedis();
+            cache.del(key);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        } finally {
+            if (cache != null) {
+                cache.close();
+            }
         }
     }
 
     private void checkNonNullKey(String key) {
         if (key == null) {
             throw new IllegalArgumentException("key can not be null");
-        }
-    }
-
-    public <T> String serialize(T object) {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.writeValueAsString(object);
-        } catch (Exception e) {
-            throw new RuntimeException("Serialization failed", e);
-        }
-    }
-
-    public <T> T deserialize(String json, Class<T> clazz) {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(json, clazz);
-        } catch (Exception e) {
-            throw new RuntimeException("Deserialization failed", e);
         }
     }
 }

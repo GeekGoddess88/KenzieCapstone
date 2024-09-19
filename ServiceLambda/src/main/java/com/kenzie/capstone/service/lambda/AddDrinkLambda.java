@@ -12,12 +12,12 @@ import com.kenzie.capstone.service.model.DrinkRecord;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SaveDrink implements RequestHandler<Map<String, Object>, Map<String, Object>> {
+public class AddDrinkLambda implements RequestHandler<Map<String, Object>, Map<String, Object>> {
 
     private final DynamoDB dynamoDB;
     private final Table drinksTable;
 
-    public SaveDrink() {
+    public AddDrinkLambda() {
         AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
         dynamoDB = new DynamoDB(client);
         drinksTable = dynamoDB.getTable("Drinks");

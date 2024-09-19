@@ -2,6 +2,7 @@ package com.kenzie.capstone.service.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.kenzie.capstone.service.caching.CacheClient;
 import com.kenzie.capstone.service.dao.DrinkDAO;
 import com.kenzie.capstone.service.model.DrinkInterface;
@@ -15,37 +16,25 @@ import java.util.Optional;
 
 public class DrinkCachingDAO implements DrinkDAO{
 
-    private final DrinkDAO nonCachingDAO;
+    private final DrinkNonCachingDAO nonCachingDAO;
     private final CacheClient cacheClient;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Inject
-    public DrinkCachingDAO(DrinkDAO nonCachingDAO, CacheClient cacheClient) {
+    public DrinkCachingDAO(DrinkNonCachingDAO nonCachingDAO, CacheClient cacheClient) {
         this.nonCachingDAO = nonCachingDAO;
         this.cacheClient = cacheClient;
     }
 
     @Override
     public DrinkRecord findById(String id) {
-        String cacheKey = "drink:" + id;
-        Optional<String> cachedValue = cacheClient.getValue(cacheKey);
+        Optional<String> cachedValue = cacheClient.getValue(id);
 
         if (cachedValue.isPresent()) {
-            try {
-                return objectMapper.readValue(cachedValue.get(), DrinkRecord.class);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            return deserializeDrink(cachedValue.get());
         }
 
         DrinkRecord drinkRecord = nonCachingDAO.findById(id);
-        if (drinkRecord != null) {
-            try {
-                cacheClient.setValue(cacheKey, 3600, objectMapper.writeValueAsString(drinkRecord));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        cacheClient.setValue(id, 3600, serializeDrink(drinkRecord));
         return drinkRecord;
     }
 
@@ -57,26 +46,26 @@ public class DrinkCachingDAO implements DrinkDAO{
     @Override
     public void save(DrinkRecord drinkRecord) {
         nonCachingDAO.save(drinkRecord);
-        try {
-            cacheClient.setValue("drink:" + drinkRecord.getId(), 3600, objectMapper.writeValueAsString(drinkRecord));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        cacheClient.setValue(drinkRecord.getId(), 3600, serializeDrink(drinkRecord));
     }
 
     @Override
     public void update(String id, DrinkRecord drinkRecord) {
         nonCachingDAO.update(id, drinkRecord);
-        try {
-            cacheClient.setValue("drink:" + drinkRecord.getId(), 3600, objectMapper.writeValueAsString(drinkRecord));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        cacheClient.setValue(id, 3600, serializeDrink(drinkRecord));
     }
 
     @Override
     public void delete(String id) {
         nonCachingDAO.delete(id);
-        cacheClient.invalidate("drink:" + id);
+        cacheClient.invalidate(id);
+    }
+
+    private String serializeDrink(DrinkRecord drinkRecord) {
+        return new Gson().toJson(drinkRecord);
+    }
+
+    private DrinkRecord deserializeDrink(String json) {
+        return new Gson().fromJson(json, DrinkRecord.class);
     }
 }
