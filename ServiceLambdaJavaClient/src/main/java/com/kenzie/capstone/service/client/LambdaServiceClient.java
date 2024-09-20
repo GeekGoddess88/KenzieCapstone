@@ -1,75 +1,77 @@
 package com.kenzie.capstone.service.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kenzie.capstone.service.LambdaService;
-import com.kenzie.capstone.service.dao.DrinkDAO;
-import com.kenzie.capstone.service.dao.IngredientDAO;
-import com.kenzie.capstone.service.model.DrinkRecord;
-import com.kenzie.capstone.service.model.IngredientRecord;
 
+import com.kenzie.capstone.service.model.*;
+
+import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.List;
 
 
 public class LambdaServiceClient {
 
-    private final LambdaService lambdaService;
     private final EndpointUtility endpointUtility;
+    private final ObjectMapper objectMapper;
 
 
-    public LambdaServiceClient(LambdaService lambdaService, EndpointUtility endpointUtility) {
-        this.lambdaService = lambdaService;
+    @Inject
+    public LambdaServiceClient(EndpointUtility endpointUtility, ObjectMapper objectMapper) {
         this.endpointUtility = endpointUtility;
+        this.objectMapper = objectMapper;
     }
 
-    public DrinkRecord findDrinkById(String drinkId) throws Exception {
-        String functionName = endpointUtility.getDrinkFunctionName();
-        return lambdaService.findById(functionName, drinkId);
+    public DrinkResponse addDrink(DrinkCreateRequest drinkCreateRequest) throws Exception {
+        String requestJson = objectMapper.writeValueAsString(drinkCreateRequest);
+        String responseJson = endpointUtility.postEndpoint("/drinks", requestJson);
+        return objectMapper.readValue(responseJson, DrinkResponse.class);
     }
 
-    public List<DrinkRecord> findAllDrinks() throws Exception {
-        String functionName = endpointUtility.getFindAllDrinksFunctionName();
-        return lambdaService.findAllDrinks(functionName);
+    public DrinkResponse getDrinkById(String drinkId) throws Exception {
+        String responseJson = endpointUtility.getEndpoint("/drinks/" + drinkId);
+        return objectMapper.readValue(responseJson, DrinkResponse.class);
     }
 
-    public void saveDrink(DrinkRecord drinkRecord) throws Exception {
-        String functionName = endpointUtility.getSaveDrinkFunctionName();
-        lambdaService.saveDrink(functionName, drinkRecord);
+    public List<DrinkResponse> getAllDrinks() throws Exception {
+        String responseJson = endpointUtility.getEndpoint("/drinks");
+        return Arrays.asList(objectMapper.readValue(responseJson, DrinkResponse[].class));
     }
 
-    public void updateDrink(DrinkRecord drinkRecord) throws Exception {
-        String functionName = endpointUtility.getUpdateDrinkFunctionName();
-        lambdaService.updateDrink(functionName, drinkRecord);
+    public DrinkResponse updateDrink(String id, DrinkUpdateRequest drinkUpdateRequest) throws Exception {
+        String requestJson = objectMapper.writeValueAsString(drinkUpdateRequest);
+        String responseJson = endpointUtility.putEndpoint("/drinks/" + id, requestJson);
+        return objectMapper.readValue(responseJson, DrinkResponse.class);
     }
 
-    public void deleteDrinkById(String drinkId) throws Exception {
-        String functionName = endpointUtility.getDeleteDrinkFunctionName();
-        lambdaService.deleteDrinkById(functionName, drinkId);
+    public DeleteDrinkResponse deleteDrinkById(String drinkId) throws Exception {
+        endpointUtility.deleteEndpoint("/drinks/" + drinkId);
+        return new DeleteDrinkResponse(drinkId, "Drink deleted successfully");
     }
 
-    public IngredientRecord findById(String ingredientId) throws Exception {
-        String functionName = endpointUtility.getIngredientFunctionName();
-        return lambdaService.findIngredientById(functionName, ingredientId);
+    public IngredientResponse addIngredient(IngredientCreateRequest ingredientCreateRequest) throws Exception {
+        String requestJson = objectMapper.writeValueAsString(ingredientCreateRequest);
+        String responseJson = endpointUtility.postEndpoint("/ingredients", requestJson);
+        return objectMapper.readValue(responseJson, IngredientResponse.class);
     }
 
-    public List<IngredientRecord> findAll() throws Exception {
-        String functionName = endpointUtility.getFindAllIngredientsFunctionName();
-        return lambdaService.findAllIngredients(functionName);
+    public IngredientResponse getIngredientById(String ingredientId) throws Exception {
+        String responseJson = endpointUtility.getEndpoint("/ingredients/" + ingredientId);
+        return objectMapper.readValue(responseJson, IngredientResponse.class);
     }
 
-    public void saveIngredient(IngredientRecord ingredientRecord) throws Exception {
-        String functionName = endpointUtility.getSaveIngredientFunctionName();
-        lambdaService.saveIngredient(functionName, ingredientRecord);
+    public List<IngredientResponse> getAllIngredients() throws Exception {
+        String responseJson = endpointUtility.getEndpoint("/ingredients");
+        return Arrays.asList(objectMapper.readValue(responseJson, IngredientResponse[].class));
     }
 
-    public void updateIngredient(IngredientRecord ingredientRecord) throws Exception {
-        String functionName = endpointUtility.getUPdateIngredientFunctionName();
-        lambdaService.updateIngredient(functionName, ingredientRecord);
+    public IngredientResponse updateIngredient(String id, IngredientUpdateRequest ingredientUpdateRequest) throws Exception {
+        String requestJson = objectMapper.writeValueAsString(ingredientUpdateRequest);
+        String responseJson = endpointUtility.putEndpoint("/ingredients/" + id, requestJson);
+        return objectMapper.readValue(responseJson, IngredientResponse.class);
     }
 
-    public void deleteIngredientById(String ingredientId) throws Exception {
-        String functionName = endpointUtility.getDeleteIngredientFunctionName();
-        lambdaService.deleteIngredientById(functionName, ingredientId);
+    public DeleteIngredientResponse deleteIngredientById(String id) throws Exception {
+        endpointUtility.deleteEndpoint("/ingredients/" + id);
+        return new DeleteIngredientResponse(id, "Ingredient deleted successfully");
     }
-
-
 }

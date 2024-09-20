@@ -1,6 +1,5 @@
 package com.kenzie.capstone.service.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class DrinkResponse {

@@ -2,49 +2,65 @@ package com.kenzie.appserver.service;
 
 import com.kenzie.appserver.controller.model.IngredientDAO;
 import com.kenzie.capstone.service.client.LambdaServiceClient;
-import com.kenzie.capstone.service.model.IngredientRecord;
+import com.kenzie.capstone.service.model.*;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+@Service
 public class IngredientService {
 
-    private final IngredientDAO cachingDAO;
-    private final IngredientDAO nonCachingDAO;
-    private final ExecutorService executorService;
+    private final LambdaServiceClient lambdaServiceClient;
 
-    public IngredientService(IngredientDAO cachingDAO, IngredientDAO nonCachingDAO, ExecutorService executorService) {
-        this.cachingDAO = cachingDAO;
-        this.nonCachingDAO = nonCachingDAO;
-        this.executorService = executorService;
+    @Inject
+    public IngredientService(LambdaServiceClient lambdaServiceClient) {
+        this.lambdaServiceClient = lambdaServiceClient;
     }
 
-    public IngredientRecord findById(String id) {
-        return cachingDAO.findById(id);
+    public IngredientResponse addIngredient(IngredientCreateRequest ingredientCreateRequest) {
+        try {
+            return lambdaServiceClient.addIngredient(ingredientCreateRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public List<IngredientRecord> findAll() {
-        return nonCachingDAO.findAll();
+    public IngredientResponse getIngredientById(String id) {
+        try {
+            return lambdaServiceClient.getIngredientById(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public void save(IngredientRecord ingredient) {
-        executorService.submit(() -> {
-            cachingDAO.save(ingredient);
-        });
+    public List<IngredientResponse> getAllIngredients() {
+        try {
+            return lambdaServiceClient.getAllIngredients();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public void update(String id, IngredientRecord ingredient) {
-        executorService.submit(() -> {
-            nonCachingDAO.update(id, ingredient);
-            cachingDAO.update(id, ingredient);
-        });
+    public IngredientResponse updateIngredient(String ingredientId, IngredientUpdateRequest ingredientUpdateRequest) {
+        try {
+            return lambdaServiceClient.updateIngredient(ingredientId, ingredientUpdateRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public void delete(String id) {
-        executorService.submit(() -> {
-            nonCachingDAO.delete(id);
-            cachingDAO.delete(id);
-        });
+    public DeleteIngredientResponse deleteIngredient(String ingredientId) {
+        try {
+            return lambdaServiceClient.deleteIngredientById(ingredientId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

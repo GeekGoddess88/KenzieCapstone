@@ -1,57 +1,69 @@
 package com.kenzie.appserver.service;
 
-import com.kenzie.appserver.controller.model.DrinkDAO;
 
-import com.kenzie.capstone.service.caching.CacheClient;
 import com.kenzie.capstone.service.client.LambdaServiceClient;
-import com.kenzie.capstone.service.model.DrinkRecord;
+import com.kenzie.capstone.service.model.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
-
+@Service
 public class DrinkService {
 
-    private final DrinkDAO cachingDAO;
-    private final DrinkDAO nonCachingDAO;
-    private final ExecutorService executorService;
+    private final LambdaServiceClient lambdaServiceClient;
 
 
-    public DrinkService(DrinkDAO cachingDAO, DrinkDAO nonCachingDAO, ExecutorService executorService) {
-        this.cachingDAO = cachingDAO;
-        this.nonCachingDAO = nonCachingDAO;
-        this.executorService = executorService;
+    @Inject
+    public DrinkService(LambdaServiceClient lambdaServiceClient) {
+        this.lambdaServiceClient = lambdaServiceClient;
     }
 
-    public DrinkRecord findById(String id) {
-        return cachingDAO.findById(id);
+    public DrinkResponse addDrink(DrinkCreateRequest drinkCreateRequest) {
+        try {
+            return lambdaServiceClient.addDrink(drinkCreateRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public List<DrinkRecord> findAllDrinks() {
-        return nonCachingDAO.findAll();
+    public DrinkResponse getDrinkById(String drinkId) {
+        try {
+            return lambdaServiceClient.getDrinkById(drinkId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public void saveDrink(DrinkRecord drink) {
-        executorService.submit(() -> {
-            cachingDAO.save(drink);
-        });
+    public List<DrinkResponse> getAllDrinks() {
+        try {
+            List<DrinkResponse> drinks = lambdaServiceClient.getAllDrinks();
+            return drinks;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public void updateDrink(String id, DrinkRecord drink) {
-        executorService.submit(() -> {
-            nonCachingDAO.update(id, drink);
-            cachingDAO.update(id, drink);
-        });
+    public DrinkResponse updateDrink(String drinkId, DrinkUpdateRequest drinkUpdateRequest) {
+        try {
+            return lambdaServiceClient.updateDrink(drinkId, drinkUpdateRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public void deleteDrink(String id) {
-        executorService.submit(() -> {
-            nonCachingDAO.delete(id);
-            cachingDAO.delete(id);
-        });
+    public DeleteDrinkResponse deleteDrinkById(String drinkId) {
+        try {
+            return lambdaServiceClient.deleteDrinkById(drinkId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

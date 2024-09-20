@@ -1,7 +1,5 @@
 package com.kenzie.capstone.service.model;
 
-import com.kenzie.capstone.service.model.IngredientRecord;
-
 public class IngredientCreateRequest {
     private String id;
     private String name;

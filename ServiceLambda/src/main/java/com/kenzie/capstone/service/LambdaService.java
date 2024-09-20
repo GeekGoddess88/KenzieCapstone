@@ -21,148 +21,52 @@ import java.util.UUID;
 
 public class LambdaService {
 
-    private final AWSLambda lambdaClient;
-    private final ObjectMapper objectMapper;
+    private final DrinkDAO drinkDAO;
+    private final IngredientDAO ingredientDAO;
 
-    public LambdaService() {
-        this.lambdaClient = AWSLambdaClientBuilder.defaultClient();
-        this.objectMapper = new ObjectMapper();
+    @Inject
+    public LambdaService(DrinkDAO drinkDAO, IngredientDAO ingredientDAO) {
+        this.drinkDAO = drinkDAO;
+        this.ingredientDAO = ingredientDAO;
     }
 
-    public DrinkRecord findById(String functionName, String drinkId) throws Exception {
-        String payload = objectMapper.writeValueAsString(Map.of("id", drinkId));
-
-        InvokeRequest request = new InvokeRequest()
-                .withFunctionName(functionName)
-                .withPayload(payload);
-
-        InvokeResult result = lambdaClient.invoke(request);
-
-        if (result.getStatusCode() == 200) {
-            String jsonResponse = new String(result.getPayload().array(), StandardCharsets.UTF_8);
-            return objectMapper.readValue(jsonResponse, DrinkRecord.class);
-        } else {
-            throw new Exception("Failed to invoke function " + result.getFunctionError());
-        }
+    public DrinkRecord getDrinkById(String id) {
+        return drinkDAO.findById(id);
     }
 
-    public List<DrinkRecord> findAllDrinks(String functionName) throws Exception {
-        InvokeRequest request = new InvokeRequest()
-                .withFunctionName(functionName)
-                .withPayload("{}");
-
-        InvokeResult result = lambdaClient.invoke(request);
-
-        if (result.getStatusCode() == 200) {
-            String jsonResponse = new String(result.getPayload().array(), StandardCharsets.UTF_8);
-            return objectMapper.readValue(jsonResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, DrinkRecord.class));
-        } else {
-            throw new Exception("Failed to invoke function " + result.getFunctionError());
-        }
+    public IngredientRecord getIngredientById(String id) {
+        return ingredientDAO.findById(id);
     }
 
-    public void saveDrink(String functionName, DrinkRecord drink) throws Exception {
-        String payload = objectMapper.writeValueAsString(drink);
-
-        InvokeRequest request = new InvokeRequest()
-                .withFunctionName(functionName)
-                .withPayload(payload);
-
-        lambdaClient.invoke(request);
+    public List<DrinkRecord> getAllDrinks() {
+        return drinkDAO.findAll();
     }
 
-    public void updateDrink(String functionName, DrinkRecord drink) throws Exception {
-        String payload = objectMapper.writeValueAsString(drink);
-
-        InvokeRequest request = new InvokeRequest()
-                .withFunctionName(functionName)
-                .withPayload(payload);
-
-        InvokeResult result = lambdaClient.invoke(request);
-        if (result.getStatusCode() != 200) {
-            throw new Exception("Failed to invoke function " + result.getFunctionError());
-        }
+    public List<IngredientRecord> getAllIngredients() {
+        return ingredientDAO.findAll();
     }
 
-    public void deleteDrinkById(String functionName, String drinkId) throws Exception {
-        String payload = objectMapper.writeValueAsString(Map.of("id", drinkId));
-
-        InvokeRequest request = new InvokeRequest()
-                .withFunctionName(functionName)
-                .withPayload(payload);
-        lambdaClient.invoke(request);
+    public void addDrink(DrinkRecord drink) {
+        drinkDAO.save(drink);
     }
 
-    public IngredientRecord findIngredientById(String functionName, String ingredientId) throws Exception {
-        String payload = objectMapper.writeValueAsString(Map.of("id", ingredientId));
-
-        InvokeRequest request = new InvokeRequest()
-                .withFunctionName(functionName)
-                .withPayload(payload);
-
-        InvokeResult result = lambdaClient.invoke(request);
-
-        if (result.getStatusCode() == 200) {
-            String jsonResponse = new String(result.getPayload().array(), StandardCharsets.UTF_8);
-            return objectMapper.readValue(jsonResponse, IngredientRecord.class);
-        } else {
-            throw new Exception("Failed to invoke function " + result.getFunctionError());
-        }
+    public void addIngredient(IngredientRecord ingredient) {
+        ingredientDAO.save(ingredient);
     }
 
-    public List<IngredientRecord> findAllIngredients(String functionName) throws Exception {
-        InvokeRequest request = new InvokeRequest()
-                .withFunctionName(functionName)
-                .withPayload("{}");
-
-        InvokeResult result = lambdaClient.invoke(request);
-
-        if (result.getStatusCode() == 200) {
-            String jsonResponse = new String(result.getPayload().array(), StandardCharsets.UTF_8);
-            return objectMapper.readValue(jsonResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, IngredientRecord.class));
-        } else {
-            throw new Exception("Failed to invoke function " + result.getFunctionError());
-        }
+    public void updateDrink(String id, DrinkRecord drink) {
+        drinkDAO.update(id, drink);
     }
 
-    public void saveIngredient(String functionName, IngredientRecord ingredientRecord) throws Exception {
-        String payload = objectMapper.writeValueAsString(ingredientRecord);
-
-        InvokeRequest request = new InvokeRequest()
-                .withFunctionName(functionName)
-                .withPayload(payload);
-
-        InvokeResult result = lambdaClient.invoke(request);
-
-        if (result.getStatusCode() != 200) {
-            throw new Exception("Failed to invoke function " + result.getFunctionError());
-        }
+    public void updateIngredient(String id, IngredientRecord ingredient) {
+        ingredientDAO.update(id, ingredient);
     }
 
-    public void updateIngredient(String functionName, IngredientRecord ingredientRecord) throws Exception {
-        String payload = objectMapper.writeValueAsString(ingredientRecord);
-
-        InvokeRequest request = new InvokeRequest()
-                .withFunctionName(functionName)
-                .withPayload(payload);
-
-        InvokeResult result = lambdaClient.invoke(request);
-        if (result.getStatusCode() != 200) {
-            throw new Exception("Failed to invoke function " + result.getFunctionError());
-        }
+    public void deleteDrink(String id) {
+        drinkDAO.delete(id);
     }
 
-    public void deleteIngredientById(String functionName, String ingredientId) throws Exception {
-        String payload = objectMapper.writeValueAsString(Map.of("id", ingredientId));
-
-        InvokeRequest request = new InvokeRequest()
-                .withFunctionName(functionName)
-                .withPayload(payload);
-
-        InvokeResult result = lambdaClient.invoke(request);
-
-        if (result.getStatusCode() != 200) {
-            throw new Exception("Failed to invoke function " + result.getFunctionError());
-        }
+    public void deleteIngredient(String id) {
+        ingredientDAO.delete(id);
     }
 }

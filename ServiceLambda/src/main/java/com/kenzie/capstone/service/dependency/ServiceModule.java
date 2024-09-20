@@ -20,7 +20,7 @@ public class ServiceModule {
     @Singleton
     @Provides
     @Inject
-    public LambdaService provideLambdaService(@Named("DrinkDAO") DrinkDAO drinkDAO, IngredientDAO ingredientDAO) {
+    public LambdaService provideLambdaService(@Named("DrinkDAO") DrinkDAO drinkDAO, @Named("IngredientDAO") IngredientDAO ingredientDAO) {
         return new LambdaService(drinkDAO, ingredientDAO);
     }
 }

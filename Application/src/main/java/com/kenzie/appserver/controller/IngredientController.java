@@ -1,11 +1,8 @@
 package com.kenzie.appserver.controller;
 
-import com.kenzie.appserver.controller.model.DrinkDAO;
-import com.kenzie.appserver.service.DrinkService;
+
 import com.kenzie.appserver.service.IngredientService;
-import com.kenzie.appserver.service.model.Ingredient;
-import com.kenzie.capstone.service.model.DrinkRecord;
-import com.kenzie.capstone.service.model.IngredientRecord;
+import com.kenzie.capstone.service.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,36 +21,39 @@ public class IngredientController {
         this.ingredientService = ingredientService;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<IngredientRecord> getIngredientById(@PathVariable String id) {
-        IngredientRecord ingredientRecord = ingredientService.findById(id);
-        if (ingredientRecord == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-        return ResponseEntity.ok(ingredientRecord);
-    }
-
     @PostMapping
-    public ResponseEntity<Void> createIngredient(@RequestBody IngredientRecord ingredient) {
-        ingredientService.save(ingredient);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<IngredientResponse> addIngredient(@RequestBody IngredientCreateRequest ingredientCreateRequest) {
+        IngredientResponse response = ingredientService.addIngredient(ingredientCreateRequest);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Void> updateIngredient(@PathVariable String id, @RequestBody IngredientRecord ingredient) {
-        ingredient.setId(id);
-        ingredientService.update(id, ingredient);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteIngredient(@PathVariable String id) {
-        ingredientService.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    @GetMapping("/{id}")
+    public ResponseEntity<IngredientResponse> getIngredientById(@PathVariable String id) {
+        IngredientResponse response = ingredientService.getIngredientById(id);
+        if (response == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping
-    public ResponseEntity<List<IngredientRecord>> getAllIngredients() {
-        return ResponseEntity.ok(ingredientService.findAll());
+    public ResponseEntity<List<IngredientResponse>> getIngredients() {
+        List<IngredientResponse> responses = ingredientService.getAllIngredients();
+        return new ResponseEntity<>(responses, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<IngredientResponse> updateIngredient(@PathVariable String id, @RequestBody IngredientUpdateRequest ingredientUpdateRequest) {
+        IngredientResponse response = ingredientService.updateIngredient(id, ingredientUpdateRequest);
+        if (response == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<DeleteIngredientResponse> deleteIngredient(@PathVariable String id) {
+        DeleteIngredientResponse response = ingredientService.deleteIngredient(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

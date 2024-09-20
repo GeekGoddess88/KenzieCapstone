@@ -130,4 +130,52 @@ public class EndpointUtility {
             return e.getMessage();
         }
     }
+
+    public void deleteEndpoint(String endpoint) {
+        String api = getApiEndpint();
+        String url = api + endpoint;
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI uri = URI.create(url);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(uri)
+                .header("Accept", "application/json")
+                .DELETE()
+                .build();
+        try {
+            HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            int statusCode = httpResponse.statusCode();
+            if (statusCode != 204) {
+                throw new ApiGatewayException("DELETE request failed: " + statusCode + " status code received."
+                + "\n body: " + httpResponse.body());
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new ApiGatewayException("DELETE request failed due to exception: " + e.getMessage());
+        }
+    }
+
+    public String putEndpoint(String endpoint, String data) {
+        String api = getApiEndpint();
+        String url = api + endpoint;
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI uri = URI.create(url);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(uri)
+                .header("Accept", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(data))
+                .build();
+        try {
+            HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            int statusCode = httpResponse.statusCode();
+            if (statusCode == 200) {
+                return httpResponse.body();
+            } else {
+                throw new ApiGatewayException("PUT request failed: " + statusCode + " status code received."
+                + "\n body: " + httpResponse.body());
+            }
+        } catch (IOException | InterruptedException e) {
+            return e.getMessage();
+        }
+    }
 }
