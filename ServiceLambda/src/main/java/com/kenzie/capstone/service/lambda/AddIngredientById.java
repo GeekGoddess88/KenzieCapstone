@@ -7,17 +7,16 @@ import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kenzie.capstone.service.model.IngredientRecord;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class SaveIngredient implements RequestHandler<Map<String, Object>, Map<String, Object>>  {
+public class AddIngredientById implements RequestHandler<Map<String, Object>, Map<String, Object>>  {
 
     private final DynamoDB dynamoDB;
     private final Table ingredientTable;
 
-    public SaveIngredient() {
+    public AddIngredientById() {
         AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
         dynamoDB = new DynamoDB(client);
         ingredientTable = dynamoDB.getTable("Ingredients");

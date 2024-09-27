@@ -1,33 +1,32 @@
 package com.kenzie.capstone.service.dao;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
-import com.amazonaws.services.dynamodbv2.document.Table;
-import com.amazonaws.services.dynamodbv2.model.*;
 import com.kenzie.capstone.service.model.DrinkRecord;
-import com.kenzie.capstone.service.model.IngredientInterface;
-import com.kenzie.capstone.service.model.IngredientRecord;
 
+import javax.inject.Inject;
 import java.util.*;
-/* Still fixing
-just have a few methods to redo
- */
 
 
 public class DrinkNonCachingDAO implements DrinkDAO {
 
     private final DynamoDBMapper dynamoDBMapper;
 
+    @Inject
     public DrinkNonCachingDAO(DynamoDBMapper dynamoDBMapper) {
         this.dynamoDBMapper = dynamoDBMapper;
     }
 
     @Override
-    public DrinkRecord findById(String id) {
-        return dynamoDBMapper.load(DrinkRecord.class, id);
+    public Optional<DrinkRecord> findById(String id) {
+        DrinkRecord drinkRecord = dynamoDBMapper.load(DrinkRecord.class, id);
+        return Optional.ofNullable(drinkRecord);
+    }
+
+    @Override
+    public List<DrinkRecord> findAll() {
+        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+        return dynamoDBMapper.scan(DrinkRecord.class, scanExpression);
     }
 
     @Override
@@ -42,14 +41,8 @@ public class DrinkNonCachingDAO implements DrinkDAO {
 
     @Override
     public void delete(String id) {
-        DrinkRecord drinkRecord = findById(id);
-        if (drinkRecord != null) {
-            dynamoDBMapper.delete(drinkRecord);
-        }
-    }
-
-    @Override
-    public List<DrinkRecord> findAll() {
-        return dynamoDBMapper.scan(DrinkRecord.class, new DynamoDBScanExpression());
+        DrinkRecord drinkRecord = new DrinkRecord();
+        drinkRecord.setId(id);
+        dynamoDBMapper.delete(drinkRecord);
     }
 }

@@ -1,51 +1,23 @@
 package com.kenzie.capstone.service.task;
 
-import com.kenzie.capstone.service.client.LambdaServiceClient;
-import com.kenzie.capstone.service.dao.IngredientCachingDAO;
 import com.kenzie.capstone.service.dao.IngredientDAO;
-import com.kenzie.capstone.service.model.IngredientInterface;
 import com.kenzie.capstone.service.model.IngredientRecord;
-import org.apache.logging.log4j.core.config.Scheduled;
 
-import javax.inject.Inject;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Callable;
 
-public class IngredientTask {
+public class IngredientTask implements Callable<Void> {
 
-    private final IngredientDAO ingredientDAO;
-    private final LambdaServiceClient lambdaServiceClient;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(5);
+    private final IngredientDAO ingredientDao;
+    private final IngredientRecord ingredientRecord;
 
-    public IngredientTask(IngredientDAO ingredientDAO, LambdaServiceClient lambdaServiceClient) {
-        this.ingredientDAO = ingredientDAO;
-        this.lambdaServiceClient = lambdaServiceClient;
+    public IngredientTask(IngredientDAO ingredientDao, IngredientRecord ingredientRecord) {
+        this.ingredientDao = ingredientDao;
+        this.ingredientRecord = ingredientRecord;
     }
 
-    public void saveIngredientAsync(IngredientRecord ingredientRecord) {
-        executorService.submit(() -> {
-            try {
-                ingredientDAO.save(ingredientRecord);
-                lambdaServiceClient.saveIngredient(ingredientRecord);
-                System.out.println("Ingredient saved asynchronously");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
-    public void deleteIngredientAsync(String ingredientId) {
-        executorService.submit(() -> {
-            try {
-                ingredientDAO.delete(ingredientId);
-                lambdaServiceClient.deleteIngredientById(ingredientId);
-                System.out.println("Ingredient deleted asynchronously");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+    @Override
+    public Void call() throws Exception {
+        ingredientDao.save(ingredientRecord);
+        return null;
     }
 }

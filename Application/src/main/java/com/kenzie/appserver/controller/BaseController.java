@@ -1,6 +1,5 @@
 package com.kenzie.appserver.controller;
 
-import com.kenzie.capstone.service.LambdaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

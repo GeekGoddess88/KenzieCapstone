@@ -3,31 +3,32 @@ package com.kenzie.capstone.service.model;
 import java.util.List;
 
 public class DrinkResponse {
-    private String id;
-    private String name;
-    private String recipe;
-    private List<IngredientInterface> ingredients;
+    private final String id;
+    private final String name;
+    private final String recipe;
+    private List<IngredientRecord> ingredients;
 
-    public DrinkResponse(DrinkRecord drinkRecord) {
-        this.id = drinkRecord.getId();
-        this.name = drinkRecord.getName();
-        this.recipe = drinkRecord.getRecipe();
-        this.ingredients = drinkRecord.getIngredients();
+    public DrinkResponse(String id, String name, List<IngredientRecord> ingredients, String recipe) {
+        this.id = id;
+        this.name = name;
+        this.ingredients = ingredients;
+        this.recipe = recipe;
     }
 
     public String getId() {
         return id;
     }
 
+
     public String getName() {
         return name;
     }
 
-    public String getRecipe() {
-        return recipe;
+    public List<IngredientRecord> getIngredients() {
+        return ingredients;
     }
 
-    public List<IngredientInterface> getIngredients() {
-        return ingredients;
+    public String getRecipe() {
+        return recipe;
     }
 }

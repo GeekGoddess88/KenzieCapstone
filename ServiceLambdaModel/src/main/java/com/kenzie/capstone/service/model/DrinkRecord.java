@@ -1,60 +1,58 @@
 package com.kenzie.capstone.service.model;
 
-import com.kenzie.capstone.service.model.IngredientInterface;
-
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConvertedJson;
 
 import java.util.List;
 
-@DynamoDBTable(tableName = "Drinks")
-public class DrinkRecord implements DrinkInterface {
+@DynamoDBTable(tableName = "drinks")
+public class DrinkRecord {
+
     private String id;
     private String name;
-    private List<IngredientInterface> ingredients;
+    private List<IngredientRecord> ingredients;
     private String recipe;
 
     public DrinkRecord() {}
 
-    public DrinkRecord(String id, String name, List<IngredientInterface> ingredients, String recipe) {}
+    public DrinkRecord(String id, String name, List<IngredientRecord> ingredients, String recipe) {
+        this.id = id;
+        this.name = name;
+        this.ingredients = ingredients;
+        this.recipe = recipe;
+    }
 
-    @Override
     @DynamoDBHashKey(attributeName = "id")
     public String getId() {
         return id;
     }
-
     public void setId(String id) {
         this.id = id;
     }
 
-    @Override
     @DynamoDBAttribute(attributeName = "name")
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
 
-    @Override
     @DynamoDBAttribute(attributeName = "ingredients")
-    public List<IngredientInterface> getIngredients() {
+    @DynamoDBTypeConvertedJson
+    public List<IngredientRecord> getIngredients() {
         return ingredients;
     }
-
-    public void setIngredients(List<IngredientInterface> ingredients) {
+    public void setIngredients(List<IngredientRecord> ingredients) {
         this.ingredients = ingredients;
     }
 
-    @Override
     @DynamoDBAttribute(attributeName = "recipe")
     public String getRecipe() {
         return recipe;
     }
-
     public void setRecipe(String recipe) {
         this.recipe = recipe;
     }

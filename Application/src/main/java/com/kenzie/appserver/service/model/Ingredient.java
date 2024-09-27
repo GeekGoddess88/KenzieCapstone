@@ -1,15 +1,11 @@
 package com.kenzie.appserver.service.model;
 
-import com.kenzie.capstone.service.model.IngredientInterface;
 
-import java.util.Objects;
+public class Ingredient {
 
-public class Ingredient implements IngredientInterface {
-    public String id;
-    public String name;
-    public int quantity;
-
-    public Ingredient() {}
+    private String id;
+    private String name;
+    private int quantity;
 
     public Ingredient(String id, String name, int quantity) {
         this.id = id;
@@ -17,14 +13,24 @@ public class Ingredient implements IngredientInterface {
         this.quantity = quantity;
     }
 
-    @Override
-    public String getId() { return id; }
-    @Override
-    public String getName() { return name; }
-    @Override
-    public int getQuantity() { return quantity; }
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    public void setId(String id) { this.id = id; }
-    public void setName(String name) { this.name = name; }
-    public void setQuantity(int quantity) { this.quantity = quantity; }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
 }

@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.kenzie.capstone.service.caching.CacheClient;
-import com.kenzie.capstone.service.model.IngredientInterface;
+import com.kenzie.capstone.service.converter.IngredientConverter;
+import com.kenzie.capstone.service.model.Ingredient;
 import com.kenzie.capstone.service.model.IngredientRecord;
-import redis.clients.jedis.Jedis;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -15,31 +15,42 @@ import java.util.Optional;
 
 public class IngredientCachingDAO implements IngredientDAO {
 
-    private final IngredientNonCachingDAO ingredientDAO;
+    private final IngredientNonCachingDAO ingredientNonCachingDAO;
+    private final ObjectMapper objectMapper;
     private final CacheClient cacheClient;
 
+    private static final String INGREDIENT_CACHE_KEY_PREFIX = "ingredient_";
+
     @Inject
-    public IngredientCachingDAO(IngredientNonCachingDAO ingredientDAO, CacheClient cacheClient) {
-        this.ingredientDAO = ingredientDAO;
+    public IngredientCachingDAO(IngredientNonCachingDAO ingredientNonCachingDAO, ObjectMapper objectMapper, CacheClient cacheClient) {
+        this.ingredientNonCachingDAO = ingredientNonCachingDAO;
+        this.objectMapper = objectMapper;
         this.cacheClient = cacheClient;
     }
 
     @Override
-    public IngredientRecord findById(String id) {
-        Optional<String> cachedValue = cacheClient.getValue(id);
-
-        if (cachedValue.isPresent()) {
-            return deserializeIngredient(cachedValue.get());
+    public Optional<IngredientRecord> findById(String id) {
+        String ingredientJson = cacheClient.getValue(INGREDIENT_CACHE_KEY_PREFIX + id).orElse(null);
+        if (ingredientJson != null) {
+            try {
+                IngredientRecord cachedIngredient = objectMapper.readValue(ingredientJson, IngredientRecord.class);
+                return Optional.of(cachedIngredient);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
-        IngredientRecord ingredientRecord = ingredientDAO.findById(id);
-        cacheClient.setValue(id, 3600, serializeIngredient(ingredientRecord));
+        Optional<IngredientRecord> ingredientRecord = ingredientNonCachingDAO.findById(id);
+        ingredientRecord.ifPresent(record -> cacheClient.setValue(INGREDIENT_CACHE_KEY_PREFIX + id, 3600, toJson(record)));
         return ingredientRecord;
+
     }
 
     @Override
     public List<IngredientRecord> findAll() {
-        return ingredientDAO.findAll();
+        List<IngredientRecord> ingredients = ingredientNonCachingDAO.findAll();
+        ingredients.forEach(ingredient -> cacheClient.setValue(INGREDIENT_CACHE_KEY_PREFIX + ingredient.getId(), 3600, toJson(ingredient)));
+        return ingredients;
     }
 
     @Override
@@ -60,11 +71,11 @@ public class IngredientCachingDAO implements IngredientDAO {
         cacheClient.invalidate(id);
     }
 
-    private String serializeIngredient(IngredientRecord ingredientRecord) {
-        return new Gson().toJson(ingredientRecord);
-    }
-
-    private IngredientRecord deserializeIngredient(String json) {
-        return new Gson().fromJson(json, IngredientRecord.class);
+    private String toJson(IngredientRecord ingredientRecord) {
+        try {
+            return objectMapper.writeValueAsString(ingredientRecord);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Error serializing IngredientRecord", e);
+        }
     }
 }

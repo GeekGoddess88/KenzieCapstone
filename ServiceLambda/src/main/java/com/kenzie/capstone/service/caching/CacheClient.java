@@ -1,15 +1,16 @@
 package com.kenzie.capstone.service.caching;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.kenzie.capstone.service.dependency.DaggerServiceComponent;
 import redis.clients.jedis.Jedis;
 
-import javax.inject.Inject;
+
 import java.util.Optional;
 
 public class CacheClient {
 
     public CacheClient() {}
+
 
     public void setValue(String key, int seconds, String value) {
         checkNonNullKey(key);
@@ -35,6 +36,7 @@ public class CacheClient {
             return Optional.ofNullable(value);
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            return Optional.empty();
         } finally {
             if (cache != null) {
                 cache.close();
@@ -44,6 +46,7 @@ public class CacheClient {
 
     public void invalidate(String key) {
         checkNonNullKey(key);
+
         Jedis cache = null;
         try {
             cache = DaggerServiceComponent.create().provideJedis();

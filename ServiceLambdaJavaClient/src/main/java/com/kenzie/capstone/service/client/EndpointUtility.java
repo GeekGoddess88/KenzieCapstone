@@ -2,6 +2,7 @@ package com.kenzie.capstone.service.client;
 
 import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.apigateway.AmazonApiGatewayClientBuilder;
+import com.amazonaws.services.apigateway.model.DeleteGatewayResponseResult;
 import com.amazonaws.services.apigateway.model.GetRestApisRequest;
 import com.amazonaws.services.apigateway.model.GetRestApisResult;
 import com.amazonaws.services.apigateway.model.RestApi;
@@ -131,7 +132,7 @@ public class EndpointUtility {
         }
     }
 
-    public void deleteEndpoint(String endpoint) {
+    public String deleteEndpoint(String endpoint) {
         String api = getApiEndpint();
         String url = api + endpoint;
 
@@ -144,17 +145,17 @@ public class EndpointUtility {
                 .build();
         try {
             HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
-            int statusCode = httpResponse.statusCode();
-            if (statusCode != 204) {
-                throw new ApiGatewayException("DELETE request failed: " + statusCode + " status code received."
-                + "\n body: " + httpResponse.body());
+            if (httpResponse.statusCode() == 200) {
+               return httpResponse.body().isEmpty() ? "Success" : httpResponse.body();
+            } else {
+                throw new ApiGatewayException("DELETE request failed: " + httpResponse.statusCode() + " status code received");
             }
         } catch (IOException | InterruptedException e) {
-            throw new ApiGatewayException("DELETE request failed due to exception: " + e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
-    public String putEndpoint(String endpoint, String data) {
+        public String putEndpoint(String endpoint, String data) {
         String api = getApiEndpint();
         String url = api + endpoint;
 

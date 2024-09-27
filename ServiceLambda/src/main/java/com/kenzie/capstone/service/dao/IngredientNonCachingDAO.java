@@ -6,6 +6,7 @@ import com.kenzie.capstone.service.model.IngredientRecord;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Optional;
 
 public class IngredientNonCachingDAO implements IngredientDAO {
 
@@ -17,13 +18,15 @@ public class IngredientNonCachingDAO implements IngredientDAO {
     }
 
     @Override
-    public IngredientRecord findById(String id) {
-        return dynamoDBMapper.load(IngredientRecord.class, id);
+    public Optional<IngredientRecord> findById(String id) {
+        IngredientRecord ingredientRecord = dynamoDBMapper.load(IngredientRecord.class, id);
+        return Optional.ofNullable(ingredientRecord);
     }
 
     @Override
     public List<IngredientRecord> findAll() {
-        return dynamoDBMapper.scan(IngredientRecord.class, new DynamoDBScanExpression());
+        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+        return dynamoDBMapper.scan(IngredientRecord.class, scanExpression);
     }
 
     @Override
@@ -38,9 +41,8 @@ public class IngredientNonCachingDAO implements IngredientDAO {
 
     @Override
     public void delete(String id) {
-        IngredientRecord ingredientRecord = findById(id);
-        if (ingredientRecord != null) {
-            dynamoDBMapper.delete(ingredientRecord);
-        }
+        IngredientRecord ingredientRecord = new IngredientRecord();
+        ingredientRecord.setId(id);
+        dynamoDBMapper.delete(ingredientRecord);
     }
 }

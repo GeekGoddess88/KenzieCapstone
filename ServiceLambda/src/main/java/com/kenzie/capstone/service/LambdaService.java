@@ -6,67 +6,76 @@ import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
 import com.amazonaws.services.lambda.invoke.LambdaFunctionException;
 import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.model.InvokeResult;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kenzie.capstone.service.dao.DrinkDAO;
-import com.kenzie.capstone.service.dao.IngredientDAO;
+import com.kenzie.capstone.service.dao.*;
 import com.kenzie.capstone.service.model.DrinkRecord;
 import com.kenzie.capstone.service.model.IngredientRecord;
+import com.kenzie.capstone.service.task.IngredientTask;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 public class LambdaService {
 
     private final DrinkDAO drinkDAO;
     private final IngredientDAO ingredientDAO;
+    private final ExecutorService executorService;
 
     @Inject
-    public LambdaService(DrinkDAO drinkDAO, IngredientDAO ingredientDAO) {
+    public LambdaService(@Named("DrinkDAO") DrinkDAO drinkDAO, @Named("IngredientDAO") IngredientDAO ingredientDAO, ExecutorService executorService) {
         this.drinkDAO = drinkDAO;
         this.ingredientDAO = ingredientDAO;
+        this.executorService = executorService;
     }
 
-    public DrinkRecord getDrinkById(String id) {
-        return drinkDAO.findById(id);
+    public Future<List<DrinkRecord>> findAllDrinks() {
+        return executorService.submit(() -> {
+            return drinkDAO.findAll();
+        });
     }
 
-    public IngredientRecord getIngredientById(String id) {
-        return ingredientDAO.findById(id);
+    public void findDrinkById(String id) {
+        executorService.submit(() -> {
+            return drinkDAO.findById(id);
+        });
     }
 
-    public List<DrinkRecord> getAllDrinks() {
-        return drinkDAO.findAll();
-    }
-
-    public List<IngredientRecord> getAllIngredients() {
-        return ingredientDAO.findAll();
-    }
-
-    public void addDrink(DrinkRecord drink) {
+    public DrinkRecord save(DrinkRecord drink) {
         drinkDAO.save(drink);
-    }
-
-    public void addIngredient(IngredientRecord ingredient) {
-        ingredientDAO.save(ingredient);
+        return drink;
     }
 
     public void updateDrink(String id, DrinkRecord drink) {
-        drinkDAO.update(id, drink);
-    }
-
-    public void updateIngredient(String id, IngredientRecord ingredient) {
-        ingredientDAO.update(id, ingredient);
+        executorService.submit(() -> {
+            drinkDAO.update(id, drink);
+        });
     }
 
     public void deleteDrink(String id) {
         drinkDAO.delete(id);
     }
 
+    public IngredientRecord save(IngredientRecord ingredient) {
+        IngredientTask task = new IngredientTask(ingredientDAO, ingredient);
+        executorService.submit(task);
+    }
+
+    public void updateIngredient(String id, IngredientRecord ingredient) {
+        executorService.submit(() -> {
+            ingredientDAO.update(id, ingredient);
+        });
+    }
+
     public void deleteIngredient(String id) {
         ingredientDAO.delete(id);
+    }
+
+    public Future<List<IngredientRecord>> findAll() {
+        return executorService.submit(() -> {
+            return ingredientDAO.findAll();
+        });
     }
 }

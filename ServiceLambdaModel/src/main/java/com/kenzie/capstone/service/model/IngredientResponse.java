@@ -5,10 +5,10 @@ public class IngredientResponse {
     private String name;
     private int quantity;
 
-    public IngredientResponse(IngredientRecord ingredientRecord) {
-        this.id = ingredientRecord.getId();
-        this.name = ingredientRecord.getName();
-        this.quantity = ingredientRecord.getQuantity();
+    public IngredientResponse(String id, String name, int quantity) {
+        this.id = id;
+        this.name = name;
+        this.quantity = quantity;
     }
 
     public String getId() {

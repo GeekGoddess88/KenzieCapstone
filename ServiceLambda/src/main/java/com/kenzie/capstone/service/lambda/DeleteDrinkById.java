@@ -10,12 +10,12 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DeleteDrink implements RequestHandler<Map<String, String>, Map<String, Object>> {
+public class DeleteDrinkById implements RequestHandler<Map<String, String>, Map<String, Object>> {
 
     private final DynamoDB dynamoDB;
     private final Table drinksTable;
 
-    public DeleteDrink() {
+    public DeleteDrinkById() {
         AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
         dynamoDB = new DynamoDB(client);
         drinksTable = dynamoDB.getTable("Drinks");

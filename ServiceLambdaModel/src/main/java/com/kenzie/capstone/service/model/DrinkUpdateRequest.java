@@ -4,20 +4,25 @@ import java.util.List;
 
 public class DrinkUpdateRequest {
 
+    private String id;
     private String name;
     private String recipe;
-    private List<IngredientInterface> ingredients;
+    private List<IngredientRecord> ingredients;
 
     public DrinkUpdateRequest() {}
 
-    public DrinkUpdateRequest(String name, String recipe, List<IngredientInterface> ingredients) {
+    public DrinkUpdateRequest(String id, String name, String recipe, List<IngredientRecord> ingredients) {
+        this.id = id;
         this.name = name;
         this.recipe = recipe;
         this.ingredients = ingredients;
     }
 
-    public DrinkRecord toDrinkRecord(String id) {
-        return new DrinkRecord(id, name, ingredients, recipe);
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -36,11 +41,11 @@ public class DrinkUpdateRequest {
         this.recipe = recipe;
     }
 
-    public List<IngredientInterface> getIngredients() {
+    public List<IngredientRecord> getIngredients() {
         return ingredients;
     }
 
-    public void setIngredients(List<IngredientInterface> ingredients) {
+    public void setIngredients(List<IngredientRecord> ingredients) {
         this.ingredients = ingredients;
     }
 }

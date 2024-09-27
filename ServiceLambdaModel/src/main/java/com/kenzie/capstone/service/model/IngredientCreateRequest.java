@@ -13,10 +13,6 @@ public class IngredientCreateRequest {
         this.quantity = quantity;
     }
 
-    public IngredientRecord toIngredientRecord(String id, String name, int quantity) {
-        return new IngredientRecord(id, name, quantity);
-    }
-
     public String getId() {
         return id;
     }
