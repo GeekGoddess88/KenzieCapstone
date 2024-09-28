@@ -6,35 +6,37 @@ import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kenzie.capstone.service.LambdaService;
+import com.kenzie.capstone.service.dependency.DaggerServiceComponent;
+import com.kenzie.capstone.service.dependency.ServiceComponent;
+import com.kenzie.capstone.service.model.DeleteIngredientResponse;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class DeleteIngredientById implements RequestHandler<Map<String, String>, Map<String, Object>> {
+public class DeleteIngredientById implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
-    private final DynamoDB dynamoDB;
-    private final Table ingredientTable;
+    private final LambdaService lambdaService;
 
     public DeleteIngredientById() {
-        AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
-        dynamoDB = new DynamoDB(client);
-        ingredientTable = dynamoDB.getTable("Ingredients");
+        ServiceComponent serviceComponent = DaggerServiceComponent.create();
+        this.lambdaService = serviceComponent.provideLambdaService();
     }
 
     @Override
-    public Map<String, Object> handleRequest(Map<String, String> input, Context context) {
-        String ingredientId = input.get("id");
-        Map<String, Object> response = new HashMap<>();
-
+    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
         try {
-            ingredientTable.deleteItem("id", ingredientId);
-            response.put("statusCode", 200);
-            response.put("body", "{\"message\":\"Ingredient deleted successfully\"}");
-        } catch (Exception e) {
-            response.put("statusCode", 500);
-            response.put("body", "{\"message\":\"Error deleting ingredient\", \"error\":\"" + e.getMessage() + "\"}");
-        }
+            String id = request.getPathParameters().get("id");
+            DeleteIngredientResponse deleteIngredientResponse = lambdaService.deleteIngredient(id);
 
-        return response;
+            return new APIGatewayProxyResponseEvent()
+                    .withStatusCode(200)
+                    .withBody(new ObjectMapper().writeValueAsString(deleteIngredientResponse));
+        } catch (Exception e) {
+           return new APIGatewayProxyResponseEvent().withStatusCode(500).withBody(e.getMessage());
+        }
     }
 }

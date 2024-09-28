@@ -4,6 +4,7 @@ package com.kenzie.appserver.controller;
 import com.kenzie.capstone.service.model.*;
 import com.kenzie.appserver.service.DrinkService;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.bind.Name;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 
@@ -20,44 +22,58 @@ public class DrinkController {
 
     private final DrinkService drinkService;
 
-
+    @Autowired
     public DrinkController(@Name("DrinkService") DrinkService drinkService) {
         this.drinkService = drinkService;
     }
 
     @PostMapping
     public ResponseEntity<DrinkResponse> addDrink(@RequestBody DrinkCreateRequest drinkCreateRequest) throws IOException {
-        DrinkResponse response = drinkService.addDrink(drinkCreateRequest);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        try {
+            DrinkResponse drinkResponse = drinkService.addDrink(drinkCreateRequest);
+            return new ResponseEntity<>(drinkResponse, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DrinkResponse> getDrinkById(@PathVariable("id") String id) throws IOException {
-        DrinkResponse response = drinkService.getDrinkById(id);
-        if (response == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<DrinkResponse> getDrinkById(@PathVariable String id) throws IOException {
+        try {
+            DrinkResponse drinkResponse = drinkService.getDrinkById(id);
+            return new ResponseEntity<>(drinkResponse, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping
-    public ResponseEntity<List<DrinkResponse>> getDrinks() throws IOException {
-        List<DrinkResponse> responses = drinkService.getAllDrinks();
-        return new ResponseEntity<>(responses, HttpStatus.OK);
+    public ResponseEntity<List<DrinkResponse>> getAllDrinks() throws IOException {
+        try {
+            List<DrinkResponse> drinkResponses = drinkService.getAllDrinks();
+            return new ResponseEntity<>(drinkResponses, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DrinkResponse> updateDrink(@PathVariable("id") String id, @RequestBody DrinkUpdateRequest drinkUpdateRequest) throws IOException {
-        DrinkResponse response = drinkService.updateDrink(id, drinkUpdateRequest);
-        if (response == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<DrinkResponse> updateDrink(@PathVariable String id, @RequestBody DrinkUpdateRequest drinkUpdateRequest) throws IOException {
+        try {
+            DrinkResponse drinkResponse = drinkService.updateDrink(id, drinkUpdateRequest);
+            return new ResponseEntity<>(drinkResponse, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<DeleteDrinkResponse> deleteDrink(@PathVariable("id") String id) throws IOException {
-        DeleteDrinkResponse response = drinkService.deleteDrinkById(id);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<DeleteDrinkResponse> deleteDrinkById(@PathVariable String id) throws IOException {
+        try {
+            DeleteDrinkResponse deleteDrinkResponse = drinkService.deleteDrinkById(id);
+            return new ResponseEntity<>(deleteDrinkResponse, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 }

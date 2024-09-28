@@ -1,10 +1,5 @@
 package com.kenzie.capstone.service.lambda;
 
-
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
-import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
@@ -13,32 +8,30 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kenzie.capstone.service.LambdaService;
 import com.kenzie.capstone.service.dependency.DaggerServiceComponent;
 import com.kenzie.capstone.service.dependency.ServiceComponent;
-import com.kenzie.capstone.service.model.DrinkResponse;
+import com.kenzie.capstone.service.model.IngredientResponse;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-public class GetDrinkById implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+public class GetAllIngredients implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
     private final LambdaService lambdaService;
 
-    public GetDrinkById() {
-        ServiceComponent component = DaggerServiceComponent.create();
-        this.lambdaService = component.provideLambdaService();
+    public GetAllIngredients() {
+        ServiceComponent serviceComponent = DaggerServiceComponent.create();
+        this.lambdaService = serviceComponent.provideLambdaService();
     }
 
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent event, Context context) {
-        String drinkId = event.getPathParameters().get("drinkId");
         try {
-            DrinkResponse drinkResponse = lambdaService.getDrinkById(drinkId);
+            List<IngredientResponse> ingredientResponses = lambdaService.getAllIngredients();
             return new APIGatewayProxyResponseEvent()
                     .withStatusCode(200)
-                    .withBody(new ObjectMapper().writeValueAsString(drinkResponse));
+                    .withBody(new ObjectMapper().writeValueAsString(ingredientResponses));
         } catch (Exception e) {
             return new APIGatewayProxyResponseEvent()
                     .withStatusCode(500)
-                    .withBody("Error fetching drink: " + e.getMessage());
+                    .withBody(e.getMessage());
         }
     }
 }

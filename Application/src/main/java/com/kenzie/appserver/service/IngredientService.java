@@ -2,9 +2,9 @@ package com.kenzie.appserver.service;
 
 import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
 import com.kenzie.capstone.service.client.LambdaServiceClient;
-import com.kenzie.capstone.service.converter.IngredientConverter;
-import com.kenzie.capstone.service.dao.IngredientCachingDAO;
+
 import com.kenzie.capstone.service.model.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +15,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
+@Service
 public class IngredientService {
 
     private final IngredientCachingDAO ingredientCachingDAO;
     private final LambdaServiceClient lambdaServiceClient;
     private final IngredientConverter ingredientConverter;
 
+    @Inject
     public IngredientService(IngredientCachingDAO ingredientCachingDAO, LambdaServiceClient lambdaServiceClient, IngredientConverter ingredientConverter) {
         this.ingredientCachingDAO = ingredientCachingDAO;
         this.lambdaServiceClient = lambdaServiceClient;
@@ -51,7 +52,8 @@ public class IngredientService {
         IngredientResponse[] ingredientResponses = lambdaServiceClient.getAllIngredients();
 
         List<IngredientRecord> ingredientRecords = Arrays.stream(ingredientResponses)
-                .map(ingredientConverter::toIngredientRecord).collect(Collectors.toList());
+                .map(ingredientConverter::toIngredientRecord)
+                .collect(Collectors.toList());
         ingredientRecords.forEach(ingredientCachingDAO::save);
         return Arrays.asList(ingredientResponses);
     }

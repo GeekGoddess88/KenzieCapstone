@@ -7,12 +7,14 @@ import com.kenzie.capstone.service.caching.CacheClient;
 import com.kenzie.capstone.service.converter.IngredientConverter;
 import com.kenzie.capstone.service.model.Ingredient;
 import com.kenzie.capstone.service.model.IngredientRecord;
+import dagger.Component;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+@Component
 public class IngredientCachingDAO implements IngredientDAO {
 
     private final IngredientNonCachingDAO ingredientNonCachingDAO;
@@ -30,18 +32,18 @@ public class IngredientCachingDAO implements IngredientDAO {
 
     @Override
     public Optional<IngredientRecord> findById(String id) {
+        String cacheKey = INGREDIENT_CACHE_KEY_PREFIX + id;
         String ingredientJson = cacheClient.getValue(INGREDIENT_CACHE_KEY_PREFIX + id).orElse(null);
         if (ingredientJson != null) {
             try {
-                IngredientRecord cachedIngredient = objectMapper.readValue(ingredientJson, IngredientRecord.class);
-                return Optional.of(cachedIngredient);
+                return Optional.of(objectMapper.readValue(ingredientJson, IngredientRecord.class));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
         Optional<IngredientRecord> ingredientRecord = ingredientNonCachingDAO.findById(id);
-        ingredientRecord.ifPresent(record -> cacheClient.setValue(INGREDIENT_CACHE_KEY_PREFIX + id, 3600, toJson(record)));
+        ingredientRecord.ifPresent(record -> cacheClient.setValue(cacheKey, 3600, toJson(record)));
         return ingredientRecord;
 
     }
@@ -55,20 +57,20 @@ public class IngredientCachingDAO implements IngredientDAO {
 
     @Override
     public void save(IngredientRecord ingredientRecord) {
-        ingredientDAO.save(ingredientRecord);
-        cacheClient.setValue(ingredientRecord.getId(), 3600, serializeIngredient(ingredientRecord));
+        ingredientNonCachingDAO.save(ingredientRecord);
+        cacheClient.setValue(INGREDIENT_CACHE_KEY_PREFIX + id, 3600, toJson(ingredientRecord));
     }
 
     @Override
     public void update(String id, IngredientRecord ingredientRecord) {
-        ingredientDAO.update(id, ingredientRecord);
-        cacheClient.setValue(id, 3600, serializeIngredient(ingredientRecord));
+        ingredientNonCachingDAO.update(id, ingredientRecord);
+        cacheClient.setValue(INGREDIENT_CACHE_KEY_PREFIX + id, 3600, toJson(ingredientRecord));
     }
 
     @Override
     public void delete(String id) {
-        ingredientDAO.delete(id);
-        cacheClient.invalidate(id);
+        ingredientNonCachingDAO.delete(id);
+        cacheClient.invalidate(INGREDIENT_CACHE_KEY_PREFIX + id);
     }
 
     private String toJson(IngredientRecord ingredientRecord) {

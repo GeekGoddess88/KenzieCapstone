@@ -12,8 +12,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kenzie.capstone.service.LambdaService;
 import com.kenzie.capstone.service.dependency.DaggerServiceComponent;
 import com.kenzie.capstone.service.dependency.ServiceComponent;
+import com.kenzie.capstone.service.model.DrinkCreateRequest;
 import com.kenzie.capstone.service.model.DrinkRecord;
+import com.kenzie.capstone.service.model.DrinkResponse;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,19 +32,16 @@ public class AddDrink implements RequestHandler<APIGatewayProxyRequestEvent, API
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
         try {
-            String body = request.getBody();
-            ObjectMapper mapper = new ObjectMapper();
-            DrinkRecord drinkRecord = mapper.readValue(body, DrinkRecord.class);
-
-            lambdaService.addDrink(drinkRecord);
+            DrinkCreateRequest drinkCreateRequest = new ObjectMapper().readValue(request.getBody(), DrinkCreateRequest.class);
+            DrinkResponse drinkResponse = lambdaService.addDrink(drinkCreateRequest);
 
             return new APIGatewayProxyResponseEvent()
                     .withStatusCode(200)
-                    .withBody("{\"message\": \"Drink added successfully\"}");
-        } catch (Exception e) {
+                    .withBody(new ObjectMapper().writeValueAsString(drinkResponse));
+        } catch (IOException e) {
             return new APIGatewayProxyResponseEvent()
                     .withStatusCode(500)
-                    .withBody("{\"message\": \"Error adding drink\"}");
+                    .withBody(e.getMessage());
         }
     }
 }

@@ -6,41 +6,39 @@ import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kenzie.capstone.service.LambdaService;
+import com.kenzie.capstone.service.dependency.DaggerServiceComponent;
+import com.kenzie.capstone.service.dependency.ServiceComponent;
+import com.kenzie.capstone.service.model.IngredientResponse;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class GetIngredientById implements RequestHandler<Map<String, String>, Map<String, Object>> {
+public class GetIngredientById implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
-    private final DynamoDB dynamoDB;
-    private final Table ingredientTable;
+    private final LambdaService lambdaService;
 
     public GetIngredientById() {
-        AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
-        dynamoDB = new DynamoDB(client);
-        ingredientTable = dynamoDB.getTable("Ingredients");
+        ServiceComponent serviceComponent = DaggerServiceComponent.create();
+        this.lambdaService = serviceComponent.provideLambdaService();
     }
 
     @Override
-    public Map<String, Object> handleRequest(Map<String, String> input, Context context) {
-        String ingredientId = input.get("id");
-        Map<String, Object> response = new HashMap<>();
-
+    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent event, Context context) {
         try {
-            Map<String, Object> item = ingredientTable.getItem("id", ingredientId).asMap();
-            if (item != null) {
-                response.put("statusCode", 200);
-                response.put("body", new ObjectMapper().writeValueAsString(item));
-            } else {
-                response.put("statusCode", 404);
-                response.put("body", "{\"message\": \"Ingredient not found\"}");
-            }
-        } catch (Exception e) {
-            response.put("statusCode", 500);
-            response.put("body","{\"message\":\"Error retrieving ingredient\", \"error\": \"" + e.getMessage() + "\"}");
-        }
+            String id = event.getPathParameters().get("id");
+            IngredientResponse ingredientResponse = lambdaService.getIngredientById(id);
 
-        return response;
+            return new APIGatewayProxyResponseEvent()
+                    .withStatusCode(200)
+                    .withBody(new ObjectMapper().writeValueAsString(ingredientResponse));
+        } catch (Exception e) {
+            return new APIGatewayProxyResponseEvent()
+                    .withStatusCode(500)
+                    .withBody(e.getMessage());
+        }
     }
 }

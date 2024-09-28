@@ -5,13 +5,14 @@ import com.kenzie.capstone.service.converter.DrinkConverter;
 import com.kenzie.capstone.service.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kenzie.capstone.service.caching.CacheClient;
+import dagger.Component;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-
+@Component
 public class DrinkCachingDAO implements DrinkDAO {
 
     private final CacheClient cacheClient;
@@ -29,21 +30,19 @@ public class DrinkCachingDAO implements DrinkDAO {
 
     @Override
     public Optional<DrinkRecord> findById(String id) {
+        String cacheKey = DRINK_CACHE_KEY_PREFIX + id;
+        String drinkJson = cacheClient.getValue(cacheKey).orElse(null);
 
-            String drinkJson = cacheClient.getValue(DRINK_CACHE_KEY_PREFIX + id).orElse(null);
-            if (drinkJson != null) {
-                try {
-                    DrinkRecord cachedDrink = objectMapper.readValue(drinkJson, DrinkRecord.class);
-                    return Optional.of(cachedDrink);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        if (drinkJson != null) {
+            try {
+                return Optional.of(objectMapper.readValue(drinkJson, DrinkRecord.class);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-            Optional<DrinkRecord> drinkRecord = drinkNonCachingDAO.findById(id);
-            drinkRecord.ifPresent(record -> {
-                cacheClient.setValue(DRINK_CACHE_KEY_PREFIX + id, 3600, toJson(record));
-            });
-            return drinkRecord;
+        Optional<DrinkRecord> drinkRecord = drinkNonCachingDAO.findById(id);
+        drinkRecord.ifPresent(record -> cacheClient.setValue(cacheKey, 3600, toJson(record)));
+        return drinkRecord;
     }
 
     @Override

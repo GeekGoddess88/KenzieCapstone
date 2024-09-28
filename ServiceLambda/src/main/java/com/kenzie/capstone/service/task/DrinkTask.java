@@ -2,9 +2,11 @@ package com.kenzie.capstone.service.task;
 
 import com.kenzie.capstone.service.dao.DrinkDAO;
 import com.kenzie.capstone.service.model.DrinkRecord;
+import dagger.Component;
 
 import java.util.concurrent.Callable;
 
+@Component
 public class DrinkTask implements Callable<Void> {
 
     private final DrinkDAO drinkDao;

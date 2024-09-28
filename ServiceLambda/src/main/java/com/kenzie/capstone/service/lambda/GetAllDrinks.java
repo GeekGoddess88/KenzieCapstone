@@ -8,14 +8,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kenzie.capstone.service.LambdaService;
 import com.kenzie.capstone.service.dependency.DaggerServiceComponent;
 import com.kenzie.capstone.service.dependency.ServiceComponent;
-import com.kenzie.capstone.service.model.IngredientResponse;
-import com.kenzie.capstone.service.model.IngredientUpdateRequest;
+import com.kenzie.capstone.service.model.Drink;
+import com.kenzie.capstone.service.model.DrinkCreateRequest;
+import com.kenzie.capstone.service.model.DrinkResponse;
 
-public class UpdateDrink implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+import java.util.List;
+
+public class GetAllDrinks implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
     private final LambdaService lambdaService;
 
-    public UpdateDrink() {
+    public GetAllDrinks() {
         ServiceComponent serviceComponent = DaggerServiceComponent.create();
         this.lambdaService = serviceComponent.provideLambdaService();
     }
@@ -23,13 +26,10 @@ public class UpdateDrink implements RequestHandler<APIGatewayProxyRequestEvent, 
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
         try {
-            String id = input.getPathParameters().get("id");
-            IngredientUpdateRequest ingredientUpdateRequest = new ObjectMapper().readValue(input.getBody(), IngredientUpdateRequest.class);
-            IngredientResponse updatedIngredient = lambdaService.updateIngredient(id, ingredientUpdateRequest);
-
+            List<DrinkResponse> drinkResponses = lambdaService.getAllDrinks();
             return new APIGatewayProxyResponseEvent()
                     .withStatusCode(200)
-                    .withBody(new ObjectMapper().writeValueAsString(updatedIngredient));
+                    .withBody(new ObjectMapper().writeValueAsString(drinkResponses));
         } catch (Exception e) {
             return new APIGatewayProxyResponseEvent()
                     .withStatusCode(500)

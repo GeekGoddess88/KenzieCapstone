@@ -3,11 +3,13 @@ package com.kenzie.capstone.service.dao;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.kenzie.capstone.service.model.IngredientRecord;
+import dagger.Component;
 
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 
+@Component
 public class IngredientNonCachingDAO implements IngredientDAO {
 
     private final DynamoDBMapper dynamoDBMapper;

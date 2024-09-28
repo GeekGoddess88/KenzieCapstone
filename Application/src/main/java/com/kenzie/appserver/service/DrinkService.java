@@ -1,7 +1,7 @@
 package com.kenzie.appserver.service;
 
 
-import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
+
 
 import com.kenzie.capstone.service.client.LambdaServiceClient;
 import com.kenzie.capstone.service.model.*;
@@ -15,21 +15,24 @@ import com.kenzie.capstone.service.model.DrinkRecord;
 import com.kenzie.capstone.service.model.DrinkUpdateRequest;
 import com.kenzie.capstone.service.model.DrinkCreateRequest;
 import com.kenzie.capstone.service.client.EndpointUtility;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
+@Service
 public class DrinkService {
 
     private final DrinkCachingDAO drinkCachingDAO;
     private final DrinkConverter drinkConverter;
     private final LambdaServiceClient lambdaServiceClient;
 
-
+    @Inject
     public DrinkService(DrinkCachingDAO drinkCachingDAO, LambdaServiceClient lambdaServiceClient, DrinkConverter drinkConverter) {
         this.drinkCachingDAO = drinkCachingDAO;
         this.lambdaServiceClient = lambdaServiceClient;

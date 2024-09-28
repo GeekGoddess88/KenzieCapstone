@@ -7,75 +7,91 @@ import com.amazonaws.services.lambda.invoke.LambdaFunctionException;
 import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.model.InvokeResult;
 import com.kenzie.capstone.service.dao.*;
-import com.kenzie.capstone.service.model.DrinkRecord;
-import com.kenzie.capstone.service.model.IngredientRecord;
-import com.kenzie.capstone.service.task.IngredientTask;
+import com.kenzie.capstone.service.model.*;
+
+import dagger.Component;
+
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
+
+import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.Optional;
+
 
 public class LambdaService {
 
-    private final DrinkDAO drinkDAO;
-    private final IngredientDAO ingredientDAO;
-    private final ExecutorService executorService;
+    private final DrinkService drinkService;
+    private final IngredientService ingredientService;
+    private final LambdaServiceClient lambdaServiceClient;
 
     @Inject
-    public LambdaService(@Named("DrinkDAO") DrinkDAO drinkDAO, @Named("IngredientDAO") IngredientDAO ingredientDAO, ExecutorService executorService) {
-        this.drinkDAO = drinkDAO;
-        this.ingredientDAO = ingredientDAO;
-        this.executorService = executorService;
+    public LambdaService(DrinkService drinkService, IngredientService ingredientService, LambdaServiceClient lambdaServiceClient) {
+        this.drinkService = drinkService;
+        this.ingredientService = ingredientService;
+        this.lambdaServiceClient = lambdaServiceClient;
     }
 
-    public Future<List<DrinkRecord>> findAllDrinks() {
-        return executorService.submit(() -> {
-            return drinkDAO.findAll();
-        });
+    public DrinkResponse addDrink(DrinkCreateRequest drinkCreateRequest) throws IOException {
+        DrinkResponse drinkResponse = drinkService.addDrink(drinkCreateRequest);
+        return lambdaServiceClient.addDrink(drinkCreateRequest);
     }
 
-    public void findDrinkById(String id) {
-        executorService.submit(() -> {
-            return drinkDAO.findById(id);
-        });
+    public IngredientResponse addIngredient(IngredientCreateRequest ingredientCreateRequest) throws IOException {
+        IngredientResponse ingredientResponse = ingredientService.addIngredient(ingredientCreateRequest);
+        return lambdaServiceClient.addIngredient(ingredientCreateRequest);
     }
 
-    public DrinkRecord save(DrinkRecord drink) {
-        drinkDAO.save(drink);
-        return drink;
+    public DrinkResponse getDrinkById(String drinkId) throws IOException {
+        Optional<DrinkRecord> drinkRecordOptional = drinkService.getDrinkById(drinkId);
+        if (drinkRecordOptional.isPresent()) {
+            return drinkService.getDrinkById(drinkId);
+        }
+        return lambdaServiceClient.getDrinkById(drinkId);
     }
 
-    public void updateDrink(String id, DrinkRecord drink) {
-        executorService.submit(() -> {
-            drinkDAO.update(id, drink);
-        });
+    public IngredientResponse getIngredientById(String ingredientId) throws IOException {
+        Optional<IngredientRecord> ingredientRecordOptional = ingredientService.getIngredientById(ingredientId);
+        if (ingredientRecordOptional.isPresent()) {
+            return ingredientService.getIngredientById(ingredientId);
+        }
+        return lambdaServiceClient.getIngredientById(ingredientId);
     }
 
-    public void deleteDrink(String id) {
-        drinkDAO.delete(id);
+    public List<DrinkResponse> getAllDrinks() throws IOException {
+        List<DrinkRecord> drinks = drinkService.getAllDrinks();
+        if (!drinks.isEmpty()) {
+            return drinkService.getAllDrinks();
+        }
+         return lambdaServiceClient.getAllDrinks();
     }
 
-    public IngredientRecord save(IngredientRecord ingredient) {
-        IngredientTask task = new IngredientTask(ingredientDAO, ingredient);
-        executorService.submit(task);
+    public List<IngredientResponse> getAllIngredients() throws IOException {
+        List<IngredientRecord> ingredients = ingredientService.getAllIngredients();
+        if (!ingredients.isEmpty()) {
+            return ingredientService.getAllIngredients();
+        }
+        return lambdaServiceClient.getAllIngredients();
     }
 
-    public void updateIngredient(String id, IngredientRecord ingredient) {
-        executorService.submit(() -> {
-            ingredientDAO.update(id, ingredient);
-        });
+    public DrinkResponse updateDrink(String id, DrinkUpdateRequest drinkUpdateRequest) throws IOException {
+        drinkService.updateDrink(id, drinkUpdateRequest);
+        return lambdaServiceClient.updateDrink(id,drinkUpdateRequest);
     }
 
-    public void deleteIngredient(String id) {
-        ingredientDAO.delete(id);
+    public IngredientResponse updateIngredient(String id, IngredientUpdateRequest ingredientUpdateRequest) throws IOException {
+        ingredientService.updateIngredient(id, ingredientUpdateRequest);
+        return lambdaServiceClient.updateIngredient(id, ingredientUpdateRequest);
     }
 
-    public Future<List<IngredientRecord>> findAll() {
-        return executorService.submit(() -> {
-            return ingredientDAO.findAll();
-        });
+    public DeleteDrinkResponse deleteDrinkById(String drinkId) throws IOException {
+        drinkService.deleteDrinkById(drinkId);
+        return lambdaServiceClient.deleteDrinkById(drinkId);
+    }
+
+    public DeleteIngredientResponse deleteIngredient(String ingredientId) throws IOException {
+        ingredientService.deleteIngredient(ingredientId);
+        return lambdaServiceClient.deleteIngredientById(ingredientId);
     }
 }

@@ -20,44 +20,58 @@ public class IngredientController {
 
     private final IngredientService ingredientService;
 
-
+    @Autowired
     public IngredientController(IngredientService ingredientService) {
         this.ingredientService = ingredientService;
     }
 
     @PostMapping
     public ResponseEntity<IngredientResponse> addIngredient(@RequestBody IngredientCreateRequest ingredientCreateRequest) throws IOException {
-        IngredientResponse response = ingredientService.addIngredient(ingredientCreateRequest);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        try {
+            IngredientResponse ingredientResponse = ingredientService.addIngredient(ingredientCreateRequest);
+            return new ResponseEntity<>(ingredientResponse, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<IngredientResponse> getIngredientById(@PathVariable String id) throws IOException {
-        IngredientResponse response = ingredientService.getIngredientById(id);
-        if (response == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        try {
+            IngredientResponse ingredientResponse = ingredientService.getIngredientById(id);
+            return new ResponseEntity<>(ingredientResponse, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping
-    public ResponseEntity<List<IngredientResponse>> getIngredients() throws IOException {
-        List<IngredientResponse> responses = ingredientService.getAllIngredients();
-        return new ResponseEntity<>(responses, HttpStatus.OK);
+    public ResponseEntity<List<IngredientResponse>> getAllIngredients() throws IOException {
+        try {
+            List<IngredientResponse> ingredientResponseList = ingredientService.getAllIngredients();
+            return new ResponseEntity<>(ingredientResponseList, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<IngredientResponse> updateIngredient(@PathVariable("id") String id, @RequestBody IngredientUpdateRequest ingredientUpdateRequest) throws IOException {
-        IngredientResponse response = ingredientService.updateIngredient(id, ingredientUpdateRequest);
-        if (response == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        try {
+            IngredientResponse updatedIngredientResponse = ingredientService.updateIngredient(id, ingredientUpdateRequest);
+            return new ResponseEntity<>(updatedIngredientResponse, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<DeleteIngredientResponse> deleteIngredient(@PathVariable("id") String id) throws IOException {
-        DeleteIngredientResponse response = ingredientService.deleteIngredient(id);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        try {
+            DeleteIngredientResponse deleteIngredientResponse = ingredientService.deleteIngredient(id);
+            return new ResponseEntity<>(deleteIngredientResponse, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
