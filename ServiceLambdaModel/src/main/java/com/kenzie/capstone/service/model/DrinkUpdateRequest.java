@@ -1,12 +1,17 @@
 package com.kenzie.capstone.service.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public class DrinkUpdateRequest {
-
+    @JsonProperty("id")
     private String id;
+    @JsonProperty("name")
     private String name;
+    @JsonProperty("recipe")
     private String recipe;
+    @JsonProperty("ingredients")
     private List<IngredientRecord> ingredients;
 
     public DrinkUpdateRequest() {}

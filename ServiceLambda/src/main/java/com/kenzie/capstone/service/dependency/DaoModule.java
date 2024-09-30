@@ -18,7 +18,9 @@ import javax.inject.Singleton;
 /**
  * Provides DynamoDBMapper instance to DAO classes.
  */
-@Module(includes = CachingModule.class)
+@Module(
+        includes = CachingModule.class
+)
 public class DaoModule {
 
     @Provides
@@ -28,11 +30,6 @@ public class DaoModule {
         return new DynamoDBMapper(DynamoDbClientProvider.getDynamoDBClient());
     }
 
-    @Provides
-    @Singleton
-    public ObjectMapper provideObjectMapper() {
-        return new ObjectMapper();
-    }
 
     @Singleton
     @Provides
@@ -62,6 +59,4 @@ public class DaoModule {
     public IngredientDAO provideIngredientDAO(@Named("IngredientNonCachingDAO") IngredientNonCachingDAO nonCachingDAO, ObjectMapper objectMapper, @Named("CacheClient") CacheClient cacheClient) {
         return new IngredientCachingDAO(nonCachingDAO, objectMapper, cacheClient);
     }
-
-
 }

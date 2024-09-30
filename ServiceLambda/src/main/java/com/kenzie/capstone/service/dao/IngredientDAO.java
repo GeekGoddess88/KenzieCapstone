@@ -1,12 +1,11 @@
 package com.kenzie.capstone.service.dao;
 
 import com.kenzie.capstone.service.model.IngredientRecord;
-import dagger.Component;
 
 import java.util.List;
 import java.util.Optional;
 
-@Component
+
 public interface IngredientDAO {
     Optional<IngredientRecord> findById(String id);
     List<IngredientRecord> findAll();

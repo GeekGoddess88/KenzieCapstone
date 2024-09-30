@@ -17,8 +17,7 @@ import javax.inject.Singleton;
 public interface ServiceComponent {
     LambdaService provideLambdaService();
     Jedis provideJedis();
-    DrinkService provideDrinkService();
-    IngredientService provideIngredientService();
+
 
 
 

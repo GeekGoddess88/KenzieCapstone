@@ -113,7 +113,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
-      Handler: com.kenzie.capstone.service.lambda.GetDrinkById::handleRequest
+      Handler: com.kenzie.capstone.service.lambda.GetDrinkById
       Runtime: java11
       Description: Get Drink Data by id
       MemorySize: 512
@@ -144,12 +144,12 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
-      Handler: com.kenzie.capstone.service.lambda.AddDrink::handleRequest
+      Handler: com.kenzie.capstone.service.lambda.AddDrink
       Runtime: java11
-      Description: Save or update Drink Data
+      Description: Add Drink Data
       MemorySize: 512
       Timeout: 240
-      # Lambda function to save or update a drink
+      # Lambda function to save a drink
       Policies:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
@@ -175,7 +175,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
-      Handler: com.kenzie.capstone.service.lambda.DeleteDrinkById::handleRequest
+      Handler: com.kenzie.capstone.service.lambda.DeleteDrinkById
       Runtime: java11
       Description: Delete Drink Data by ID
       MemorySize: 512
@@ -206,7 +206,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
-      Handler: com.kenzie.capstone.service.lambda.GetIngredientById::handleRequest
+      Handler: com.kenzie.capstone.service.lambda.GetIngredientById
       Runtime: java11
       Description: Get Ingredient Data by ID
       MemorySize: 512
@@ -237,12 +237,12 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
-      Handler: com.kenzie.capstone.service.lambda.AddIngredient::handleRequest
+      Handler: com.kenzie.capstone.service.lambda.AddIngredient
       Runtime: java11
-      Description: Save or update Ingredient Data
+      Description: Save Ingredient Data
       MemorySize: 512
       Timeout: 240
-      # Lambda function to save or update an ingredient
+      # Lambda function to save an ingredient
       Policies:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
@@ -268,7 +268,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
-      Handler: com.kenzie.capstone.service.lambda.DeleteIngredientById::handleRequest
+      Handler: com.kenzie.capstone.service.lambda.DeleteIngredientById
       Runtime: java11
       Description: Delete Ingredient Data by ID
       MemorySize: 512
@@ -299,7 +299,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
-      Handler: com.kenzie.capstone.service.lambda.UpdateDrink::handleRequest
+      Handler: com.kenzie.capstone.service.lambda.UpdateDrink
       Runtime: java11
       Description: Update Drink Data with ID
       MemorySize: 512
@@ -330,7 +330,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
-      Handler: com.kenzie.capstone.service.lambda.UpdateIngredient::handleRequest
+      Handler: com.kenzie.capstone.service.lambda.UpdateIngredient
       Runtime: java11
       Description: Update Ingredient with ID
       MemorySize: 512
@@ -361,7 +361,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
-      Handler: com.kenzie.capstone.service.lambda.GetAllDrinks::handleRequest
+      Handler: com.kenzie.capstone.service.lambda.GetAllDrinks
       Runtime: java11
       Description: Retrieve all Drinks
       MemorySize: 512
@@ -392,7 +392,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
-      Handler: com.kenzie.capstone.service.lambda.GetAllIngredients::handleRequest
+      Handler: com.kenzie.capstone.service.lambda.GetAllIngredients
       Runtime: java11
       Description: Retrieve all Ingredients
       MemorySize: 512

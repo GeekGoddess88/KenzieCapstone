@@ -12,7 +12,6 @@ public class DrinkConverter {
 
     public DrinkResponse toDrinkResponse(DrinkRecord drinkRecord) {
         if (drinkRecord == null) return null;
-
         return new DrinkResponse(
                 drinkRecord.getId(),
                 drinkRecord.getName(),
@@ -23,7 +22,6 @@ public class DrinkConverter {
 
     public DrinkRecord toDrinkRecord(DrinkCreateRequest drinkCreateRequest) {
         if (drinkCreateRequest == null) return null;
-
         DrinkRecord drinkRecord = new DrinkRecord();
         drinkRecord.setId(UUID.randomUUID().toString());
         drinkRecord.setName(drinkCreateRequest.getName());
@@ -34,7 +32,6 @@ public class DrinkConverter {
 
     public DrinkRecord toDrinkRecord(DrinkUpdateRequest drinkUpdateRequest) {
         if (drinkUpdateRequest == null) return null;
-
         DrinkRecord drinkRecord = new DrinkRecord();
         drinkRecord.setId(drinkUpdateRequest.getId());
         drinkRecord.setName(drinkUpdateRequest.getName());

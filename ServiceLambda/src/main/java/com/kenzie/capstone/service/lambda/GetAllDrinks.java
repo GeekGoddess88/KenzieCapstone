@@ -4,36 +4,36 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.kenzie.capstone.service.LambdaService;
 import com.kenzie.capstone.service.dependency.DaggerServiceComponent;
 import com.kenzie.capstone.service.dependency.ServiceComponent;
-import com.kenzie.capstone.service.model.Drink;
-import com.kenzie.capstone.service.model.DrinkCreateRequest;
 import com.kenzie.capstone.service.model.DrinkResponse;
 
 import java.util.List;
 
 public class GetAllDrinks implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
-    private final LambdaService lambdaService;
-
-    public GetAllDrinks() {
-        ServiceComponent serviceComponent = DaggerServiceComponent.create();
-        this.lambdaService = serviceComponent.provideLambdaService();
-    }
-
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
+        Gson gson = new GsonBuilder().create();
+        APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
+
         try {
+            ServiceComponent serviceComponent = DaggerServiceComponent.create();
+            LambdaService lambdaService = serviceComponent.provideLambdaService();
+
             List<DrinkResponse> drinkResponses = lambdaService.getAllDrinks();
-            return new APIGatewayProxyResponseEvent()
+
+            return response
                     .withStatusCode(200)
-                    .withBody(new ObjectMapper().writeValueAsString(drinkResponses));
+                    .withBody(gson.toJson(drinkResponses));
         } catch (Exception e) {
-            return new APIGatewayProxyResponseEvent()
+            return response
                     .withStatusCode(500)
-                    .withBody(e.getMessage());
+                    .withBody(gson.toJson(e));
         }
     }
 }

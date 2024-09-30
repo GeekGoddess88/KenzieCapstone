@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 
@@ -23,12 +22,12 @@ public class DrinkController {
     private final DrinkService drinkService;
 
     @Autowired
-    public DrinkController(@Name("DrinkService") DrinkService drinkService) {
+    public DrinkController(DrinkService drinkService) {
         this.drinkService = drinkService;
     }
 
     @PostMapping
-    public ResponseEntity<DrinkResponse> addDrink(@RequestBody DrinkCreateRequest drinkCreateRequest) throws IOException {
+    public ResponseEntity<DrinkResponse> addDrink(@RequestBody DrinkCreateRequest drinkCreateRequest) {
         try {
             DrinkResponse drinkResponse = drinkService.addDrink(drinkCreateRequest);
             return new ResponseEntity<>(drinkResponse, HttpStatus.CREATED);
@@ -38,10 +37,13 @@ public class DrinkController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DrinkResponse> getDrinkById(@PathVariable String id) throws IOException {
+    public ResponseEntity<DrinkResponse> getDrinkById(@PathVariable String id) {
         try {
             DrinkResponse drinkResponse = drinkService.getDrinkById(id);
-            return new ResponseEntity<>(drinkResponse, HttpStatus.OK);
+            if (drinkResponse != null) {
+                return new ResponseEntity<>(drinkResponse, HttpStatus.OK);
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

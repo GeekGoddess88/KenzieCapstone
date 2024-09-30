@@ -12,32 +12,18 @@ import com.kenzie.capstone.service.dao.*;
 import dagger.Module;
 import dagger.Provides;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.util.concurrent.ExecutorService;
 
 @Module(
     includes = DaoModule.class
 )
 public class ServiceModule {
-
     @Singleton
     @Provides
-    @Inject
-    public LambdaService provideLambdaService(@Named("DrinkService") DrinkService drinkService, @Named("IngredientService") IngredientService ingredientService) {
-        return new LambdaService(drinkService, ingredientService);
-    }
-
-    @Provides
-    @Singleton
-    public DrinkService provideDrinkService(DrinkCachingDAO drinkCachingDAO, LambdaServiceClient lambdaServiceClient, DrinkConverter drinkConverter) {
-        return new DrinkService(drinkCachingDAO, lambdaServiceClient, drinkConverter);
-    }
-
-    @Provides
-    @Singleton
-    public IngredientService provideIngredientService(IngredientCachingDAO ingredientCachingDAO, LambdaServiceClient lambdaServiceClient, IngredientConverter ingredientConverter) {
-        return new IngredientService(ingredientCachingDAO, lambdaServiceClient, ingredientConverter);
+    public LambdaService provideLambdaService(@Named("DrinkDAO") DrinkDAO drinkDAO, @Named("IngredientDAO") IngredientDAO ingredientDAO, ExecutorService executorService) {
+        return new LambdaService(drinkDAO, ingredientDAO, executorService);
     }
 }
 

@@ -1,9 +1,13 @@
 package com.kenzie.capstone.service.model;
 
-public class IngredientUpdateRequest {
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+public class IngredientUpdateRequest {
+    @JsonProperty("id")
     private String id;
+    @JsonProperty("name")
     private String name;
+    @JsonProperty("quantity")
     private int quantity;
 
     public IngredientUpdateRequest() {}

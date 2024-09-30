@@ -4,36 +4,39 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.kenzie.capstone.service.LambdaService;
 import com.kenzie.capstone.service.dependency.DaggerServiceComponent;
 import com.kenzie.capstone.service.dependency.ServiceComponent;
-import com.kenzie.capstone.service.model.IngredientResponse;
-import com.kenzie.capstone.service.model.IngredientUpdateRequest;
+import com.kenzie.capstone.service.model.*;
+
 
 public class UpdateDrink implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
-    private final LambdaService lambdaService;
-
-    public UpdateDrink() {
-        ServiceComponent serviceComponent = DaggerServiceComponent.create();
-        this.lambdaService = serviceComponent.provideLambdaService();
-    }
-
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
-        try {
-            String id = input.getPathParameters().get("id");
-            IngredientUpdateRequest ingredientUpdateRequest = new ObjectMapper().readValue(input.getBody(), IngredientUpdateRequest.class);
-            IngredientResponse updatedIngredient = lambdaService.updateIngredient(id, ingredientUpdateRequest);
+        Gson gson = new GsonBuilder().create();
+        APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
 
-            return new APIGatewayProxyResponseEvent()
+        try {
+            String drinkId = input.getPathParameters().get("id");
+            DrinkUpdateRequest drinkUpdateRequest = gson.fromJson(input.getBody(), DrinkUpdateRequest.class);
+
+            ServiceComponent serviceComponent = DaggerServiceComponent.create();
+            LambdaService lambdaService = serviceComponent.provideLambdaService();
+
+            DrinkResponse drinkResponse = lambdaService.updateDrink(drinkId, drinkUpdateRequest);
+
+
+            return response
                     .withStatusCode(200)
-                    .withBody(new ObjectMapper().writeValueAsString(updatedIngredient));
+                    .withBody(gson.toJson(drinkResponse));
         } catch (Exception e) {
-            return new APIGatewayProxyResponseEvent()
+            return response
                     .withStatusCode(500)
-                    .withBody(e.getMessage());
+                    .withBody(gson.toJson(e));
         }
     }
 }

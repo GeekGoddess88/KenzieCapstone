@@ -1,42 +1,39 @@
 package com.kenzie.capstone.service.lambda;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
-import com.amazonaws.services.dynamodbv2.document.Table;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.kenzie.capstone.service.LambdaService;
 import com.kenzie.capstone.service.dependency.DaggerServiceComponent;
 import com.kenzie.capstone.service.dependency.ServiceComponent;
 import com.kenzie.capstone.service.model.DeleteIngredientResponse;
 
-import java.util.HashMap;
-import java.util.Map;
 
 public class DeleteIngredientById implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
-    private final LambdaService lambdaService;
-
-    public DeleteIngredientById() {
-        ServiceComponent serviceComponent = DaggerServiceComponent.create();
-        this.lambdaService = serviceComponent.provideLambdaService();
-    }
-
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
+        Gson gson = new GsonBuilder().create();
+        APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
+
         try {
             String id = request.getPathParameters().get("id");
-            DeleteIngredientResponse deleteIngredientResponse = lambdaService.deleteIngredient(id);
+            ServiceComponent serviceComponent = DaggerServiceComponent.create();
+            LambdaService lambdaService = serviceComponent.provideLambdaService();
+            DeleteIngredientResponse deleteIngredientResponse = lambdaService.deleteIngredientById(id);
 
-            return new APIGatewayProxyResponseEvent()
+            return response
                     .withStatusCode(200)
-                    .withBody(new ObjectMapper().writeValueAsString(deleteIngredientResponse));
+                    .withBody(gson.toJson(deleteIngredientResponse));
         } catch (Exception e) {
-           return new APIGatewayProxyResponseEvent().withStatusCode(500).withBody(e.getMessage());
+           return response
+                   .withStatusCode(500)
+                   .withBody(gson.toJson(e));
         }
     }
 }

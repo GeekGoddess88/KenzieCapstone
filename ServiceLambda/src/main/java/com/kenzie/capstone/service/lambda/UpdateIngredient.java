@@ -4,38 +4,37 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.kenzie.capstone.service.LambdaService;
 import com.kenzie.capstone.service.dependency.DaggerServiceComponent;
 import com.kenzie.capstone.service.dependency.ServiceComponent;
 import com.kenzie.capstone.service.model.IngredientResponse;
 import com.kenzie.capstone.service.model.IngredientUpdateRequest;
 
-import java.io.IOException;
 
 public class UpdateIngredient implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
-    private final LambdaService lambdaService;
-
-    public UpdateIngredient() {
-        ServiceComponent serviceComponent = DaggerServiceComponent.create();
-        this.lambdaService = serviceComponent.provideLambdaService();
-    }
-
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
+        Gson gson = new GsonBuilder().create();
+        APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
         try {
             String id = input.getPathParameters().get("id");
-            IngredientUpdateRequest updateRequest = new ObjectMapper().readValue(input.getBody(), IngredientUpdateRequest.class);
+            IngredientUpdateRequest updateRequest = gson.fromJson(input.getBody(), IngredientUpdateRequest.class);
+            ServiceComponent serviceComponent = DaggerServiceComponent.create();
+            LambdaService lambdaService = serviceComponent.provideLambdaService();
+
             IngredientResponse updatedIngredient = lambdaService.updateIngredient(id, updateRequest);
 
-            return new APIGatewayProxyResponseEvent()
+            return response
                     .withStatusCode(200)
-                    .withBody(new ObjectMapper().writeValueAsString(updatedIngredient));
-        } catch (IOException e) {
-            return new APIGatewayProxyResponseEvent()
+                    .withBody(gson.toJson(updatedIngredient));
+        } catch (Exception e) {
+            return response
                     .withStatusCode(500)
-                    .withBody(e.getMessage());
+                    .withBody(gson.toJson(e.getMessage()));
         }
     }
 }

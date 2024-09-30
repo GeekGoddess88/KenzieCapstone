@@ -26,32 +26,35 @@ public class IngredientController {
     }
 
     @PostMapping
-    public ResponseEntity<IngredientResponse> addIngredient(@RequestBody IngredientCreateRequest ingredientCreateRequest) throws IOException {
+    public ResponseEntity<IngredientResponse> addIngredient(@RequestBody IngredientCreateRequest ingredientCreateRequest) {
         try {
             IngredientResponse ingredientResponse = ingredientService.addIngredient(ingredientCreateRequest);
             return new ResponseEntity<>(ingredientResponse, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<IngredientResponse> getIngredientById(@PathVariable String id) throws IOException {
+    public ResponseEntity<IngredientResponse> getIngredientById(@PathVariable String id) {
         try {
             IngredientResponse ingredientResponse = ingredientService.getIngredientById(id);
-            return new ResponseEntity<>(ingredientResponse, HttpStatus.OK);
+            if (ingredientResponse != null) {
+                return new ResponseEntity<>(ingredientResponse, HttpStatus.OK);
+            }
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
     @GetMapping
-    public ResponseEntity<List<IngredientResponse>> getAllIngredients() throws IOException {
+    public ResponseEntity<List<IngredientResponse>> getAllIngredients() {
         try {
             List<IngredientResponse> ingredientResponseList = ingredientService.getAllIngredients();
             return new ResponseEntity<>(ingredientResponseList, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -61,7 +64,7 @@ public class IngredientController {
             IngredientResponse updatedIngredientResponse = ingredientService.updateIngredient(id, ingredientUpdateRequest);
             return new ResponseEntity<>(updatedIngredientResponse, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -71,7 +74,7 @@ public class IngredientController {
             DeleteIngredientResponse deleteIngredientResponse = ingredientService.deleteIngredient(id);
             return new ResponseEntity<>(deleteIngredientResponse, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 }

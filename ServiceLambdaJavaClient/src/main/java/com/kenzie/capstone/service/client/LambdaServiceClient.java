@@ -3,14 +3,11 @@ package com.kenzie.capstone.service.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.kenzie.capstone.service.model.*;
-import dagger.Component;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
-@Component
+
 public class LambdaServiceClient {
 
     private static final String ADD_DRINK_ENDPOINT = "/drinks";
