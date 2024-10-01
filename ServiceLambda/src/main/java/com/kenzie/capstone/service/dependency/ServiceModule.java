@@ -15,6 +15,7 @@ import dagger.Provides;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Module(
     includes = DaoModule.class
@@ -22,8 +23,12 @@ import java.util.concurrent.ExecutorService;
 public class ServiceModule {
     @Singleton
     @Provides
-    public LambdaService provideLambdaService(@Named("DrinkDAO") DrinkDAO drinkDAO, @Named("IngredientDAO") IngredientDAO ingredientDAO, ExecutorService executorService) {
-        return new LambdaService(drinkDAO, ingredientDAO, executorService);
+    public LambdaService provideLambdaService(DrinkDAO drinkDAO, IngredientDAO ingredientDAO, ExecutorService executorService, DrinkConverter drinkConverter, IngredientConverter ingredientConverter) {
+        return new LambdaService(drinkDAO, ingredientDAO, executorService, drinkConverter, ingredientConverter);
+    }
+
+    public ExecutorService provideExecutorService() {
+        return Executors.newCachedThreadPool();
     }
 }
 

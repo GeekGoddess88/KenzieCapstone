@@ -6,7 +6,6 @@ import dagger.Component;
 
 import java.util.concurrent.Callable;
 
-@Component
 public class IngredientTask implements Callable<Void> {
 
     private final IngredientDAO ingredientDao;
