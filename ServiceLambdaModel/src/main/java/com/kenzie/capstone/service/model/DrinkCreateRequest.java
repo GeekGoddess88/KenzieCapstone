@@ -1,8 +1,14 @@
+package com.kenzie.capstone.service.model;
+
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
+
 public class DrinkCreateRequest {
+    @JsonProperty("id")
+    private String id;
     @JsonProperty("name")
     private String name;
     @JsonProperty("recipe")
@@ -30,6 +36,7 @@ public class DrinkCreateRequest {
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -37,6 +44,7 @@ public class DrinkCreateRequest {
     public String getRecipe() {
         return recipe;
     }
+
     public void setRecipe(String recipe) {
         this.recipe = recipe;
     }
