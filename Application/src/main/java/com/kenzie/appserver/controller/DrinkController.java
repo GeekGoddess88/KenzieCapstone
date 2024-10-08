@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/drinks")
@@ -27,55 +28,37 @@ public class DrinkController {
     }
 
     @PostMapping
-    public ResponseEntity<DrinkResponse> addDrink(@RequestBody DrinkCreateRequest drinkCreateRequest) {
-        try {
-            DrinkResponse drinkResponse = drinkService.addDrink(drinkCreateRequest);
-            return new ResponseEntity<>(drinkResponse, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public CompletableFuture<ResponseEntity<DrinkResponse>> addDrink(@RequestBody DrinkCreateRequest drinkCreateRequest) throws IOException {
+        return drinkService.addDrink(drinkCreateRequest)
+                .thenApply(drinkResponse -> new ResponseEntity<>(drinkResponse, HttpStatus.CREATED))
+                .exceptionally(ex -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DrinkResponse> getDrinkById(@PathVariable String id) {
-        try {
-            DrinkResponse drinkResponse = drinkService.getDrinkById(id);
-            if (drinkResponse != null) {
-                return new ResponseEntity<>(drinkResponse, HttpStatus.OK);
-            }
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public CompletableFuture<ResponseEntity<DrinkResponse>> getDrinkById(@PathVariable String id) throws IOException {
+        return drinkService.getDrinkById(id)
+                .thenApply(drinkResponse -> new ResponseEntity<>(drinkResponse, HttpStatus.OK))
+                .exceptionally(ex -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
-    @GetMapping
-    public ResponseEntity<List<DrinkResponse>> getAllDrinks() throws IOException {
-        try {
-            List<DrinkResponse> drinkResponses = drinkService.getAllDrinks();
-            return new ResponseEntity<>(drinkResponses, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    @GetMapping("/all")
+    public CompletableFuture<ResponseEntity<List<DrinkResponse>>> getAllDrinks() throws IOException {
+            return drinkService.getAllDrinks()
+                    .thenApply(drinkResponse -> new ResponseEntity<>(drinkResponse, HttpStatus.OK))
+                    .exceptionally(ex -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DrinkResponse> updateDrink(@PathVariable String id, @RequestBody DrinkUpdateRequest drinkUpdateRequest) throws IOException {
-        try {
-            DrinkResponse drinkResponse = drinkService.updateDrink(id, drinkUpdateRequest);
-            return new ResponseEntity<>(drinkResponse, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public CompletableFuture<ResponseEntity<DrinkResponse>> updateDrink(@PathVariable String id, @RequestBody DrinkUpdateRequest drinkUpdateRequest) throws IOException {
+        return drinkService.updateDrink(id, drinkUpdateRequest)
+                .thenApply(drinkResponse -> new ResponseEntity<>(drinkResponse, HttpStatus.OK))
+                .exceptionally(ex -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<DeleteDrinkResponse> deleteDrinkById(@PathVariable String id) throws IOException {
-        try {
-            DeleteDrinkResponse deleteDrinkResponse = drinkService.deleteDrinkById(id);
-            return new ResponseEntity<>(deleteDrinkResponse, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public CompletableFuture<ResponseEntity<DeleteDrinkResponse>> deleteDrinkById(@PathVariable String id) throws IOException {
+        return drinkService.deleteDrinkById(id)
+                .thenApply(drinkResponse -> new ResponseEntity<>(drinkResponse, HttpStatus.OK))
+                .exceptionally(ex -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 }

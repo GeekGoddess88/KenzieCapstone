@@ -1,30 +1,64 @@
 package com.kenzie.appserver;
 
 
-import com.kenzie.capstone.service.dependency.DaggerServiceComponent;
-import com.kenzie.capstone.service.dependency.ServiceComponent;
-import com.kenzie.capstone.service.task.DrinkTask;
-import com.kenzie.capstone.service.task.IngredientTask;
 
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
+import com.kenzie.appserver.service.DrinkService;
+import com.kenzie.appserver.service.IngredientService;
+
+import com.kenzie.capstone.service.model.DrinkCreateRequest;
+import com.kenzie.capstone.service.model.IngredientCreateRequest;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 
 @Component
-public class ApplicationStartUpListener {
+public class ApplicationStartUpListener implements ApplicationListener<ApplicationReadyEvent> {
 
-    private ServiceComponent serviceComponent;
+    private final DrinkService drinkService;
+    private final IngredientService ingredientService;
 
-    @EventListener(ContextRefreshedEvent.class)
-    public void onApplicationEvent(ContextRefreshedEvent event) {
-        // Perform any application start-up tasks
-        this.serviceComponent = DaggerServiceComponent.create();
+    @Autowired
+    public ApplicationStartUpListener(DrinkService drinkService, IngredientService ingredientService) {
+        this.drinkService = drinkService;
+        this.ingredientService = ingredientService;
     }
 
-    public ServiceComponent getServiceComponent() {
-        return this.serviceComponent;
+    @Override
+    public void onApplicationEvent(@NonNull ApplicationReadyEvent event) {
+        List<IngredientCreateRequest> ingredients = Arrays.asList(
+                new IngredientCreateRequest(UUID.randomUUID().toString(), "Water", 500),
+                new IngredientCreateRequest(UUID.randomUUID().toString(), "Coffee Beans", 100)
+        );
+
+        DrinkCreateRequest drinkCreateRequest = new DrinkCreateRequest(UUID.randomUUID().toString(), "Espresso", "Simple recipe", ingredients);
+
+        try {
+            drinkService.addDrink(drinkCreateRequest).exceptionally(ex -> {
+                System.err.println("Failed to add drink: " + ex.getMessage());
+                return null;
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            ingredientService.addIngredient(new IngredientCreateRequest(UUID.randomUUID().toString(), "Milk", 200)).exceptionally(ex -> {
+                System.err.println("Failed to add ingredient: " + ex.getMessage());
+                return null;
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

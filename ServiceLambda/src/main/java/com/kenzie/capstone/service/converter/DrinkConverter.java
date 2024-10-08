@@ -21,32 +21,29 @@ public class DrinkConverter {
     }
 
     public DrinkRecord toDrinkRecord(DrinkCreateRequest drinkCreateRequest) {
-        if (drinkCreateRequest == null) return null;
-        DrinkRecord drinkRecord = new DrinkRecord();
-        drinkRecord.setId(UUID.randomUUID().toString());
-        drinkRecord.setName(drinkCreateRequest.getName());
-        drinkRecord.setIngredients(drinkCreateRequest.getIngredients());
-        drinkRecord.setRecipe(drinkCreateRequest.getRecipe());
-        return drinkRecord;
+        List<IngredientRecord> ingredientRecords = drinkCreateRequest.getIngredients().stream()
+                .map(this::toIngredientRecord)
+                .collect(Collectors.toList());
+
+        return new DrinkRecord(
+                UUID.randomUUID().toString(),
+                drinkCreateRequest.getName(),
+                ingredientRecords,
+                drinkCreateRequest.getRecipe()
+        );
     }
 
     public DrinkRecord toDrinkRecord(DrinkUpdateRequest drinkUpdateRequest) {
         if (drinkUpdateRequest == null) return null;
-        DrinkRecord drinkRecord = new DrinkRecord();
-        drinkRecord.setId(drinkUpdateRequest.getId());
-        drinkRecord.setName(drinkUpdateRequest.getName());
-        drinkRecord.setIngredients(drinkUpdateRequest.getIngredients());
-        drinkRecord.setRecipe(drinkUpdateRequest.getRecipe());
-        return drinkRecord;
+        return new DrinkRecord(drinkUpdateRequest.getId(), drinkUpdateRequest.getName(),
+                drinkUpdateRequest.getIngredients(), drinkUpdateRequest.getRecipe());
     }
 
-    public DrinkRecord toDrinkRecord(DrinkResponse drinkResponse) {
-        if (drinkResponse == null) return null;
-        DrinkRecord drinkRecord = new DrinkRecord();
-        drinkRecord.setId(drinkResponse.getId());
-        drinkRecord.setName(drinkResponse.getName());
-        drinkRecord.setIngredients(drinkResponse.getIngredients());
-        drinkRecord.setRecipe(drinkResponse.getRecipe());
-        return drinkRecord;
+    private IngredientRecord toIngredientRecord(IngredientCreateRequest ingredientCreateRequest) {
+        return new IngredientRecord(
+                ingredientCreateRequest.getId(),
+                ingredientCreateRequest.getName(),
+                ingredientCreateRequest.getQuantity()
+        );
     }
 }

@@ -1,35 +1,50 @@
 package com.kenzie.capstone.service.dependency;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kenzie.capstone.service.LambdaService;
-import com.kenzie.capstone.service.caching.CacheClient;
 import com.kenzie.capstone.service.converter.DrinkConverter;
 import com.kenzie.capstone.service.converter.IngredientConverter;
 import com.kenzie.capstone.service.dao.*;
-
 
 import dagger.Module;
 import dagger.Provides;
 
 import javax.inject.Named;
+
 import javax.inject.Singleton;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.*;
+
 
 @Module(
-    includes = DaoModule.class
+    includes = {DaoModule.class,
+        CachingModule.class}
 )
 public class ServiceModule {
-    @Singleton
+
+
     @Provides
-    public LambdaService provideLambdaService(DrinkDAO drinkDAO, IngredientDAO ingredientDAO, ExecutorService executorService, DrinkConverter drinkConverter, IngredientConverter ingredientConverter) {
-        return new LambdaService(drinkDAO, ingredientDAO, executorService, drinkConverter, ingredientConverter);
+    @Singleton
+    LambdaService provideLambdaService(@Named("DrinkDAO") DrinkDAO drinkDAO,
+                                              @Named("IngredientDAO") IngredientDAO ingredientDAO,
+                                              @Named("DrinkConverter") DrinkConverter drinkConverter,
+                                              @Named("IngredientConverter") IngredientConverter ingredientConverter) {
+        return new LambdaService(drinkDAO, ingredientDAO,  drinkConverter, ingredientConverter);
     }
 
-    public ExecutorService provideExecutorService() {
-        return Executors.newCachedThreadPool();
+    @Provides
+    @Singleton
+    IngredientConverter provideIngredientConverter() {
+        return new IngredientConverter();
     }
+
+    @Provides
+    @Singleton
+    DrinkConverter provideDrinkConverter() {
+        return new DrinkConverter();
+    }
+
+
 }
 
 

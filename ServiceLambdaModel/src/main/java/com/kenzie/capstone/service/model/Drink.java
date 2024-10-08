@@ -1,4 +1,4 @@
-package com.kenzie.appserver.service.model;
+package com.kenzie.capstone.service.model;
 
 import java.util.List;
 

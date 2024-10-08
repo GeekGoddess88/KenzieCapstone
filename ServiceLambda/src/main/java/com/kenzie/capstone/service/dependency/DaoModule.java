@@ -31,32 +31,38 @@ public class DaoModule {
     }
 
 
-    @Singleton
     @Provides
     @Named("DrinkNonCachingDAO")
     public DrinkNonCachingDAO provideDrinkNonCachingDAO(@Named("DynamoDBMapper") DynamoDBMapper dynamoDBMapper) {
         return new DrinkNonCachingDAO(dynamoDBMapper);
     }
 
-    @Singleton
+
     @Provides
     @Named("IngredientNonCachingDAO")
     public IngredientDAO provideIngredientNonCachingDAO(@Named("DynamoDBMapper") DynamoDBMapper dynamoDBMapper) {
         return new IngredientNonCachingDAO(dynamoDBMapper);
     }
 
-    @Singleton
+
     @Provides
+    @Singleton
     @Named("DrinkDao")
     public DrinkDAO provideDrinkDAO(@Named("CacheClient") CacheClient cacheClient, ObjectMapper objectMapper, @Named("DrinkNonCachingDAO") DrinkNonCachingDAO nonCachingDAO) {
         return new DrinkCachingDAO(cacheClient, objectMapper, nonCachingDAO);
     }
 
 
-    @Singleton
+
     @Provides
     @Named("IngredientDao")
     public IngredientDAO provideIngredientDAO(@Named("IngredientNonCachingDAO") IngredientNonCachingDAO nonCachingDAO, ObjectMapper objectMapper, @Named("CacheClient") CacheClient cacheClient) {
         return new IngredientCachingDAO(nonCachingDAO, objectMapper, cacheClient);
+    }
+
+    @Provides
+    @Singleton
+    public ObjectMapper provideObjectMapper() {
+        return new ObjectMapper();
     }
 }

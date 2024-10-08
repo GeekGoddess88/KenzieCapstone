@@ -1,61 +1,77 @@
 package com.kenzie.capstone.service.caching;
 
+import com.kenzie.capstone.service.LambdaService.*;
 
-import com.kenzie.capstone.service.dependency.DaggerServiceComponent;
 import redis.clients.jedis.Jedis;
 
-
+import javax.inject.Inject;
 import java.util.Optional;
 
 public class CacheClient {
 
+    @Inject
     public CacheClient() {}
 
-
+    @Inject
     public void setValue(String key, int seconds, String value) {
         checkNonNullKey(key);
-        Jedis cache = null;
+        Jedis jedis = null;
         try {
-            cache = DaggerServiceComponent.create().provideJedis();
-            cache.setex(key, seconds, value);
+            jedis = DaggerServiceComponent.provideJedis();
+            jedis.setex(key, seconds, value);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         } finally {
-            if (cache != null) {
-                cache.close();
+            if (jedis != null) {
+                jedis.close();
             }
         }
     }
 
+    @Inject
     public Optional<String> getValue(String key) {
         checkNonNullKey(key);
-        Jedis cache = null;
+        Jedis jedis = null;
         try {
-            cache = DaggerServiceComponent.create().provideJedis();
-            String value = cache.get(key);
+            jedis = DaggerServiceComponent.provideJedis();
+            String value = jedis.get(key);
             return Optional.ofNullable(value);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return Optional.empty();
         } finally {
-            if (cache != null) {
-                cache.close();
+            if (jedis != null) {
+                jedis.close();
             }
         }
     }
 
+    @Inject
     public void invalidate(String key) {
         checkNonNullKey(key);
 
-        Jedis cache = null;
+        Jedis jedis = null;
         try {
-            cache = DaggerServiceComponent.create().provideJedis();
-            cache.del(key);
+            jedis = DaggerServiceComponent.provideJedis();
+            jedis.del(key);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         } finally {
-            if (cache != null) {
-                cache.close();
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+    }
+
+    @Inject
+    public void close() {
+        Jedis jedis = DaggerServiceComponent.provideJedis();
+        if (jedis != null) {
+            try {
+                System.out.println("Closing Redis connection...");
+                jedis.close();
+            } catch (Exception e) {
+                System.out.println("Error while closing Redis connection: " + e.getMessage());
             }
         }
     }

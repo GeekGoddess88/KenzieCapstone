@@ -1,6 +1,7 @@
 package com.kenzie.appserver.config;
 
-import com.kenzie.capstone.service.caching.CacheClient;
+
+
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,6 +9,7 @@ import org.springframework.cache.annotation.EnableCaching;
 
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+
 
 
 @Configuration

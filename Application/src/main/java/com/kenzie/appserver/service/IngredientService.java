@@ -1,21 +1,17 @@
 package com.kenzie.appserver.service;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
-import com.kenzie.appserver.repositories.model.IngredientRepository;
+import com.kenzie.appserver.repositories.IngredientRepository;
 import com.kenzie.capstone.service.client.LambdaServiceClient;
 
 import com.kenzie.capstone.service.model.*;
-import com.kenzie.capstone.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -24,61 +20,131 @@ public class IngredientService {
 
     private final IngredientRepository ingredientRepository;
     private final LambdaServiceClient lambdaServiceClient;
+    private final CloudWatchService cloudWatchService;
+    private final TaskExecutor taskExecutor;
 
 
-    @Inject
-    public IngredientService(IngredientRepository ingredientRepository, LambdaServiceClient lambdaServiceClient) {
+    @Autowired
+    public IngredientService(IngredientRepository ingredientRepository, LambdaServiceClient lambdaServiceClient,
+                             CloudWatchService cloudWatchService, TaskExecutor taskExecutor) {
         this.ingredientRepository = ingredientRepository;
         this.lambdaServiceClient = lambdaServiceClient;
+        this.cloudWatchService = cloudWatchService;
+        this.taskExecutor = taskExecutor;
     }
 
-    public IngredientResponse addIngredient(IngredientCreateRequest ingredientCreateRequest) throws IOException {
-        IngredientResponse ingredientResponse = lambdaServiceClient.addIngredient(ingredientCreateRequest);
-        IngredientRecord ingredientRecord = new IngredientRecord(
-                ingredientResponse.getId(),
-                ingredientResponse.getName(),
-                ingredientResponse.getQuantity());
-        ingredientRepository.save(ingredientRecord);
-        return ingredientResponse;
+    @Async
+    public CompletableFuture<IngredientResponse> addIngredient(IngredientCreateRequest ingredientCreateRequest) throws IOException {
+        return lambdaServiceClient.addIngredient(ingredientCreateRequest).thenApply(ingredientResponse -> {
+            IngredientRecord ingredientRecord = new IngredientRecord(
+                    ingredientResponse.getId(),
+                    ingredientResponse.getName(),
+                    ingredientResponse.getQuantity()
+            );
+            ingredientRepository.save(ingredientRecord);
+            cloudWatchService.publishMetric("AddIngredientLatency", System.currentTimeMillis());
+            return ingredientResponse;
+        });
     }
 
-    public IngredientResponse getIngredientById(String id) throws IOException {
+    @Async
+    public CompletableFuture<IngredientResponse> getIngredientById(String id) {
         return ingredientRepository.findById(id)
-                .map(record -> new IngredientResponse(record.getId(), record.getName(), record.getQuantity()))
+                .map(record ->  CompletableFuture.completedFuture(new IngredientResponse(
+                        record.getId(),
+                        record.getName(),
+                        record.getQuantity()
+                )))
                 .orElseGet(() -> {
                     try {
                         return lambdaServiceClient.getIngredientById(id);
                     } catch (IOException e) {
-                        throw new RuntimeException("Failed to get Ingredient from the Lambda", e);
+                        throw new RuntimeException(e);
                     }
                 });
     }
 
-    public List<IngredientResponse> getAllIngredients() throws IOException {
-        List<IngredientRecord> ingredientRecords = StreamSupport.stream(ingredientRepository.findAll().spliterator(), false)
-                .collect(Collectors.toList());
-
-        if (ingredientRecords.isEmpty()) {
-            IngredientResponse[] ingredientResponses = lambdaServiceClient.getAllIngredients();
-            return Arrays.asList(ingredientResponses);
-        }
-        return ingredientRecords.stream()
-                .map(record -> new IngredientResponse(record.getId(), record.getName(), record.getQuantity()))
-                .collect(Collectors.toList());
-    }
-
-    public IngredientResponse updateIngredient(String ingredientId, IngredientUpdateRequest ingredientUpdateRequest) throws IOException {
-            IngredientResponse ingredientResponse = lambdaServiceClient.updateIngredient(ingredientId, ingredientUpdateRequest);
-            IngredientRecord ingredientRecord = new IngredientRecord(ingredientResponse.getId(), ingredientResponse.getName(), ingredientResponse.getQuantity());
-            ingredientRepository.save(ingredientRecord);
-            return ingredientResponse;
-    }
-
-    public DeleteIngredientResponse deleteIngredient(String ingredientId) throws IOException {
-            DeleteIngredientResponse deleteIngredientResponse = lambdaServiceClient.deleteIngredientById(ingredientId);
-            if (deleteIngredientResponse != null && deleteIngredientResponse.getId() != null) {
-                ingredientRepository.deleteById(deleteIngredientResponse.getId());
+    @Async
+    public CompletableFuture<List<IngredientResponse>> getAllIngredients() {
+        return CompletableFuture.supplyAsync(() -> {
+            List<IngredientRecord> ingredientRecords = StreamSupport
+                    .stream(ingredientRepository.findAll().spliterator(), false)
+                    .collect(Collectors.toList());
+            if (!ingredientRecords.isEmpty()) {
+                return ingredientRecords.stream()
+                        .map(record -> new IngredientResponse(record.getId(),
+                                record.getName(),
+                                record.getQuantity()))
+                        .collect(Collectors.toList());
             }
-            return deleteIngredientResponse;
+
+            return null;
+        }, taskExecutor).thenCompose(localResult -> {
+            if (localResult == null) {
+                try {
+                    return lambdaServiceClient.getAllIngredients()
+                            .thenApply(List::of)
+                            .exceptionally(ex -> {
+                                System.err.println("Error fetching ingredients from Lambda: " + ex.getMessage());
+                                return List.of();
+                            });
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return CompletableFuture.completedFuture(localResult);
+        });
+    }
+
+    @Async
+    public CompletableFuture<IngredientResponse> updateIngredient(String ingredientId, IngredientUpdateRequest ingredientUpdateRequest) {
+        try {
+            return lambdaServiceClient.updateIngredient(ingredientId, ingredientUpdateRequest).thenApply(ingredientResponse -> {
+                IngredientRecord ingredientRecord = new IngredientRecord(
+                        ingredientResponse.getId(),
+                        ingredientResponse.getName(),
+                        ingredientResponse.getQuantity()
+                );
+                ingredientRepository.save(ingredientRecord);
+                cloudWatchService.publishMetric("UpdateIngredientLatency", System.currentTimeMillis());
+                return ingredientResponse;
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Async
+    public CompletableFuture<DeleteIngredientResponse> deleteIngredient(String ingredientId) {
+        try {
+            return lambdaServiceClient.deleteIngredientById(ingredientId).thenApply(deleteResponse -> {
+                if (deleteResponse != null && deleteResponse.getId() != null) {
+                    ingredientRepository.deleteById(deleteResponse.getId());
+                }
+                cloudWatchService.publishMetric("DeleteIngredientLatency", System.currentTimeMillis());
+                return deleteResponse;
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Async
+    public CompletableFuture<Void> checkAndReplenishStock() {
+        List<IngredientRecord> ingredients = (List<IngredientRecord>) ingredientRepository.findAll();
+
+        for (IngredientRecord ingredient : ingredients) {
+            if (ingredient.getQuantity() < 10) {
+                System.out.println("Low stock detected for: " + ingredient.getName() + ". Replenishing...");
+                replenishStock(ingredient);
+            }
+        }
+        return CompletableFuture.completedFuture(null);
+    }
+
+    private void replenishStock(IngredientRecord ingredientRecord) {
+        ingredientRecord.setQuantity(ingredientRecord.getQuantity() + 100);
+        ingredientRepository.save(ingredientRecord);
+        System.out.println("Replenished stock for ingredient: " + ingredientRecord.getName());
     }
 }

@@ -45,7 +45,6 @@ public class CachingModule {
     }
 
     @Provides
-    @Singleton
     @Named("CacheClient")
     public CacheClient provideCacheClient() {
         return new CacheClient();

@@ -1,12 +1,12 @@
 :root {
     /* css variables: https://developer.mozilla.org/en-US/docs/Web/CSS/var */
-    --primary-color: #131921;
+    --primary-color: #996633;
     --secondary-color: #fff;
     --error-color: rgba(194, 0, 0, 0.71);
 }
 
 .background {
-    background-color: #eaeded;
+    background-color: Wheat;
     margin: 0;
     counter-reset: section;
 }
@@ -40,17 +40,32 @@
 }
 
 .button, button {
-    background: #aed9ff;
+    background: #cc9966;
     padding: 3px;
     border-radius: 3px;
     text-decoration: none;
-    color: black;
+    color: white;
     border: 1px solid black;
     cursor: pointer;
 }
 
+.form-button {
+    background: white;
+    padding: 3px;
+    border-radius: 3px;
+    text-decoration: none;
+    color: #bf8040;
+    border: 1px solid black;
+    cursor: pointer;
+}
+
+.form-button:hover, form-button:hover {
+    background: #bf8040;
+    color: white;
+}
+
 .button:hover, button:hover {
-    background: #9cc3e4;
+    background: #996633;
 }
 
 .card {
@@ -58,6 +73,113 @@
     background-color: var(--secondary-color);
     margin: 20px;
     padding: 10px 20px;
+}
+
+.center-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: var(--primary-color);
+    background-color: var(--secondary-color);
+    margin: 100px 880px;
+}
+
+.column-card {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    color: var(--primary-color);
+    background-color: #f9f2ec;
+    margin: 20px;
+}
+
+.menu-header {
+    display: flex;
+    justify-content: center;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+}
+.center-card .menu-content {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+}
+
+.emp-portal-center-card {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    border-radius: 25px;
+    color: var(--primary-color);
+    background-color: #f9f2ec;
+    margin: 100px 880px;
+}
+
+.emp-portal-center-card .portal-links {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 10px 30px;
+}
+
+.index-links {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    margin: 20px 40px;
+}
+
+.portal-button {
+    padding: 10px;
+}
+
+.index-menu-button {
+
+}
+
+.menu-card {
+    width: 300px;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 25px;
+    background: #cc9966;
+    color: #f9f2ec;
+}
+
+.barista-menu-card {
+    width: 300px;
+    padding: 10px;
+    min-height: 300px;
+    margin: 0px 300px;
+}
+
+.barista-column-card {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    color: var(--primary-color);
+    background-color: var(--secondary-color);
+    margin: 20px;
+}
+
+.menu-management-header {
+    display: flex;
+    justify-content: center;
+}
+
+.menu-management-display {
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    background-color: #eaeded;
+    margin: 94px 20px 50px;
+    min-width: 300px;
+}
+
+.ingredient-select-boxes {
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
 }
 
 .validated-field:invalid {
@@ -74,6 +196,11 @@
 .card-content .form-field {
     display: flex;
     flex-direction: column;
+    color: #f9f2ec;
+}
+
+.form-field {
+background-color: #f9f2ec;
 }
 
 #concert-list li {

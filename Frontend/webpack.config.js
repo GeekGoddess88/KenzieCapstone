@@ -8,7 +8,11 @@ module.exports = {
     usedExports: true
   },
   entry: {
-    examplePage: path.resolve(__dirname, 'src', 'pages', 'examplePage.js'),
+    inventoryManagementPage: path.resolve(__dirname, 'src', 'pages', 'inventoryManagementPage.js'),
+    menuManagementPage: path.resolve(__dirname, 'src', 'pages', 'menuManagementPage.js'),
+    employeePortalPage: path.resolve(__dirname, 'src', 'pages', 'employeePortalPage.js'),
+    menuPage: path.resolve(__dirname, 'src', 'pages', 'menuPage.js'),
+    baristaMenuPage: path.resolve(__dirname, 'src', 'pages', 'baristaMenuPage.js'),
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -21,7 +25,8 @@ module.exports = {
     proxy: [
       {
         context: [
-          '/example',
+          '/ingredient',
+          '/drink'
         ],
         target: 'http://localhost:5001'
       }
@@ -31,6 +36,31 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './src/index.html',
       filename: 'index.html',
+      inject: false
+    }),
+    new HtmlWebpackPlugin({
+      template: './src/inventory-management.html',
+      filename: 'inventory-management.html',
+      inject: false
+    }),
+    new HtmlWebpackPlugin({
+      template: './src/menu-management.html',
+      filename: 'menu-management.html',
+      inject: false
+    }),
+    new HtmlWebpackPlugin({
+      template: './src/employee-portal.html',
+      filename: 'employee-portal.html',
+      inject: false
+    }),
+    new HtmlWebpackPlugin({
+      template: './src/menu.html',
+      filename: 'menu.html',
+      inject: false
+    }),
+    new HtmlWebpackPlugin({
+      template: './src/barista-menu.html',
+      filename: 'barista-menu.html',
       inject: false
     }),
     new CopyPlugin({

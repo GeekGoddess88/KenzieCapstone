@@ -1,4 +1,4 @@
-package com.kenzie.appserver.repositories.model;
+package com.kenzie.appserver.repositories;
 
 import com.kenzie.capstone.service.model.IngredientRecord;
 import org.socialsignin.spring.data.dynamodb.repository.EnableScan;
