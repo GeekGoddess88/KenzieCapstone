@@ -8,23 +8,22 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent
 import com.google.gson.Gson;
 import com.kenzie.capstone.service.LambdaService;
 import com.kenzie.capstone.service.model.DrinkResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import java.util.concurrent.CompletableFuture;
-
-
+@Component
 public class GetDrinkById implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
     private final LambdaService lambdaService;
+    private final Gson gson = new Gson();
 
-    @Inject
+    @Autowired
     public GetDrinkById(LambdaService lambdaService) {
         this.lambdaService = lambdaService;
     }
 
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent event, Context context) {
-        Gson gson = new Gson();
         APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
 
         try {
@@ -36,7 +35,7 @@ public class GetDrinkById implements RequestHandler<APIGatewayProxyRequestEvent,
         } catch (Exception e) {
             return response
                     .withStatusCode(500)
-                    .withBody(gson.toJson("Error: " + e.getMessage()));
+                    .withBody(gson.toJson("Error retrieving drink by ID: " + e.getMessage()));
         }
     }
 }

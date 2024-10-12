@@ -4,7 +4,6 @@ package com.kenzie.appserver.controller;
 
 
 import com.kenzie.appserver.service.IngredientService;
-import com.kenzie.capstone.service.client.ApiGatewayException;
 import com.kenzie.capstone.service.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.inject.Inject;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -35,12 +34,12 @@ public class IngredientController {
                     .thenApply(ingredientResponse -> ResponseEntity.status(HttpStatus.CREATED).body(ingredientResponse))
                     .exceptionally(ex -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
         } catch (IOException e) {
-            throw new ApiGatewayException(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 
     @GetMapping("/{id}")
-    public CompletableFuture<ResponseEntity<IngredientResponse>> getIngredientById(@PathVariable String id) throws IOException {
+    public CompletableFuture<ResponseEntity<IngredientResponse>> getIngredientById(@PathVariable String id) {
         return ingredientService.getIngredientById(id)
                 .thenApply(ingredientResponse -> new ResponseEntity<>(ingredientResponse, HttpStatus.OK))
                 .exceptionally(ex -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());

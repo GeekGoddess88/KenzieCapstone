@@ -3,8 +3,10 @@ package com.kenzie.appserver;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.mock.env.MockPropertySource;
+import org.springframework.stereotype.Component;
 import org.testcontainers.containers.GenericContainer;
 
+@Component
 public class DynamoDbInitializer  implements ApplicationContextInitializer<ConfigurableApplicationContext> {
     private static GenericContainer<?> dynamoDb;
 

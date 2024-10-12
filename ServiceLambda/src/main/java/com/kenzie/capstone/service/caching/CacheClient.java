@@ -1,77 +1,63 @@
 package com.kenzie.capstone.service.caching;
 
-import com.kenzie.capstone.service.LambdaService.*;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
-import javax.inject.Inject;
-import java.util.Optional;
+import javax.annotation.PreDestroy;
 
+@Component
 public class CacheClient {
 
-    @Inject
-    public CacheClient() {}
+    private final JedisPool jedisPool;
 
-    @Inject
+    @Autowired
+    public CacheClient(JedisPool jedisPool) {
+        this.jedisPool = jedisPool;
+    }
+
+
     public void setValue(String key, int seconds, String value) {
         checkNonNullKey(key);
-        Jedis jedis = null;
-        try {
-            jedis = DaggerServiceComponent.provideJedis();
+        try (Jedis jedis = jedisPool.getResource()) {
             jedis.setex(key, seconds, value);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-        } finally {
-            if (jedis != null) {
-                jedis.close();
-            }
+            System.err.println("Error setting value to Redis: " + e.getMessage());
+            throw e;
         }
     }
 
-    @Inject
-    public Optional<String> getValue(String key) {
+    public String getValue(String key) {
         checkNonNullKey(key);
-        Jedis jedis = null;
-        try {
-            jedis = DaggerServiceComponent.provideJedis();
+        try (Jedis jedis = jedisPool.getResource()) {
             String value = jedis.get(key);
-            return Optional.ofNullable(value);
+        return value != null && !value.isEmpty() ? value : null;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return Optional.empty();
-        } finally {
-            if (jedis != null) {
-                jedis.close();
-            }
+            System.err.println("Error getting value from Redis: " + e.getMessage());
+            throw e;
         }
     }
 
-    @Inject
+
     public void invalidate(String key) {
         checkNonNullKey(key);
-
-        Jedis jedis = null;
-        try {
-            jedis = DaggerServiceComponent.provideJedis();
+        try (Jedis jedis = jedisPool.getResource()) {
             jedis.del(key);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-        } finally {
-            if (jedis != null) {
-                jedis.close();
-            }
+            System.err.println("Error invalidating key: " + e.getMessage());
+            throw e;
         }
     }
 
-    @Inject
-    public void close() {
-        Jedis jedis = DaggerServiceComponent.provideJedis();
-        if (jedis != null) {
+    @PreDestroy
+    public void closePool() {
+        if (jedisPool != null) {
             try {
-                System.out.println("Closing Redis connection...");
-                jedis.close();
+                System.out.println("Closing Jedis pool");
+                jedisPool.close();
             } catch (Exception e) {
-                System.out.println("Error while closing Redis connection: " + e.getMessage());
+                System.err.println("Error closing Jedis pool: " + e.getMessage());
             }
         }
     }

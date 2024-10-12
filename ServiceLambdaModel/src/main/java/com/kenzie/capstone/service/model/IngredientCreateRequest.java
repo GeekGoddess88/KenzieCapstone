@@ -12,8 +12,6 @@ public class IngredientCreateRequest {
     @JsonProperty("quantity")
     private int quantity;
 
-    public IngredientCreateRequest() {}
-
     public IngredientCreateRequest(String id, String name, int quantity) {
         this.id = id;
         this.name = name;

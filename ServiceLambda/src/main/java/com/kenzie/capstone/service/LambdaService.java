@@ -1,16 +1,18 @@
 package com.kenzie.capstone.service;
 
-import com.kenzie.capstone.service.converter.DrinkConverter;
-import com.kenzie.capstone.service.converter.IngredientConverter;
 import com.kenzie.capstone.service.dao.DrinkDAO;
 import com.kenzie.capstone.service.dao.IngredientDAO;
 import com.kenzie.capstone.service.model.*;
+import com.kenzie.capstone.service.model.converter.DrinkConverter;
+import com.kenzie.capstone.service.model.converter.IngredientConverter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Service
 public class LambdaService {
 
     private final DrinkDAO drinkDAO;
@@ -18,7 +20,7 @@ public class LambdaService {
     private final DrinkConverter drinkConverter;
     public IngredientConverter ingredientConverter;
 
-    @Inject
+    @Autowired
     public LambdaService(DrinkDAO drinkDAO, IngredientDAO ingredientDAO, DrinkConverter drinkConverter, IngredientConverter ingredientConverter) {
         this.drinkDAO = drinkDAO;
         this.ingredientDAO = ingredientDAO;
@@ -72,13 +74,13 @@ public class LambdaService {
     }
 
     public IngredientResponse addIngredient(IngredientCreateRequest ingredientCreateRequest) {
-        IngredientRecord ingredientRecord = ingredientConverter.toIngredientRecord(ingredientCreateRequest);
+        IngredientRecord ingredientRecord = ingredientConverter.toIngredientRecordFromCreateRequest(ingredientCreateRequest);
         ingredientDAO.save(ingredientRecord);
         return ingredientConverter.toIngredientResponse(ingredientRecord);
     }
 
     public IngredientResponse updateIngredient(String ingredientId, IngredientUpdateRequest ingredientUpdateRequest) {
-        IngredientRecord ingredientRecord = ingredientConverter.toIngredientRecord(ingredientUpdateRequest);
+        IngredientRecord ingredientRecord = ingredientConverter.toIngredientRecordFromUpdateRequest(ingredientUpdateRequest);
         ingredientDAO.update(ingredientId, ingredientRecord);
         return ingredientConverter.toIngredientResponse(ingredientRecord);
     }

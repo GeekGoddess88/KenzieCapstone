@@ -1,19 +1,15 @@
 package com.kenzie.capstone.service.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-
 import com.kenzie.capstone.service.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Qualifier;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-
+@Component
 public class LambdaServiceClient {
 
     private static final String ADD_DRINK_ENDPOINT = "/drinks";
@@ -31,9 +27,8 @@ public class LambdaServiceClient {
     private final ObjectMapper objectMapper;
     public Executor taskExecutor;
 
-
-    @Inject
-    public LambdaServiceClient(EndpointUtility endpointUtility, @Named("LambdaServiceClient-Executor") Executor taskExecutor) {
+    @Autowired
+    public LambdaServiceClient(EndpointUtility endpointUtility, Executor taskExecutor) {
         this.endpointUtility = endpointUtility;
         this.objectMapper = new ObjectMapper();
         this.taskExecutor = taskExecutor;
@@ -103,7 +98,7 @@ public class LambdaServiceClient {
         }, taskExecutor);
     }
 
-    public CompletableFuture<IngredientResponse> addIngredient(IngredientCreateRequest ingredientCreateRequest) throws IOException {
+    public CompletableFuture<IngredientResponse> addIngredient(IngredientCreateRequest ingredientCreateRequest) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 String requestBody = objectMapper.writeValueAsString(ingredientCreateRequest);

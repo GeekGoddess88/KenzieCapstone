@@ -4,7 +4,6 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.kenzie.capstone.service.model.IngredientRecord;
 
-import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,7 +11,6 @@ public class IngredientNonCachingDAO implements IngredientDAO {
 
     private final DynamoDBMapper dynamoDBMapper;
 
-    @Inject
     public IngredientNonCachingDAO(DynamoDBMapper dynamoDBMapper) {
         this.dynamoDBMapper = dynamoDBMapper;
     }
@@ -41,8 +39,9 @@ public class IngredientNonCachingDAO implements IngredientDAO {
 
     @Override
     public void delete(String id) {
-        IngredientRecord ingredientRecord = new IngredientRecord();
-        ingredientRecord.setId(id);
-        dynamoDBMapper.delete(ingredientRecord);
+        IngredientRecord ingredientRecord = dynamoDBMapper.load(IngredientRecord.class, id);
+        if (ingredientRecord != null) {
+            dynamoDBMapper.delete(ingredientRecord);
+        }
     }
 }

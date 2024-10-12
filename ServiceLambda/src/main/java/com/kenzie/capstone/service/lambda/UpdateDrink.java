@@ -6,24 +6,24 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.google.gson.Gson;
 import com.kenzie.capstone.service.LambdaService;
+import com.kenzie.capstone.service.model.DrinkResponse;
+import com.kenzie.capstone.service.model.DrinkUpdateRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import com.kenzie.capstone.service.model.*;
-import javax.inject.Inject;
-import java.util.concurrent.CompletableFuture;
-
-
+@Component
 public class UpdateDrink implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
     private final LambdaService lambdaService;
+    private final Gson gson = new Gson();
 
-    @Inject
+    @Autowired
     public UpdateDrink(LambdaService lambdaService) {
         this.lambdaService = lambdaService;
     }
 
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
-        Gson gson = new Gson();
         APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
 
         try {
@@ -38,7 +38,7 @@ public class UpdateDrink implements RequestHandler<APIGatewayProxyRequestEvent, 
         } catch (Exception e) {
             return response
                     .withStatusCode(500)
-                    .withBody(gson.toJson(e));
+                    .withBody(gson.toJson("Error updating drink: " + e.getMessage()));
         }
     }
 }

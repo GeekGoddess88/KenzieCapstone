@@ -10,8 +10,6 @@ public class DeleteIngredientResponse {
     @JsonProperty("message")
     private String message;
 
-    public DeleteIngredientResponse() {}
-
     public DeleteIngredientResponse(String id, String message) {
         this.id = id;
         this.message = message;

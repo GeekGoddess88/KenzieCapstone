@@ -1,4 +1,4 @@
-package com.kenzie.capstone.service.converter;
+package com.kenzie.capstone.service.model.converter;
 
 import com.kenzie.capstone.service.model.*;
 
@@ -13,13 +13,18 @@ public class IngredientConverter {
         );
     }
 
-    public IngredientRecord toIngredientRecord(IngredientCreateRequest ingredientCreateRequest) {
+    public IngredientRecord toIngredientRecordFromCreateRequest(IngredientCreateRequest ingredientCreateRequest) {
         if (ingredientCreateRequest == null) return null;
         return new IngredientRecord(UUID.randomUUID().toString(), ingredientCreateRequest.getName(),
                 ingredientCreateRequest.getQuantity());
     }
 
-    public IngredientRecord toIngredientRecord(IngredientUpdateRequest ingredientUpdateRequest) {
+    public IngredientRecord toIngredientRecordFromResponse(IngredientResponse ingredientResponse) {
+        if (ingredientResponse == null) return null;
+        return new IngredientRecord(ingredientResponse.getId(), ingredientResponse.getName(), ingredientResponse.getQuantity());
+    }
+
+    public IngredientRecord toIngredientRecordFromUpdateRequest(IngredientUpdateRequest ingredientUpdateRequest) {
         if (ingredientUpdateRequest == null) return null;
         return new IngredientRecord(ingredientUpdateRequest.getId(), ingredientUpdateRequest.getName(),
                 ingredientUpdateRequest.getQuantity());

@@ -4,14 +4,13 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.kenzie.capstone.service.model.DrinkRecord;
 
-import javax.inject.Inject;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 public class DrinkNonCachingDAO implements DrinkDAO {
 
     private final DynamoDBMapper dynamoDBMapper;
 
-    @Inject
     public DrinkNonCachingDAO(DynamoDBMapper dynamoDBMapper) {
         this.dynamoDBMapper = dynamoDBMapper;
     }
@@ -40,8 +39,9 @@ public class DrinkNonCachingDAO implements DrinkDAO {
 
     @Override
     public void delete(String id) {
-        DrinkRecord drinkRecord = new DrinkRecord();
-        drinkRecord.setId(id);
-        dynamoDBMapper.delete(drinkRecord);
+        DrinkRecord drinkRecord = dynamoDBMapper.load(DrinkRecord.class, id);
+        if (drinkRecord != null) {
+            dynamoDBMapper.delete(drinkRecord);
+        }
     }
 }

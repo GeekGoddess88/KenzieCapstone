@@ -2,7 +2,6 @@ package com.kenzie.appserver.service;
 
 import com.kenzie.appserver.repositories.IngredientRepository;
 import com.kenzie.capstone.service.client.LambdaServiceClient;
-
 import com.kenzie.capstone.service.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
@@ -20,16 +19,14 @@ public class IngredientService {
 
     private final IngredientRepository ingredientRepository;
     private final LambdaServiceClient lambdaServiceClient;
-    private final CloudWatchService cloudWatchService;
     private final TaskExecutor taskExecutor;
 
 
     @Autowired
     public IngredientService(IngredientRepository ingredientRepository, LambdaServiceClient lambdaServiceClient,
-                             CloudWatchService cloudWatchService, TaskExecutor taskExecutor) {
+                             TaskExecutor taskExecutor) {
         this.ingredientRepository = ingredientRepository;
         this.lambdaServiceClient = lambdaServiceClient;
-        this.cloudWatchService = cloudWatchService;
         this.taskExecutor = taskExecutor;
     }
 
@@ -42,7 +39,6 @@ public class IngredientService {
                     ingredientResponse.getQuantity()
             );
             ingredientRepository.save(ingredientRecord);
-            cloudWatchService.publishMetric("AddIngredientLatency", System.currentTimeMillis());
             return ingredientResponse;
         });
     }
@@ -106,7 +102,6 @@ public class IngredientService {
                         ingredientResponse.getQuantity()
                 );
                 ingredientRepository.save(ingredientRecord);
-                cloudWatchService.publishMetric("UpdateIngredientLatency", System.currentTimeMillis());
                 return ingredientResponse;
             });
         } catch (IOException e) {
@@ -121,7 +116,6 @@ public class IngredientService {
                 if (deleteResponse != null && deleteResponse.getId() != null) {
                     ingredientRepository.deleteById(deleteResponse.getId());
                 }
-                cloudWatchService.publishMetric("DeleteIngredientLatency", System.currentTimeMillis());
                 return deleteResponse;
             });
         } catch (IOException e) {

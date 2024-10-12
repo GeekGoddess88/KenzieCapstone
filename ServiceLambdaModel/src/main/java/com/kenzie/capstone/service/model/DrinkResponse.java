@@ -14,11 +14,9 @@ public class DrinkResponse {
     @JsonProperty("recipe")
     private String recipe;
     @JsonProperty("ingredients")
-    private List<IngredientRecord> ingredients;
+    private List<IngredientResponse> ingredients;
 
-    public DrinkResponse() {}
-
-    public DrinkResponse(String id, String name, List<IngredientRecord> ingredients, String recipe) {
+    public DrinkResponse(String id, String name, List<IngredientResponse> ingredients, String recipe) {
         this.id = id;
         this.name = name;
         this.ingredients = ingredients;
@@ -41,11 +39,11 @@ public class DrinkResponse {
         this.name = name;
     }
 
-    public List<IngredientRecord> getIngredients() {
+    public List<IngredientResponse> getIngredients() {
         return ingredients;
     }
 
-    public void setIngredients(List<IngredientRecord> ingredients) {
+    public void setIngredients(List<IngredientResponse> ingredients) {
         this.ingredients = ingredients;
     }
 

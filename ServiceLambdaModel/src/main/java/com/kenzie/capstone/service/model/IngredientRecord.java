@@ -4,14 +4,12 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 
-@DynamoDBTable(tableName = "ingredients")
+@DynamoDBTable(tableName = "Ingredients")
 public class IngredientRecord {
 
     private String id;
     private String name;
     private int quantity;
-
-    public IngredientRecord() {}
 
     public IngredientRecord(String id, String name, int quantity) {
         this.id = id;
@@ -23,8 +21,7 @@ public class IngredientRecord {
     public String getId() {
         return id;
     }
-    public void setId(String id) {
-        this.id = id;
+    public void setId(String id) { this.id = id;
     }
 
     @DynamoDBAttribute(attributeName = "name")

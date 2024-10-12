@@ -3,12 +3,10 @@ package com.kenzie.appserver.service;
 import com.kenzie.appserver.repositories.DrinkRepository;
 import com.kenzie.capstone.service.client.LambdaServiceClient;
 import com.kenzie.capstone.service.model.*;
-import com.kenzie.capstone.service.model.DrinkResponse;
-import com.kenzie.capstone.service.model.DrinkRecord;
-import com.kenzie.capstone.service.model.DrinkUpdateRequest;
-import com.kenzie.capstone.service.model.DrinkCreateRequest;
-
+import com.kenzie.capstone.service.model.converter.DrinkConverter;
+import com.kenzie.capstone.service.model.converter.IngredientConverter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -25,29 +23,25 @@ public class DrinkService {
 
     private final DrinkRepository drinkRepository;
     private final LambdaServiceClient lambdaServiceClient;
-    private final CloudWatchService cloudWatchService;
     private final TaskExecutor taskExecutor;
+    private final DrinkConverter drinkConverter;
+    private final IngredientConverter ingredientConverter;
 
     @Autowired
-    public DrinkService(DrinkRepository drinkRepository, CloudWatchService cloudWatchService,
-        LambdaServiceClient lambdaServiceClient, TaskExecutor taskExecutor) {
+    public DrinkService(DrinkRepository drinkRepository,
+        LambdaServiceClient lambdaServiceClient, @Qualifier("taskExecutor")TaskExecutor taskExecutor) {
         this.drinkRepository = drinkRepository;
-        this.cloudWatchService = cloudWatchService;
         this.lambdaServiceClient = lambdaServiceClient;
         this.taskExecutor = taskExecutor;
+        this.ingredientConverter = new IngredientConverter();
+        this.drinkConverter = new DrinkConverter(ingredientConverter);
     }
 
     @Async
     public CompletableFuture<DrinkResponse> addDrink(DrinkCreateRequest drinkCreateRequest) throws IOException {
         return lambdaServiceClient.addDrink(drinkCreateRequest).thenApply(drinkResponse -> {
-            DrinkRecord drinkRecord = new DrinkRecord(
-                    drinkResponse.getId(),
-                    drinkResponse.getName(),
-                    drinkResponse.getIngredients(),
-                    drinkResponse.getRecipe()
-            );
+            DrinkRecord drinkRecord = drinkConverter.toDrinkRecord(drinkCreateRequest);
             drinkRepository.save(drinkRecord);
-            cloudWatchService.publishMetric("AddDrinkLatency", System.currentTimeMillis());
             return drinkResponse;
         });
     }
@@ -56,12 +50,7 @@ public class DrinkService {
     @Async
     public CompletableFuture<DrinkResponse> getDrinkById(String drinkId) {
         return drinkRepository.findById(drinkId)
-                .map(record -> CompletableFuture.completedFuture(new DrinkResponse(
-                        record.getId(),
-                        record.getName(),
-                        record.getIngredients(),
-                        record.getRecipe()
-                )))
+                .map(record -> CompletableFuture.completedFuture(drinkConverter.toDrinkResponse(record)))
                 .orElseGet(() -> {
                     try {
                         return lambdaServiceClient.getDrinkById(drinkId);
@@ -79,10 +68,7 @@ public class DrinkService {
                             .collect(Collectors.toList());
                     if (!drinkRecords.isEmpty()) {
                         return drinkRecords.stream()
-                                .map(record -> new DrinkResponse(record.getId(),
-                                        record.getName(),
-                                        record.getIngredients(),
-                                        record.getRecipe()))
+                                .map(drinkConverter::toDrinkResponse)
                                 .collect(Collectors.toList());
                     }
 
@@ -91,7 +77,7 @@ public class DrinkService {
                 if (localResult == null) {
                     try {
                         return lambdaServiceClient.getAllDrinks()
-                                .thenApply(List::of)
+                                .thenApply(Arrays::asList)
                                 .exceptionally(ex -> {
                                     System.err.println("Error fetching drinks from Lambda: " + ex.getMessage());
                                     return List.of();
@@ -109,14 +95,8 @@ public class DrinkService {
     public CompletableFuture<DrinkResponse> updateDrink(String drinkId, DrinkUpdateRequest drinkUpdateRequest) {
         try {
             return lambdaServiceClient.updateDrink(drinkId, drinkUpdateRequest).thenApply(drinkResponse -> {
-                DrinkRecord drinkRecord = new DrinkRecord(
-                        drinkResponse.getId(),
-                        drinkResponse.getName(),
-                        drinkResponse.getIngredients(),
-                        drinkResponse.getRecipe()
-                );
+                DrinkRecord drinkRecord = drinkConverter.toDrinkRecord(drinkUpdateRequest);
                 drinkRepository.save(drinkRecord);
-                cloudWatchService.publishMetric("UpdateDrinkLatency", System.currentTimeMillis());
                 return drinkResponse;
             });
         } catch (IOException e) {
@@ -131,7 +111,6 @@ public class DrinkService {
                 if (deleteResponse != null && deleteResponse.getId() != null) {
                     drinkRepository.deleteById(deleteResponse.getId());
                 }
-                cloudWatchService.publishMetric("DeleteDrinkLatency", System.currentTimeMillis());
                 return deleteResponse;
             });
         } catch (IOException e) {

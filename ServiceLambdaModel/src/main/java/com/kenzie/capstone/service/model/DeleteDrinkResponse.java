@@ -11,8 +11,6 @@ public class DeleteDrinkResponse {
     @JsonProperty("message")
     private String message;
 
-    public DeleteDrinkResponse() {}
-
     public DeleteDrinkResponse(String id, String message) {
         this.id = id;
         this.message = message;

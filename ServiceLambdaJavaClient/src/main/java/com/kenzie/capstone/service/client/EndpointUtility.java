@@ -2,13 +2,13 @@ package com.kenzie.capstone.service.client;
 
 import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.apigateway.AmazonApiGatewayClientBuilder;
-import com.amazonaws.services.apigateway.model.DeleteGatewayResponseResult;
 import com.amazonaws.services.apigateway.model.GetRestApisRequest;
 import com.amazonaws.services.apigateway.model.GetRestApisResult;
 import com.amazonaws.services.apigateway.model.RestApi;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -16,7 +16,7 @@ import java.net.http.HttpResponse;
 
 import static com.kenzie.capstone.service.client.EnvironmentVariableUtility.getEnvVarFromSetupEnvironment;
 
-
+@Component
 public class EndpointUtility {
     private String apiEndpoint;
 
@@ -79,7 +79,7 @@ public class EndpointUtility {
 
     //The code below can be modified as needed to modify how it handles status codes, etc
 
-
+    @Bean
     public String postEndpoint(String endpoint, String data) {
         String api = getApiEndpint();
         String url = api + endpoint;
@@ -106,6 +106,7 @@ public class EndpointUtility {
         }
     }
 
+    @Bean
     public String getEndpoint(String endpoint) {
         String api = getApiEndpint();
         String url = api + endpoint;
@@ -132,6 +133,7 @@ public class EndpointUtility {
         }
     }
 
+    @Bean
     public String deleteEndpoint(String endpoint) {
         String api = getApiEndpint();
         String url = api + endpoint;
@@ -155,6 +157,7 @@ public class EndpointUtility {
         }
     }
 
+        @Bean
         public String putEndpoint(String endpoint, String data) {
         String api = getApiEndpint();
         String url = api + endpoint;

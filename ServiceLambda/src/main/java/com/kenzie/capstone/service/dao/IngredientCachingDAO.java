@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kenzie.capstone.service.caching.CacheClient;
 import com.kenzie.capstone.service.model.IngredientRecord;
 
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +18,6 @@ public class IngredientCachingDAO implements IngredientDAO {
     private static final int CACHE_TTL = 3600;
     private static final String INGREDIENT_CACHE_KEY_PREFIX = "ingredient_";
 
-    @Inject
     public IngredientCachingDAO(IngredientNonCachingDAO ingredientNonCachingDAO, ObjectMapper objectMapper, CacheClient cacheClient) {
         this.ingredientNonCachingDAO = ingredientNonCachingDAO;
         this.objectMapper = objectMapper;
@@ -29,20 +26,19 @@ public class IngredientCachingDAO implements IngredientDAO {
 
     @Override
     public Optional<IngredientRecord> findById(String id) {
-        String cachedIngredient = cacheClient.getValue(INGREDIENT_CACHE_KEY_PREFIX + id).orElse(null);
+        String cachedIngredient = cacheClient.getValue(INGREDIENT_CACHE_KEY_PREFIX + id);
         if (cachedIngredient != null) {
             try {
                 IngredientRecord ingredientRecord = objectMapper.readValue(cachedIngredient, IngredientRecord.class);
                 return Optional.of(ingredientRecord);
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException("Error deserializing ingredient", e);
             }
         }
 
         Optional<IngredientRecord> ingredientRecord = ingredientNonCachingDAO.findById(id);
         ingredientRecord.ifPresent(record -> cacheClient.setValue(INGREDIENT_CACHE_KEY_PREFIX + id, CACHE_TTL, toJson(record)));
         return ingredientRecord;
-
     }
 
     @Override

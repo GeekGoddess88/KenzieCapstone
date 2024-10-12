@@ -1,28 +1,36 @@
-package com.kenzie.capstone.service.converter;
+package com.kenzie.capstone.service.model.converter;
 
 import com.kenzie.capstone.service.model.*;
-import com.kenzie.capstone.service.converter.IngredientConverter;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class DrinkConverter {
 
+    private final IngredientConverter ingredientConverter;
+
+    public DrinkConverter(IngredientConverter ingredientConverter) {
+        this.ingredientConverter = ingredientConverter;
+    }
+
     public DrinkResponse toDrinkResponse(DrinkRecord drinkRecord) {
         if (drinkRecord == null) return null;
+        List<IngredientResponse> ingredientResponses = drinkRecord.getIngredients().stream()
+                .map(ingredientConverter::toIngredientResponse)
+                .collect(Collectors.toList());
+
         return new DrinkResponse(
                 drinkRecord.getId(),
                 drinkRecord.getName(),
-                drinkRecord.getIngredients(),
+                ingredientResponses,
                 drinkRecord.getRecipe()
         );
     }
 
     public DrinkRecord toDrinkRecord(DrinkCreateRequest drinkCreateRequest) {
         List<IngredientRecord> ingredientRecords = drinkCreateRequest.getIngredients().stream()
-                .map(this::toIngredientRecord)
+                .map(ingredientConverter::toIngredientRecordFromCreateRequest)
                 .collect(Collectors.toList());
 
         return new DrinkRecord(
@@ -35,15 +43,16 @@ public class DrinkConverter {
 
     public DrinkRecord toDrinkRecord(DrinkUpdateRequest drinkUpdateRequest) {
         if (drinkUpdateRequest == null) return null;
-        return new DrinkRecord(drinkUpdateRequest.getId(), drinkUpdateRequest.getName(),
-                drinkUpdateRequest.getIngredients(), drinkUpdateRequest.getRecipe());
-    }
 
-    private IngredientRecord toIngredientRecord(IngredientCreateRequest ingredientCreateRequest) {
-        return new IngredientRecord(
-                ingredientCreateRequest.getId(),
-                ingredientCreateRequest.getName(),
-                ingredientCreateRequest.getQuantity()
+        List<IngredientRecord> ingredientRecords = drinkUpdateRequest.getIngredients().stream()
+                .map(ingredientConverter::toIngredientRecordFromResponse)
+                .collect(Collectors.toList());
+
+        return new DrinkRecord(
+                drinkUpdateRequest.getId(),
+                drinkUpdateRequest.getName(),
+                ingredientRecords,
+                drinkUpdateRequest.getRecipe()
         );
     }
 }

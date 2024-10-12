@@ -4,27 +4,26 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-
 import com.google.gson.Gson;
 import com.kenzie.capstone.service.LambdaService;
 import com.kenzie.capstone.service.model.IngredientResponse;
 import com.kenzie.capstone.service.model.IngredientUpdateRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import java.util.concurrent.CompletableFuture;
-
+@Component
 public class UpdateIngredient implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
     private final LambdaService lambdaService;
+    private final Gson gson = new Gson();
 
-    @Inject
+    @Autowired
     public UpdateIngredient(LambdaService lambdaService) {
         this.lambdaService = lambdaService;
     }
 
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
-        Gson gson = new Gson();
         APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
 
         try {
@@ -38,7 +37,7 @@ public class UpdateIngredient implements RequestHandler<APIGatewayProxyRequestEv
         } catch (Exception e) {
             return response
                     .withStatusCode(500)
-                    .withBody(gson.toJson(e.getMessage()));
+                    .withBody(gson.toJson("Error updating ingredient: "+ e.getMessage()));
         }
     }
 }

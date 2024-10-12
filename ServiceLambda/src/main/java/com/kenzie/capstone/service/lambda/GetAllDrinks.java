@@ -4,32 +4,27 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-
 import com.google.gson.Gson;
 import com.kenzie.capstone.service.LambdaService;
 import com.kenzie.capstone.service.model.DrinkResponse;
-import com.kenzie.capstone.service.model.IngredientResponse;
-import dagger.Component;
-
-import javax.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
-
+@Component
 public class GetAllDrinks implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
     private final LambdaService lambdaService;
+    private final Gson gson = new Gson();
 
-    @Inject
+    @Autowired
     public GetAllDrinks(LambdaService lambdaService) {
         this.lambdaService = lambdaService;
     }
 
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
-        Gson gson = new Gson();
         APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
 
         try {
@@ -40,7 +35,7 @@ public class GetAllDrinks implements RequestHandler<APIGatewayProxyRequestEvent,
         } catch (Exception e) {
             return response
                     .withStatusCode(500)
-                    .withBody(gson.toJson("Error: " + e.getMessage()));
+                    .withBody(gson.toJson("Error retrieving all drinks: " + e.getMessage()));
         }
     }
 }

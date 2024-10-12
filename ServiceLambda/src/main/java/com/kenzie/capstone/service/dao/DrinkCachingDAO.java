@@ -1,12 +1,10 @@
 package com.kenzie.capstone.service.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-
-import com.kenzie.capstone.service.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kenzie.capstone.service.caching.CacheClient;
+import com.kenzie.capstone.service.model.DrinkRecord;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +18,6 @@ public class DrinkCachingDAO implements DrinkDAO {
     private static final int CACHE_TTL = 3600;
     private static final String DRINK_CACHE_KEY_PREFIX = "drink_";
 
-    @Inject
     public DrinkCachingDAO(CacheClient cacheClient, ObjectMapper objectMapper, DrinkNonCachingDAO drinkNonCachingDAO) {
         this.cacheClient = cacheClient;
         this.objectMapper = objectMapper;
@@ -29,13 +26,13 @@ public class DrinkCachingDAO implements DrinkDAO {
 
     @Override
     public Optional<DrinkRecord> findById(String id) {
-        String cachedDrink = cacheClient.getValue(DRINK_CACHE_KEY_PREFIX + id).orElse(null);
+        String cachedDrink = cacheClient.getValue(DRINK_CACHE_KEY_PREFIX + id);
         if (cachedDrink != null) {
             try {
                 DrinkRecord drinkRecord = objectMapper.readValue(cachedDrink, DrinkRecord.class);
                 return Optional.of(drinkRecord);
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException("Failed to serialize drink record", e);
             }
         }
 

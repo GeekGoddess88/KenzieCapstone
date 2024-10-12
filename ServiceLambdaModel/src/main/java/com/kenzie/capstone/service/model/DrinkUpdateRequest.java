@@ -11,11 +11,11 @@ public class DrinkUpdateRequest {
     @JsonProperty("recipe")
     private String recipe;
     @JsonProperty("ingredients")
-    private List<IngredientRecord> ingredients;
+    private List<IngredientResponse> ingredients;
 
     public DrinkUpdateRequest() {}
 
-    public DrinkUpdateRequest(String id, String name, String recipe, List<IngredientRecord> ingredients) {
+    public DrinkUpdateRequest(String id, String name, String recipe, List<IngredientResponse> ingredients) {
         this.id = id;
         this.name = name;
         this.recipe = recipe;
@@ -45,11 +45,11 @@ public class DrinkUpdateRequest {
         this.recipe = recipe;
     }
 
-    public List<IngredientRecord> getIngredients() {
+    public List<IngredientResponse> getIngredients() {
         return ingredients;
     }
 
-    public void setIngredients(List<IngredientRecord> ingredients) {
+    public void setIngredients(List<IngredientResponse> ingredients) {
         this.ingredients = ingredients;
     }
 }
