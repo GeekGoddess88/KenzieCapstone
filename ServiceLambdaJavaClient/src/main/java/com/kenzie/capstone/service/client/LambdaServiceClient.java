@@ -3,6 +3,8 @@ package com.kenzie.capstone.service.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kenzie.capstone.service.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -28,7 +30,7 @@ public class LambdaServiceClient {
     public Executor taskExecutor;
 
     @Autowired
-    public LambdaServiceClient(EndpointUtility endpointUtility, Executor taskExecutor) {
+    public LambdaServiceClient(EndpointUtility endpointUtility, @Qualifier("taskExecutor") Executor taskExecutor) {
         this.endpointUtility = endpointUtility;
         this.objectMapper = new ObjectMapper();
         this.taskExecutor = taskExecutor;

@@ -6,13 +6,15 @@ import com.kenzie.capstone.service.model.*;
 import com.kenzie.capstone.service.model.converter.DrinkConverter;
 import com.kenzie.capstone.service.model.converter.IngredientConverter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Service
+@Component
 public class LambdaService {
 
     private final DrinkDAO drinkDAO;
@@ -21,7 +23,7 @@ public class LambdaService {
     public IngredientConverter ingredientConverter;
 
     @Autowired
-    public LambdaService(DrinkDAO drinkDAO, IngredientDAO ingredientDAO, DrinkConverter drinkConverter, IngredientConverter ingredientConverter) {
+    public LambdaService(@Qualifier("drinkDAO")DrinkDAO drinkDAO, @Qualifier("ingredientDAO")IngredientDAO ingredientDAO, @Qualifier("drinkConverter")DrinkConverter drinkConverter, @Qualifier("ingredientConverter")IngredientConverter ingredientConverter) {
         this.drinkDAO = drinkDAO;
         this.ingredientDAO = ingredientDAO;
         this.drinkConverter = drinkConverter;

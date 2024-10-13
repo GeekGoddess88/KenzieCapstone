@@ -3,10 +3,13 @@ package com.kenzie.capstone.service.dao;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.kenzie.capstone.service.model.DrinkRecord;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class DrinkNonCachingDAO implements DrinkDAO {
 
     private final DynamoDBMapper dynamoDBMapper;

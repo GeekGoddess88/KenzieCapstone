@@ -1,18 +1,17 @@
 package com.kenzie.capstone.service.caching;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import javax.annotation.PreDestroy;
 
-@Component
 public class CacheClient {
 
+    @Qualifier("jedisPool")
     private final JedisPool jedisPool;
 
-    @Autowired
     public CacheClient(JedisPool jedisPool) {
         this.jedisPool = jedisPool;
     }

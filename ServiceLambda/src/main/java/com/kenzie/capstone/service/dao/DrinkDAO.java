@@ -1,10 +1,11 @@
 package com.kenzie.capstone.service.dao;
 
 import com.kenzie.capstone.service.model.DrinkRecord;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
-
 
 public interface DrinkDAO {
     Optional<DrinkRecord> findById(String id);

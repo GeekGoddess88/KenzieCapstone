@@ -21,21 +21,22 @@ Resources:
         PointInTimeRecoveryEnabled: false
 
 
-  # DynamoDB table for IngredientsTable
+  #DynamoDB table for Ingredients
   IngredientsTable:
     Type: AWS::DynamoDB::Table
     Properties:
       "AttributeDefinitions":
-       - "AttributeName": "id"
-         "AttributeType": "S"
-       - "AttributeName": "name"
-         "AttributeType": "S"
-       - "AttributeName": "quantity"
-         "AttributeType": "N"
+        - "AttributeName": "id"
+          "AttributeType": "S"
+        - "AttributeName": "name"
+          "AttributeType": "S"
+        - "AttributeName": "quantity"
+          "AttributeType": "N"
       "KeySchema":
-       - "AttributeName": "id"
-         "KeyType": "HASH"
+        - "AttributeName": "id"
+          "KeyType": "HASH"
       BillingMode: PAY_PER_REQUEST
       TableName: "Ingredients"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: false
+
