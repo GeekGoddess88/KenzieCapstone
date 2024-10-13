@@ -112,7 +112,7 @@ Resources:
   GetDrinkByIdFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://bucket/key
+      CodeUri: s3://capstone-capstonecoffee-artifacts/f14f3e7eccae3f0c97c14b4063861388
       Handler: com.kenzie.capstone.service.lambda.GetDrinkById
       Runtime: java11
       Description: Get Drink Data by id
@@ -143,7 +143,7 @@ Resources:
   AddDrinkFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://bucket/key
+      CodeUri: s3://capstone-capstonecoffee-artifacts/f14f3e7eccae3f0c97c14b4063861388
       Handler: com.kenzie.capstone.service.lambda.AddDrink
       Runtime: java11
       Description: Add Drink Data
@@ -174,7 +174,7 @@ Resources:
   DeleteDrinkByIdFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://bucket/key
+      CodeUri: s3://capstone-capstonecoffee-artifacts/f14f3e7eccae3f0c97c14b4063861388
       Handler: com.kenzie.capstone.service.lambda.DeleteDrinkById
       Runtime: java11
       Description: Delete Drink Data by ID
@@ -205,7 +205,7 @@ Resources:
   GetIngredientByIdFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://bucket/key
+      CodeUri: s3://capstone-capstonecoffee-artifacts/f14f3e7eccae3f0c97c14b4063861388
       Handler: com.kenzie.capstone.service.lambda.GetIngredientById
       Runtime: java11
       Description: Get Ingredient Data by ID
@@ -236,7 +236,7 @@ Resources:
   AddIngredientFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://bucket/key
+      CodeUri: s3://capstone-capstonecoffee-artifacts/f14f3e7eccae3f0c97c14b4063861388
       Handler: com.kenzie.capstone.service.lambda.AddIngredient
       Runtime: java11
       Description: Save Ingredient Data
@@ -267,7 +267,7 @@ Resources:
   DeleteIngredientByIdFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://bucket/key
+      CodeUri: s3://capstone-capstonecoffee-artifacts/f14f3e7eccae3f0c97c14b4063861388
       Handler: com.kenzie.capstone.service.lambda.DeleteIngredientById
       Runtime: java11
       Description: Delete Ingredient Data by ID
@@ -298,7 +298,7 @@ Resources:
   UpdateDrinkFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://bucket/key
+      CodeUri: s3://capstone-capstonecoffee-artifacts/f14f3e7eccae3f0c97c14b4063861388
       Handler: com.kenzie.capstone.service.lambda.UpdateDrink
       Runtime: java11
       Description: Update Drink Data with ID
@@ -329,7 +329,7 @@ Resources:
   UpdateIngredientFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://bucket/key
+      CodeUri: s3://capstone-capstonecoffee-artifacts/f14f3e7eccae3f0c97c14b4063861388
       Handler: com.kenzie.capstone.service.lambda.UpdateIngredient
       Runtime: java11
       Description: Update Ingredient with ID
@@ -360,7 +360,7 @@ Resources:
   GetAllDrinksFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://bucket/key
+      CodeUri: s3://capstone-capstonecoffee-artifacts/f14f3e7eccae3f0c97c14b4063861388
       Handler: com.kenzie.capstone.service.lambda.GetAllDrinks
       Runtime: java11
       Description: Retrieve all Drinks
@@ -391,7 +391,7 @@ Resources:
   GetAllIngredientsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://bucket/key
+      CodeUri: s3://capstone-capstonecoffee-artifacts/f14f3e7eccae3f0c97c14b4063861388
       Handler: com.kenzie.capstone.service.lambda.GetAllIngredients
       Runtime: java11
       Description: Retrieve all Ingredients
