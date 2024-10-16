@@ -75,7 +75,7 @@ class LambdaServiceTest {
     }
 
     @Test
-    void addDrinkTest() throws Exception {
+    void addDrinkTest() {
         when(drinkConverter.toDrinkRecord(drinkCreateRequest)).thenReturn(drinkRecord);
         doNothing().when(drinkDAO).save(drinkRecord);
         when(drinkConverter.toDrinkResponse(drinkRecord)).thenReturn(drinkResponse);
@@ -88,7 +88,7 @@ class LambdaServiceTest {
     }
 
     @Test
-    void getDrinkByIdTest() throws Exception {
+    void getDrinkByIdTest() {
         when(drinkDAO.findById("drink1")).thenReturn(Optional.of(drinkRecord));
         when(drinkConverter.toDrinkResponse(drinkRecord)).thenReturn(drinkResponse);
 
@@ -100,7 +100,7 @@ class LambdaServiceTest {
     }
 
     @Test
-    void getAllDrinksTest() throws Exception {
+    void getAllDrinksTest() {
         List<IngredientRecord> ingredientRecords = Arrays.asList(
                 new IngredientRecord("1", "Water", 500),
                 new IngredientRecord("2", "Coffee Beans", 200)
@@ -137,7 +137,7 @@ class LambdaServiceTest {
     }
 
     @Test
-    void updateDrinkTest() throws Exception {
+    void updateDrinkTest() {
         when(drinkConverter.toDrinkRecord(drinkUpdateRequest)).thenReturn(drinkRecord);
 
         doNothing().when(drinkDAO).update("drink1", drinkRecord);
@@ -151,7 +151,7 @@ class LambdaServiceTest {
     }
 
     @Test
-    void deleteDrinkTest() throws Exception {
+    void deleteDrinkTest() {
         doNothing().when(drinkDAO).delete("drink1");
         DeleteDrinkResponse deleteDrinkResponse = lambdaService.deleteDrinkById("drink1");
         assertNotNull(deleteDrinkResponse);
@@ -159,7 +159,7 @@ class LambdaServiceTest {
     }
 
     @Test
-    void addIngredientTest() throws Exception {
+    void addIngredientTest() {
         when(ingredientConverter.toIngredientRecordFromCreateRequest(ingredientCreateRequest)).thenReturn(ingredientRecord);
         doNothing().when(ingredientDAO).save(ingredientRecord);
         when(ingredientConverter.toIngredientResponse(ingredientRecord)).thenReturn(ingredientResponse);
@@ -173,7 +173,7 @@ class LambdaServiceTest {
     }
 
     @Test
-    void getIngredientByIdTest() throws Exception {
+    void getIngredientByIdTest() {
         when(ingredientDAO.findById("1")).thenReturn(Optional.of(ingredientRecord));
         when(ingredientConverter.toIngredientResponse(ingredientRecord)).thenReturn(ingredientResponse);
 
@@ -186,7 +186,7 @@ class LambdaServiceTest {
     }
 
     @Test
-    void getAllIngredientsTest() throws Exception {
+    void getAllIngredientsTest() {
         List<IngredientRecord> ingredientRecords = Arrays.asList(
                 new IngredientRecord("1", "Water", 500),
                 new IngredientRecord("2", "Coffee Beans", 200)
@@ -211,7 +211,7 @@ class LambdaServiceTest {
     }
 
     @Test
-    void updateIngredientTest() throws Exception {
+    void updateIngredientTest() {
         when(ingredientConverter.toIngredientRecordFromUpdateRequest(ingredientUpdateRequest)).thenReturn(ingredientRecord);
         doNothing().when(ingredientDAO).update("ingredient2", ingredientRecord);
         when(ingredientConverter.toIngredientResponse(ingredientRecord)).thenReturn(ingredientResponse);
@@ -225,7 +225,7 @@ class LambdaServiceTest {
     }
 
     @Test
-    void deleteIngredientTest() throws Exception {
+    void deleteIngredientTest() {
         doNothing().when(ingredientDAO).delete("1");
 
         DeleteIngredientResponse deleteIngredientResponse = lambdaService.deleteIngredientById("1");

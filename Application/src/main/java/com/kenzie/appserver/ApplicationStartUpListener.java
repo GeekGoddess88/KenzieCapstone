@@ -41,7 +41,7 @@ public class ApplicationStartUpListener implements ApplicationListener<Applicati
                 new IngredientCreateRequest(UUID.randomUUID().toString(), "Coffee Beans", 100)
         );
 
-        DrinkCreateRequest drinkCreateRequest = new DrinkCreateRequest(UUID.randomUUID().toString(), "Espresso", "Simple recipe", ingredients);
+        DrinkCreateRequest drinkCreateRequest = new DrinkCreateRequest(UUID.randomUUID().toString(), "Espresso", "Brew coffee and enjoy!", ingredients);
 
         try {
             drinkService.addDrink(drinkCreateRequest).exceptionally(ex -> {
