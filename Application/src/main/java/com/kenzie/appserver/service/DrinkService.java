@@ -7,10 +7,12 @@ import com.kenzie.capstone.service.model.converter.DrinkConverter;
 import com.kenzie.capstone.service.model.converter.IngredientConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Named;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -21,8 +23,10 @@ import java.util.stream.StreamSupport;
 @Service
 public class DrinkService {
 
+    @Qualifier("drinkRepository")
     private final DrinkRepository drinkRepository;
     private final LambdaServiceClient lambdaServiceClient;
+    @Qualifier("taskExecutor")
     private final TaskExecutor taskExecutor;
     private final DrinkConverter drinkConverter;
     private final IngredientConverter ingredientConverter;

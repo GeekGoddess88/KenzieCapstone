@@ -45,13 +45,18 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
-build.dependsOn buildZip
+
 
 def wflowToTestsMap = [
         'run-integration-tests': [
                 'com.kenzie.appserver.controller.*',
+                'com.kenzie.appserver.service.*'
         ]
 ]
+
+build {
+    dependsOn(buildZip)
+}
 
 wflowToTestsMap.forEach { wflowName, testList ->
     tasks.register(wflowName) {

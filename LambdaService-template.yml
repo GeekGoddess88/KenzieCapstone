@@ -118,7 +118,7 @@ Resources:
       Description: Get Drink Data by id
       MemorySize: 512
       Timeout: 240
-      # Lambda function to get a drink by ID
+      # Function's execution role
       Policies:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
@@ -149,7 +149,7 @@ Resources:
       Description: Add Drink Data
       MemorySize: 512
       Timeout: 240
-      # Lambda function to save a drink
+      # Function's execution role
       Policies:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
@@ -166,7 +166,7 @@ Resources:
           Variables:
             JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
       Events:
-        UpdateResource:
+        GetResource:
           Type: Api
           Properties:
             Path: /drinks
@@ -180,7 +180,7 @@ Resources:
       Description: Delete Drink Data by ID
       MemorySize: 512
       Timeout: 240
-      # Lambda function to delete a drink by ID
+      # Function's execution role
       Policies:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
@@ -197,7 +197,7 @@ Resources:
           Variables:
             JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
       Events:
-        UpdateResource:
+        DeleteResource:
           Type: Api
           Properties:
             Path: /drinks/{id}
@@ -211,7 +211,7 @@ Resources:
       Description: Get Ingredient Data by ID
       MemorySize: 512
       Timeout: 240
-      # Lambda function to get an ingredient by ID
+      # Function's execution role
       Policies:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
@@ -242,7 +242,7 @@ Resources:
       Description: Save Ingredient Data
       MemorySize: 512
       Timeout: 240
-      # Lambda function to save an ingredient
+      # Function's execution role
       Policies:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
@@ -259,7 +259,7 @@ Resources:
           Variables:
             JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
       Events:
-        UpdateResource:
+        GetResource:
           Type: Api
           Properties:
             Path: /ingredients
@@ -273,7 +273,7 @@ Resources:
       Description: Delete Ingredient Data by ID
       MemorySize: 512
       Timeout: 240
-      # Lambda function to delete an ingredient by ID
+      # Function's execution role
       Policies:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
@@ -290,7 +290,7 @@ Resources:
           Variables:
             JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
       Events:
-        UpdateResource:
+        DeleteResource:
           Type: Api
           Properties:
             Path: /ingredients/{id}
@@ -304,7 +304,7 @@ Resources:
       Description: Update Drink Data with ID
       MemorySize: 512
       Timeout: 240
-      # Lambda function to update a Drink using ID
+      # Function's execution role
       Policies:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
@@ -321,7 +321,7 @@ Resources:
           Variables:
             JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
       Events:
-        UpdateResource:
+        GetResource:
           Type: Api
           Properties:
             Path: /drinks/{id}
@@ -335,7 +335,7 @@ Resources:
       Description: Update Ingredient with ID
       MemorySize: 512
       Timeout: 240
-      # Lambda function to update an Ingredient using ID
+      # Function's execution role
       Policies:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
@@ -352,7 +352,7 @@ Resources:
           Variables:
             JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
       Events:
-        UpdateResource:
+        GetResource:
           Type: Api
           Properties:
             Path: /ingredients/{id}
@@ -366,7 +366,7 @@ Resources:
       Description: Retrieve all Drinks
       MemorySize: 512
       Timeout: 240
-      # Lambda function to get all Drinks
+      # Function's execution role
       Policies:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
@@ -397,7 +397,7 @@ Resources:
       Description: Retrieve all Ingredients
       MemorySize: 512
       Timeout: 240
-      # Lambda function to get all Ingredients
+      # Function's execution role
       Policies:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess

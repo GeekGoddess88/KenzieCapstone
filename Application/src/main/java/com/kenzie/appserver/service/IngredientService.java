@@ -4,6 +4,7 @@ import com.kenzie.appserver.repositories.IngredientRepository;
 import com.kenzie.capstone.service.client.LambdaServiceClient;
 import com.kenzie.capstone.service.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -17,14 +18,16 @@ import java.util.stream.StreamSupport;
 @Service
 public class IngredientService {
 
+    @Qualifier("ingredientRepository")
     private final IngredientRepository ingredientRepository;
     private final LambdaServiceClient lambdaServiceClient;
+    @Qualifier("taskExecutor")
     private final TaskExecutor taskExecutor;
 
 
     @Autowired
     public IngredientService(IngredientRepository ingredientRepository, LambdaServiceClient lambdaServiceClient,
-                             TaskExecutor taskExecutor) {
+                             @Qualifier("taskExecutor")TaskExecutor taskExecutor) {
         this.ingredientRepository = ingredientRepository;
         this.lambdaServiceClient = lambdaServiceClient;
         this.taskExecutor = taskExecutor;
@@ -124,6 +127,7 @@ public class IngredientService {
     }
 
     @Async
+    @Qualifier("TaskScheduler-")
     public CompletableFuture<Void> checkAndReplenishStock() {
         List<IngredientRecord> ingredients = (List<IngredientRecord>) ingredientRepository.findAll();
 
