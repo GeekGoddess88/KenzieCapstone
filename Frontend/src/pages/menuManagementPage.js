@@ -9,7 +9,7 @@ class MenuManagementPage extends BaseClass {
     constructor() {
         super();
         this.bindClassMethods(['onCreate', 'onGet', 'onGetIngredients', 'onDelete', 'onUpdate', 'onSelectIngredient',
-        'renderDrinkList', 'renderCreateIngredientList', 'renderUpdateIngredientList'], this);
+            'renderDrinkList', 'renderCreateIngredientList', 'renderUpdateIngredientList'], this);
         this.dataStore = new DataStore();
     }
 
@@ -60,8 +60,8 @@ class MenuManagementPage extends BaseClass {
             let checkId = 1;
             for (let i of ingredients) {
                 myHtml += "<label for=ingredient-create-choice-" + checkId +
-                "><input type=checkbox id=ingredient-create-choice-" +
-                checkId +  " value=" + i.id + ">" + i.name + "</label>";
+                    "><input type=checkbox id=ingredient-create-choice-" +
+                    checkId +  " value=" + i.id + ">" + i.name + "</label>";
                 checkId++;
             }
             renderArea.innerHTML = myHtml;
@@ -81,8 +81,8 @@ class MenuManagementPage extends BaseClass {
             let checkId = 1;
             for (let i of ingredients) {
                 myHtml += "<label for=ingredient-update-choice-" + checkId +
-                "><input type=checkbox id=ingredient-update-choice-" +
-                checkId +  " value=" + i.id + ">" + i.name + "</label>";
+                    "><input type=checkbox id=ingredient-update-choice-" +
+                    checkId +  " value=" + i.id + ">" + i.name + "</label>";
                 checkId++;
             }
             renderArea.innerHTML = myHtml;
@@ -138,7 +138,7 @@ class MenuManagementPage extends BaseClass {
                 }
                 i++;
             } else {
-                 loop = false;
+                loop = false;
             }
         }
 
@@ -184,7 +184,7 @@ class MenuManagementPage extends BaseClass {
                 }
                 i++;
             } else {
-                 loop = false;
+                loop = false;
             }
         }
 

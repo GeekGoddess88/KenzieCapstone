@@ -60,7 +60,7 @@
 }
 
 .form-button:hover, form-button:hover {
-    background: #bf8040
+    background: #bf8040;
     color: white;
 }
 
@@ -199,8 +199,8 @@
     color: #f9f2ec;
 }
 
-.form-field (
-    background-color: #f9f2ec;
+.form-field {
+background-color: #f9f2ec;
 }
 
 #concert-list li {

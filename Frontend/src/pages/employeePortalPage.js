@@ -12,7 +12,7 @@ class EmployeePortalPage {
     }
 }
 const main = async () => {
-        const employeePortalPage = new EmployeePortalPage();
-        employeePortalPage.mount();
+    const employeePortalPage = new EmployeePortalPage();
+    employeePortalPage.mount();
 }
 window.addEventListener('DOMContentLoaded', main);

@@ -5,9 +5,11 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 
+
 /**
  * Provides an {@code AmazonDynamoDB} client using default AWS credentials provider chain.
  */
+
 public class DynamoDbClientProvider {
 
     /**

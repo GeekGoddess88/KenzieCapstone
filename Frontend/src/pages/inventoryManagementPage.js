@@ -9,7 +9,7 @@ class InventoryManagementPage extends BaseClass {
     constructor() {
         super();
         this.bindClassMethods(['onCreate', 'onGet', 'onDelete', 'onUpdate', 'onSelectIngredient',
-        'renderDeleteIngredientList', 'renderUpdateIngredientList'], this);
+            'renderDeleteIngredientList', 'renderUpdateIngredientList'], this);
         this.dataStore = new DataStore();
     }
 

@@ -1,94 +1,120 @@
 package com.kenzie.appserver.service;
 
 import com.kenzie.appserver.repositories.DrinkRepository;
-import com.kenzie.appserver.repositories.model.DrinkRecord;
-import com.kenzie.appserver.service.model.Drink;
-import org.springframework.http.HttpStatus;
+import com.kenzie.capstone.service.client.LambdaServiceClient;
+import com.kenzie.capstone.service.model.*;
+import com.kenzie.capstone.service.model.converter.DrinkConverter;
+import com.kenzie.capstone.service.model.converter.IngredientConverter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class DrinkService {
-    private DrinkRepository drinkRepository;
 
-    public DrinkService(DrinkRepository drinkRepository) {
+    private final DrinkRepository drinkRepository;
+    private final LambdaServiceClient lambdaServiceClient;
+    private final TaskExecutor taskExecutor;
+    private final DrinkConverter drinkConverter;
+    private final IngredientConverter ingredientConverter;
+
+    @Autowired
+    public DrinkService(DrinkRepository drinkRepository,
+        LambdaServiceClient lambdaServiceClient, @Qualifier("taskExecutor")TaskExecutor taskExecutor) {
         this.drinkRepository = drinkRepository;
+        this.lambdaServiceClient = lambdaServiceClient;
+        this.taskExecutor = taskExecutor;
+        this.ingredientConverter = new IngredientConverter();
+        this.drinkConverter = new DrinkConverter(ingredientConverter);
     }
 
-    public Drink addDrink(Drink drink) {
-        validateAddDrink(drink);
-        DrinkRecord drinkRecord = new DrinkRecord();
-        drinkRecord.setId(drink.getId());
-        drinkRecord.setName(drink.getName());
-        drinkRecord.setIngredients(drink.getIngredients());
-        drinkRecord.setRecipe(drink.getRecipe());
-        drinkRepository.save(drinkRecord);
-        return drink;
-    }
-
-    public Drink updateDrink(String id, Drink drink) {
-//        validateUpdateDrink(drink);
-        DrinkRecord drinkRecord = drinkRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Drink with id " + id + " not found.", HttpStatus.NOT_FOUND));
-        drinkRecord.setName(drink.getName());
-        drinkRecord.setIngredients(drink.getIngredients());
-        drinkRecord.setRecipe(drink.getRecipe());
-        drinkRepository.save(drinkRecord);
-        return drink;
-    }
-
-    public void deleteDrink(String id) {
-        DrinkRecord drinkRecord = drinkRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException("Drink with id " + id + " not found.", HttpStatus.NOT_FOUND));
-        drinkRepository.delete(drinkRecord);
-    }
-
-    public Drink findById(String id) {
-        return drinkRepository
-                .findById(id)
-                .map(drink -> new Drink(drink.getId(), drink.getName(), drink.getIngredients(), drink.getRecipe()))
-                .orElse(null);
-    }
-
-    public List<Drink> findAll() {
-        List<Drink> drinks = new ArrayList<>();
-        drinkRepository
-                .findAll()
-                .forEach(drink -> drinks.add(new Drink(drink.getId(), drink.getName(), drink.getIngredients(), drink.getRecipe())));
-        return drinks;
-    }
-
-    // Convert string to arrayList helper method
-    private List<String> convertStringToList(String string) {
-        return Arrays.asList(string.split(","));
+    @Async
+    public CompletableFuture<DrinkResponse> addDrink(DrinkCreateRequest drinkCreateRequest) throws IOException {
+        return lambdaServiceClient.addDrink(drinkCreateRequest).thenApply(drinkResponse -> {
+            DrinkRecord drinkRecord = drinkConverter.toDrinkRecord(drinkCreateRequest);
+            drinkRepository.save(drinkRecord);
+            return drinkResponse;
+        });
     }
 
 
-    // Validation helper methods
-    private void validateAddDrink(Drink drink) {
-        if (drink.getName() == null || drink.getName().isEmpty()) {
-            throw new ValidationException("Drink name cannot be empty", HttpStatus.BAD_REQUEST);
+    @Async
+    public CompletableFuture<DrinkResponse> getDrinkById(String drinkId) {
+        return drinkRepository.findById(drinkId)
+                .map(record -> CompletableFuture.completedFuture(drinkConverter.toDrinkResponse(record)))
+                .orElseGet(() -> {
+                    try {
+                        return lambdaServiceClient.getDrinkById(drinkId);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+    }
+
+    @Async
+    public CompletableFuture<List<DrinkResponse>> getAllDrinks() {
+            return CompletableFuture.supplyAsync(() -> {
+                    List<DrinkRecord> drinkRecords = StreamSupport
+                            .stream(drinkRepository.findAll().spliterator(), false)
+                            .collect(Collectors.toList());
+                    if (!drinkRecords.isEmpty()) {
+                        return drinkRecords.stream()
+                                .map(drinkConverter::toDrinkResponse)
+                                .collect(Collectors.toList());
+                    }
+
+                    return null;
+            }, taskExecutor).thenCompose(localResult -> {
+                if (localResult == null) {
+                    try {
+                        return lambdaServiceClient.getAllDrinks()
+                                .thenApply(Arrays::asList)
+                                .exceptionally(ex -> {
+                                    System.err.println("Error fetching drinks from Lambda: " + ex.getMessage());
+                                    return List.of();
+                                });
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }
+                return CompletableFuture.completedFuture(localResult);
+            });
+    }
+
+    @Async
+    public CompletableFuture<DrinkResponse> updateDrink(String drinkId, DrinkUpdateRequest drinkUpdateRequest) {
+        try {
+            return lambdaServiceClient.updateDrink(drinkId, drinkUpdateRequest).thenApply(drinkResponse -> {
+                DrinkRecord drinkRecord = drinkConverter.toDrinkRecord(drinkUpdateRequest);
+                drinkRepository.save(drinkRecord);
+                return drinkResponse;
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        if (drink.getIngredients() == null || drink.getIngredients().isEmpty()) {
-            throw new ValidationException("Drink must have assigned ingredients", HttpStatus.BAD_REQUEST);
-        }
-        if (drink.getRecipe() == null | drink.getRecipe().isEmpty()) {
-            throw new ValidationException("Drink must include a recipe", HttpStatus.BAD_REQUEST);
-        }
     }
 
-    private void validateUpdateDrink(Drink drink) {
-        if (drink.getName() == null || drink.getName().isEmpty()) {
-            throw new ValidationException("Drink name cannot be empty", HttpStatus.BAD_REQUEST);
-        }
-        if (drink.getIngredients() == null || drink.getIngredients().isEmpty()) {
-            throw new ValidationException("Drink must have assigned ingredients", HttpStatus.BAD_REQUEST);
-        }
-        if (drink.getRecipe() == null | drink.getRecipe().isEmpty()) {
-            throw new ValidationException("Drink must include a recipe", HttpStatus.BAD_REQUEST);
+    @Async
+    public CompletableFuture<DeleteDrinkResponse> deleteDrinkById(String drinkId) {
+        try {
+            return lambdaServiceClient.deleteDrinkById(drinkId).thenApply(deleteResponse -> {
+                if (deleteResponse != null && deleteResponse.getId() != null) {
+                    drinkRepository.deleteById(deleteResponse.getId());
+                }
+                return deleteResponse;
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

@@ -1,21 +1,124 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
-Description: An AWS Lambda application that calls the Lambda API.
+Description: An AWS Lambda application that calls the LambdaAPI
 Parameters:
   EnvironmentName:
     Type: String
     Default: dev
 Resources:
-  GetExampleDataFunction:
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 10.192.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    DependsOn: VPC
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: Public
+  PublicRoute1:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  SecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Security Group for Example Replication Group
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          FromPort: 6379
+          ToPort: 6379
+          IpProtocol: tcp
+      VpcId: !Ref VPC
+  SubnetGroup:
+    Type: 'AWS::ElastiCache::SubnetGroup'
+    Properties:
+      Description: Subnet Group for Example Replication Group
+      SubnetIds:
+        - !Ref PublicSubnet
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: 10.192.11.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Subnet (AZ1)
+  PublicSubnetARouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      RouteTableId: !Ref PublicRouteTable
+  CacheParameterGroup:
+    Type: 'AWS::ElastiCache::ParameterGroup'
+    Properties:
+      CacheParameterGroupFamily: redis5.0
+      Description: !Ref 'AWS::StackName'
+  ReplicationGroup:
+    Type: 'AWS::ElastiCache::ReplicationGroup'
+    Properties:
+      ReplicationGroupDescription: redis cache cluster
+      AutomaticFailoverEnabled: false
+      CacheNodeType: cache.t4g.micro
+      CacheParameterGroupName: !Ref CacheParameterGroup
+      CacheSubnetGroupName: !Ref SubnetGroup
+      Engine: redis
+      EngineVersion: 5.0.6
+      PreferredMaintenanceWindow: 'sat:07:00-sat:08:00'
+      NumCacheClusters: 1
+      SecurityGroupIds: [ { "Fn::GetAtt": ["SecurityGroup",  "GroupId"] } ]
+  DynamoDBEndpoint:
+    Type: "AWS::EC2::VPCEndpoint"
+    Properties:
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.dynamodb"
+      VpcId: !Ref VPC
+      RouteTableIds: [ { "Fn::GetAtt": [ "PublicRouteTable",  "RouteTableId" ] } ]
+      PolicyDocument: {
+        "Id": "Policy",
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Sid": "Statement",
+            "Action": "dynamodb:*",
+            "Effect": "Allow",
+            "Resource": "*",
+            "Principal": "*"
+          }
+        ]
+      }
+  GetDrinkByIdFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
-      Handler: com.kenzie.capstone.service.lambda.GetExampleData
+      Handler: com.kenzie.capstone.service.lambda.GetDrinkById
       Runtime: java11
-      Description: Get Example Data for given id
+      Description: Get Drink Data by id
       MemorySize: 512
       Timeout: 240
-      # Function's execution role
+      # Lambda function to get a drink by ID
       Policies:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
@@ -24,22 +127,29 @@ Resources:
         - AmazonS3FullAccess
         - AmazonDynamoDBFullAccess
       Tracing: Active
+      VpcConfig:
+        SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
+        SubnetIds:
+          - !Ref PublicSubnet
+        Environment:
+          Variables:
+            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
       Events:
         UpdateResource:
           Type: Api
           Properties:
-            Path: /example/{id}
+            Path: /drinks/{id}
             Method: get
-  SetExampleDataFunction:
+  AddDrinkFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
-      Handler: com.kenzie.capstone.service.lambda.SetExampleData
+      Handler: com.kenzie.capstone.service.lambda.AddDrink
       Runtime: java11
-      Description: Set Example Data
+      Description: Add Drink Data
       MemorySize: 512
       Timeout: 240
-      # Function's execution role
+      # Lambda function to save a drink
       Policies:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
@@ -48,10 +158,265 @@ Resources:
         - AmazonS3FullAccess
         - AmazonDynamoDBFullAccess
       Tracing: Active
+      VpcConfig:
+        SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
+        SubnetIds:
+          - !Ref PublicSubnet
+        Environment:
+          Variables:
+            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
       Events:
         UpdateResource:
           Type: Api
           Properties:
-            Path: /example/
+            Path: /drinks
             Method: post
+  DeleteDrinkByIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
+      Handler: com.kenzie.capstone.service.lambda.DeleteDrinkById
+      Runtime: java11
+      Description: Delete Drink Data by ID
+      MemorySize: 512
+      Timeout: 240
+      # Lambda function to delete a drink by ID
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - AWSLambdaVPCAccessExecutionRole
+        - AmazonS3FullAccess
+        - AmazonDynamoDBFullAccess
+      Tracing: Active
+      VpcConfig:
+        SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
+        SubnetIds:
+          - !Ref PublicSubnet
+        Environment:
+          Variables:
+            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
+      Events:
+        UpdateResource:
+          Type: Api
+          Properties:
+            Path: /drinks/{id}
+            Method: delete
+  GetIngredientByIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
+      Handler: com.kenzie.capstone.service.lambda.GetIngredientById
+      Runtime: java11
+      Description: Get Ingredient Data by ID
+      MemorySize: 512
+      Timeout: 240
+      # Lambda function to get an ingredient by ID
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - AWSLambdaVPCAccessExecutionRole
+        - AmazonS3FullAccess
+        - AmazonDynamoDBFullAccess
+      Tracing: Active
+      VpcConfig:
+        SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
+        SubnetIds:
+          - !Ref PublicSubnet
+        Environment:
+          Variables:
+            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
+      Events:
+        UpdateResource:
+          Type: Api
+          Properties:
+            Path: /ingredients/{id}
+            Method: get
+  AddIngredientFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
+      Handler: com.kenzie.capstone.service.lambda.AddIngredient
+      Runtime: java11
+      Description: Save Ingredient Data
+      MemorySize: 512
+      Timeout: 240
+      # Lambda function to save an ingredient
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - AWSLambdaVPCAccessExecutionRole
+        - AmazonS3FullAccess
+        - AmazonDynamoDBFullAccess
+      Tracing: Active
+      VpcConfig:
+        SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
+        SubnetIds:
+          - !Ref PublicSubnet
+        Environment:
+          Variables:
+            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
+      Events:
+        UpdateResource:
+          Type: Api
+          Properties:
+            Path: /ingredients
+            Method: post
+  DeleteIngredientByIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
+      Handler: com.kenzie.capstone.service.lambda.DeleteIngredientById
+      Runtime: java11
+      Description: Delete Ingredient Data by ID
+      MemorySize: 512
+      Timeout: 240
+      # Lambda function to delete an ingredient by ID
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - AWSLambdaVPCAccessExecutionRole
+        - AmazonS3FullAccess
+        - AmazonDynamoDBFullAccess
+      Tracing: Active
+      VpcConfig:
+        SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
+        SubnetIds:
+          - !Ref PublicSubnet
+        Environment:
+          Variables:
+            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
+      Events:
+        UpdateResource:
+          Type: Api
+          Properties:
+            Path: /ingredients/{id}
+            Method: delete
+  UpdateDrinkFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
+      Handler: com.kenzie.capstone.service.lambda.UpdateDrink
+      Runtime: java11
+      Description: Update Drink Data with ID
+      MemorySize: 512
+      Timeout: 240
+      # Lambda function to update a Drink using ID
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - AWSLambdaVPCAccessExecutionRole
+        - AmazonS3FullAccess
+        - AmazonDynamoDBFullAccess
+      Tracing: Active
+      VpcConfig:
+        SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
+        SubnetIds:
+          - !Ref PublicSubnet
+        Environment:
+          Variables:
+            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
+      Events:
+        UpdateResource:
+          Type: Api
+          Properties:
+            Path: /drinks/{id}
+            Method: put
+  UpdateIngredientFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
+      Handler: com.kenzie.capstone.service.lambda.UpdateIngredient
+      Runtime: java11
+      Description: Update Ingredient with ID
+      MemorySize: 512
+      Timeout: 240
+      # Lambda function to update an Ingredient using ID
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - AWSLambdaVPCAccessExecutionRole
+        - AmazonS3FullAccess
+        - AmazonDynamoDBFullAccess
+      Tracing: Active
+      VpcConfig:
+        SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
+        SubnetIds:
+          - !Ref PublicSubnet
+        Environment:
+          Variables:
+            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
+      Events:
+        UpdateResource:
+          Type: Api
+          Properties:
+            Path: /ingredients/{id}
+            Method: put
+  GetAllDrinksFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
+      Handler: com.kenzie.capstone.service.lambda.GetAllDrinks
+      Runtime: java11
+      Description: Retrieve all Drinks
+      MemorySize: 512
+      Timeout: 240
+      # Lambda function to get all Drinks
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - AWSLambdaVPCAccessExecutionRole
+        - AmazonS3FullAccess
+        - AmazonDynamoDBFullAccess
+      Tracing: Active
+      VpcConfig:
+        SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
+        SubnetIds:
+          - !Ref PublicSubnet
+        Environment:
+          Variables:
+            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
+      Events:
+        UpdateResource:
+          Type: Api
+          Properties:
+            Path: /drinks/all
+            Method: get
+  GetAllIngredientsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ServiceLambda/build/distributions/ServiceLambda.zip
+      Handler: com.kenzie.capstone.service.lambda.GetAllIngredients
+      Runtime: java11
+      Description: Retrieve all Ingredients
+      MemorySize: 512
+      Timeout: 240
+      # Lambda function to get all Ingredients
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - AWSLambdaVPCAccessExecutionRole
+        - AmazonS3FullAccess
+        - AmazonDynamoDBFullAccess
+      Tracing: Active
+      VpcConfig:
+        SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
+        SubnetIds:
+          - !Ref PublicSubnet
+        Environment:
+          Variables:
+            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
+      Events:
+        UpdateResource:
+          Type: Api
+          Properties:
+            Path: /ingredients/all
+            Method: get
 

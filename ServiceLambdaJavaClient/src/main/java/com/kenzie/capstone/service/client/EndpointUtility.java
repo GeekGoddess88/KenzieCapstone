@@ -5,9 +5,10 @@ import com.amazonaws.services.apigateway.AmazonApiGatewayClientBuilder;
 import com.amazonaws.services.apigateway.model.GetRestApisRequest;
 import com.amazonaws.services.apigateway.model.GetRestApisResult;
 import com.amazonaws.services.apigateway.model.RestApi;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -15,7 +16,7 @@ import java.net.http.HttpResponse;
 
 import static com.kenzie.capstone.service.client.EnvironmentVariableUtility.getEnvVarFromSetupEnvironment;
 
-
+@Component
 public class EndpointUtility {
     private String apiEndpoint;
 
@@ -78,7 +79,7 @@ public class EndpointUtility {
 
     //The code below can be modified as needed to modify how it handles status codes, etc
 
-
+    @Bean
     public String postEndpoint(String endpoint, String data) {
         String api = getApiEndpint();
         String url = api + endpoint;
@@ -105,6 +106,7 @@ public class EndpointUtility {
         }
     }
 
+    @Bean
     public String getEndpoint(String endpoint) {
         String api = getApiEndpint();
         String url = api + endpoint;
@@ -125,6 +127,56 @@ public class EndpointUtility {
             } else {
                 throw new ApiGatewayException("GET request failed: " + statusCode + " status code received"
                         + "\n body: " + httpResponse.body());
+            }
+        } catch (IOException | InterruptedException e) {
+            return e.getMessage();
+        }
+    }
+
+    @Bean
+    public String deleteEndpoint(String endpoint) {
+        String api = getApiEndpint();
+        String url = api + endpoint;
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI uri = URI.create(url);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(uri)
+                .header("Accept", "application/json")
+                .DELETE()
+                .build();
+        try {
+            HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (httpResponse.statusCode() == 200) {
+               return httpResponse.body().isEmpty() ? "Success" : httpResponse.body();
+            } else {
+                throw new ApiGatewayException("DELETE request failed: " + httpResponse.statusCode() + " status code received");
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+        @Bean
+        public String putEndpoint(String endpoint, String data) {
+        String api = getApiEndpint();
+        String url = api + endpoint;
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI uri = URI.create(url);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(uri)
+                .header("Accept", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(data))
+                .build();
+        try {
+            HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            int statusCode = httpResponse.statusCode();
+            if (statusCode == 200) {
+                return httpResponse.body();
+            } else {
+                throw new ApiGatewayException("PUT request failed: " + statusCode + " status code received."
+                + "\n body: " + httpResponse.body());
             }
         } catch (IOException | InterruptedException e) {
             return e.getMessage();

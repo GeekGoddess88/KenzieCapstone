@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableDynamoDBRepositories(basePackages = "com.kenzie.appserver.repositories")
+@EnableDynamoDBRepositories()
 public class DynamoDbConfig {
     @Value("${dynamodb.override_endpoint}")
     String dynamoOverrideEndpoint;

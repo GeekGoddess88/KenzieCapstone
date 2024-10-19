@@ -1,5 +1,5 @@
-import BaseClass from "../util/baseClass";
-import axios from 'axios'
+import axios from 'axios';
+import BaseClass from "../util/baseClass"
 
 export default class DrinkClient extends BaseClass {
 
@@ -13,7 +13,7 @@ export default class DrinkClient extends BaseClass {
 
     clientLoaded(client) {
         this.client = client;
-        if(this.props.hasOwnProperty("onReady")){
+        if (this.props.hasOwnProperty("onReady")) {
             this.props.onReady();
         }
     }
@@ -39,9 +39,9 @@ export default class DrinkClient extends BaseClass {
     async addDrink(name, ingredients, recipe, errorCallback) {
         try {
             const response = await this.client.post(`/drink`, {
-                "name" : name,
-                "ingredients" : ingredients,
-                "recipe" : recipe
+                "name": name,
+                "ingredients": ingredients,
+                "recipe": recipe
             });
             return response.data;
         } catch (error) {
@@ -53,10 +53,10 @@ export default class DrinkClient extends BaseClass {
 
         try {
             const response = await this.client.put(`/drink/${id}`, {
-                "id" : id,
-                "name" : name,
-                "ingredients" : ingredients,
-                "recipe" : recipe
+                "id": id,
+                "name": name,
+                "ingredients": ingredients,
+                "recipe": recipe
             });
         } catch (error) {
             this.handleError("addDrink", error, errorCallback);
@@ -66,7 +66,7 @@ export default class DrinkClient extends BaseClass {
     async deleteDrink(id, errorCallback) {
         try {
             const response = await this.client.delete(`/drink/${id}`, {
-                "id" : id
+                "id": id
             });
             return response.data;
         } catch (error) {
@@ -75,12 +75,12 @@ export default class DrinkClient extends BaseClass {
     }
 
     handleError(method, error, errorCallback) {
-            console.error(method + " failed - " + error);
-            if (error.response.data.message !== undefined) {
-                console.error(error/*.message*/.response.data.message);
-            }
-            if (errorCallback) {
-                errorCallback(method + " failed - " + error);
-            }
+        console.error(method + " failed - " + error);
+        if (error.response.data.message !== undefined) {
+            console.error(error/*.message*/.response.data.message);
         }
+        if (errorCallback) {
+            errorCallback(method + " failed - " + error);
+        }
+    }
 }

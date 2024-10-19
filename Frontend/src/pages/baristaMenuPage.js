@@ -87,9 +87,9 @@ class BaristaMenuPage extends BaseClass {
     // Event Handlers
 
     async onGet(event) {
-            let result = await this.drinkClient.getAllDrinks(this.errorHandler);
-            this.dataStore.set("drink", result);
-        }
+        let result = await this.drinkClient.getAllDrinks(this.errorHandler);
+        this.dataStore.set("drink", result);
+    }
 
 }
 const main = async () => {

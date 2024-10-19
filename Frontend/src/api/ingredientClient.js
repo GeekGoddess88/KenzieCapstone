@@ -3,7 +3,7 @@ import axios from 'axios'
 
 export default class IngredientClient extends BaseClass {
 
-constructor(props = {}) {
+    constructor(props = {}) {
         super();
         const methodsToBind = ['clientLoaded', 'getIngredient', 'getAllIngredients', 'addIngredient', 'deleteIngredient', 'updateIngredient'];
         this.bindClassMethods(methodsToBind, this);
@@ -13,7 +13,7 @@ constructor(props = {}) {
 
     clientLoaded(client) {
         this.client = client;
-        if(this.props.hasOwnProperty("onReady")){
+        if (this.props.hasOwnProperty("onReady")) {
             this.props.onReady();
         }
     }
@@ -39,8 +39,8 @@ constructor(props = {}) {
     async addIngredient(name, quantity, errorCallback) {
         try {
             const response = await this.client.post(`/ingredient`, {
-                "name" : name,
-                "quantity" : quantity
+                "name": name,
+                "quantity": quantity
             });
             return response.data;
         } catch (error) {
@@ -52,9 +52,9 @@ constructor(props = {}) {
 
         try {
             const response = await this.client.put(`/ingredient/${id}`, {
-                "id" : id,
-                "name" : name,
-                "quantity" : quantity
+                "id": id,
+                "name": name,
+                "quantity": quantity
             });
         } catch (error) {
             this.handleError("addDrink", error, errorCallback);
@@ -64,7 +64,7 @@ constructor(props = {}) {
     async deleteIngredient(id, errorCallback) {
         try {
             const response = await this.client.delete(`/ingredient/${id}`, {
-                "id" : id
+                "id": id
             });
             return response.data;
         } catch (error) {
@@ -73,12 +73,12 @@ constructor(props = {}) {
     }
 
     handleError(method, error, errorCallback) {
-            console.error(method + " failed - " + error);
-            if (error.response.data.message !== undefined) {
-                console.error(error/*.message*/.response.data.message);
-            }
-            if (errorCallback) {
-                errorCallback(method + " failed - " + error);
-            }
+        console.error(method + " failed - " + error);
+        if (error.response.data.message !== undefined) {
+            console.error(error/*.message*/.response.data.message);
         }
+        if (errorCallback) {
+            errorCallback(method + " failed - " + error);
+        }
+    }
 }

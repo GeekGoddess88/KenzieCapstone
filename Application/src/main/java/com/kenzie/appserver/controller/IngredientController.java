@@ -1,92 +1,68 @@
 package com.kenzie.appserver.controller;
 
-import com.kenzie.appserver.controller.model.IngredientCreateRequest;
-import com.kenzie.appserver.controller.model.IngredientResponse;
-import com.kenzie.appserver.controller.model.IngredientUpdateRequest;
-import com.kenzie.appserver.repositories.IngredientRepository;
+
+
+
 import com.kenzie.appserver.service.IngredientService;
-import com.kenzie.appserver.service.model.Ingredient;
+import com.kenzie.capstone.service.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.net.URI;
+
+import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.UUID.randomUUID;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
-@RequestMapping("/ingredient")
+@RequestMapping("/ingredients")
 public class IngredientController {
 
-    private IngredientRepository ingredientRepository;
-    private IngredientService ingredientService;
+    private final IngredientService ingredientService;
 
-    IngredientController(IngredientService ingredientService) {
+    @Autowired
+    public IngredientController(IngredientService ingredientService) {
         this.ingredientService = ingredientService;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<IngredientResponse> getIngredient(@PathVariable("id") String id) {
-        Ingredient ingredient = ingredientService.findById(id);
-        if (ingredient == null) {
-            return ResponseEntity.notFound().build();
+    @PostMapping
+    public CompletableFuture<ResponseEntity<IngredientResponse>> addIngredient(@RequestBody IngredientCreateRequest ingredientCreateRequest) {
+        try {
+            return ingredientService.addIngredient(ingredientCreateRequest)
+                    .thenApply(ingredientResponse -> ResponseEntity.status(HttpStatus.CREATED).body(ingredientResponse))
+                    .exceptionally(ex -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
         }
-        return ResponseEntity.ok(ingredientToResponse(ingredient));
+    }
+
+    @GetMapping("/{id}")
+    public CompletableFuture<ResponseEntity<IngredientResponse>> getIngredientById(@PathVariable String id) {
+        return ingredientService.getIngredientById(id)
+                .thenApply(ingredientResponse -> new ResponseEntity<>(ingredientResponse, HttpStatus.OK))
+                .exceptionally(ex -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<IngredientResponse>> getIngredient() {
-        List<Ingredient> ingredients = ingredientService.findAll();
-        List<IngredientResponse> ingredientResponses = ingredients.stream()
-                .map(ingredient -> ingredientToResponse(ingredient)).collect(Collectors.toList());
-        return ResponseEntity.ok(ingredientResponses);
-    }
-
-    @PostMapping
-    public ResponseEntity<IngredientResponse> addIngredient(@RequestBody IngredientCreateRequest ingredientCreateRequest) {
-        Ingredient ingredient = new Ingredient(randomUUID().toString(),
-                ingredientCreateRequest.getName(),
-                ingredientCreateRequest.getQuantity());
-        ingredientService.addIngredient(ingredient);
-
-        IngredientResponse ingredientResponse = new IngredientResponse();
-        ingredientResponse.setId(ingredient.getId());
-        ingredientResponse.setName(ingredient.getName());
-        ingredientResponse.setQuantity(ingredient.getQuantity());
-
-        return ResponseEntity.created(URI.create("/ingredient/" + ingredientResponse.getId())).body(ingredientResponse);
+    public CompletableFuture<ResponseEntity<List<IngredientResponse>>> getAllIngredients() throws IOException {
+        return ingredientService.getAllIngredients()
+                .thenApply(ingredientResponse -> new ResponseEntity<>(ingredientResponse, HttpStatus.OK))
+                .exceptionally(ex -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<IngredientResponse> updateIngredient(@PathVariable("id") String id, @RequestBody IngredientUpdateRequest ingredientUpdateRequest) {
-        Ingredient ingredientRecord = ingredientService.findById(id);
-//                .orElseThrow(() -> new ResourceNotFoundException("Ingredient with id " + id + " not found.", HttpStatus.NOT_FOUND));
-        Ingredient ingredientUpdate = new Ingredient(ingredientRecord.getId(),
-                ingredientUpdateRequest.getName(),
-                ingredientUpdateRequest.getQuantity());
-        ingredientService.updateIngredient(id, ingredientUpdate);
-
-        IngredientResponse ingredientResponse = new IngredientResponse();
-        ingredientResponse.setId(ingredientUpdate.getId());
-        ingredientResponse.setName(ingredientUpdate.getName());
-        ingredientResponse.setQuantity(ingredientUpdate.getQuantity());
-
-        return ResponseEntity.ok(ingredientResponse);
+    public CompletableFuture<ResponseEntity<IngredientResponse>> updateIngredient(@PathVariable("id") String id, @RequestBody IngredientUpdateRequest ingredientUpdateRequest) throws IOException {
+        return ingredientService.updateIngredient(id, ingredientUpdateRequest)
+                .thenApply(ingredientResponse -> new ResponseEntity<>(ingredientResponse, HttpStatus.OK))
+                .exceptionally(ex -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<?> deleteIngredient(@PathVariable("id") String id) {
-        ingredientService.deleteIngredient(id);
-        return ResponseEntity.ok("Ingredient removed.");
-    }
-
-    // Convert IngredientRecord to IngredientResponse helper method
-    private IngredientResponse ingredientToResponse(Ingredient ingredient) {
-        IngredientResponse ingredientResponse = new IngredientResponse();
-        ingredientResponse.setId(ingredient.getId());
-        ingredientResponse.setName(ingredient.getName());
-        ingredientResponse.setQuantity(ingredient.getQuantity());
-        return ingredientResponse;
+    @DeleteMapping("/{id}")
+    public CompletableFuture<ResponseEntity<DeleteIngredientResponse>> deleteIngredient(@PathVariable("id") String id) throws IOException {
+        return ingredientService.deleteIngredient(id)
+                .thenApply(deleteIngredientResponse -> new ResponseEntity<>(deleteIngredientResponse, HttpStatus.OK))
+                .exceptionally(ex -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }
 }
