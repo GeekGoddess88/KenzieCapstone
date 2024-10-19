@@ -3,6 +3,7 @@ package com.kenzie.appserver.config;
 
 import com.kenzie.capstone.service.client.EndpointUtility;
 import com.kenzie.capstone.service.client.LambdaServiceClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +26,7 @@ public class ServiceLambdaClientConfiguration {
         return executor;
     }
 
-    @Bean
+    @Autowired
     public LambdaServiceClient lambdaServiceClient(EndpointUtility endpointUtility, @Qualifier("taskExecutor") Executor taskExecutor) {
         return new LambdaServiceClient(endpointUtility, taskExecutor);
     }
