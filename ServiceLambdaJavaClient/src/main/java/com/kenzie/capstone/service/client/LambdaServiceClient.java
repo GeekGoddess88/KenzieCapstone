@@ -52,7 +52,7 @@ public class LambdaServiceClient {
                 }, taskExecutor);
     }
 
-    public CompletableFuture<DrinkResponse> getDrinkById(String drinkId) throws IOException {
+    public CompletableFuture<DrinkResponse> getDrinkById(String drinkId) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 String endpoint = buildUrlWithId(GET_DRINK_ENDPOINT, drinkId);
@@ -64,7 +64,7 @@ public class LambdaServiceClient {
                 }, taskExecutor);
     }
 
-    public CompletableFuture<DrinkResponse[]> getAllDrinks() throws IOException {
+    public CompletableFuture<DrinkResponse[]> getAllDrinks() {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 String response = endpointUtility.getEndpoint(GET_ALL_DRINKS_ENDPOINT);
@@ -75,7 +75,7 @@ public class LambdaServiceClient {
                 }, taskExecutor);
     }
 
-    public CompletableFuture<DrinkResponse> updateDrink(String id, DrinkUpdateRequest drinkUpdateRequest) throws IOException {
+    public CompletableFuture<DrinkResponse> updateDrink(String id, DrinkUpdateRequest drinkUpdateRequest) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 String endpoint = buildUrlWithId(UPDATE_DRINK_ENDPOINT, id);
@@ -88,7 +88,7 @@ public class LambdaServiceClient {
         }, taskExecutor);
     }
 
-    public CompletableFuture<DeleteDrinkResponse> deleteDrinkById(String drinkId) throws IOException {
+    public CompletableFuture<DeleteDrinkResponse> deleteDrinkById(String drinkId) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 String endpoint = buildUrlWithId(DELETE_DRINK_ENDPOINT, drinkId);
@@ -112,7 +112,7 @@ public class LambdaServiceClient {
         }, taskExecutor);
     }
 
-    public CompletableFuture<IngredientResponse> getIngredientById(String ingredientId) throws IOException {
+    public CompletableFuture<IngredientResponse> getIngredientById(String ingredientId) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 String endpoint = buildUrlWithId(GET_INGREDIENT_ENDPOINT, ingredientId);
@@ -124,7 +124,7 @@ public class LambdaServiceClient {
         }, taskExecutor);
     }
 
-    public CompletableFuture<IngredientResponse[]> getAllIngredients() throws IOException {
+    public CompletableFuture<IngredientResponse[]> getAllIngredients() {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 String response = endpointUtility.getEndpoint(GET_ALL_INGREDIENTS_ENDPOINT);
@@ -135,7 +135,7 @@ public class LambdaServiceClient {
         }, taskExecutor);
     }
 
-    public CompletableFuture<IngredientResponse> updateIngredient(String id, IngredientUpdateRequest ingredientUpdateRequest) throws IOException {
+    public CompletableFuture<IngredientResponse> updateIngredient(String id, IngredientUpdateRequest ingredientUpdateRequest) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 String endpoint = buildUrlWithId(UPDATE_INGREDIENT_ENDPOINT, id);
@@ -148,7 +148,7 @@ public class LambdaServiceClient {
         }, taskExecutor);
     }
 
-    public CompletableFuture<DeleteIngredientResponse> deleteIngredientById(String id) throws IOException {
+    public CompletableFuture<DeleteIngredientResponse> deleteIngredientById(String id) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 String endpoint = buildUrlWithId(DELETE_INGREDIENT_ENDPOINT, id);

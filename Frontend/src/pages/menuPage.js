@@ -1,6 +1,6 @@
 import BaseClass from "../util/baseClass";
 import DataStore from "../util/DataStore";
-import DrinkClient from "../api/drinkClient";
+import drinkIngredientModule from "../api/drinkIngredientModule";
 
 class MenuPage extends BaseClass {
 
@@ -11,39 +11,33 @@ class MenuPage extends BaseClass {
     }
 
     async mount() {
-        this.drinkClient = new DrinkClient();
-        this.onGet();
+        await this.onGet();
         this.dataStore.addChangeListener(this.renderMenu);
     }
 
-    // Render methods
-
-    async renderMenu() {
-        const drinks = this.dataStore.get("drink");
-        let renderArea = document.getElementById("menu-content");
-
-        if (drinks) {
-            let myHtml = "<ul>";
-            for (let drink of drinks) {
-                myHtml += "<li><h3>" + drink.name + "<h3></li>";
-            }
-            renderArea.innerHTML = myHtml;
-        } else {
-            renderArea.innerHTML = "No Menu to Display";
+    async onGet() {
+        try {
+            const drinks = await drinkIngredientModule.getAllDrinks();
+            this.dataStore.set("drinks", drinks);
+        } catch (error) {
+            console.error("Failed to load drinks into menu:", error);
         }
     }
 
+    renderMenu() {
+        const drinks = this.dataStore.get("drinks/");
+        let renderArea = document.getElementById("menu-content");
 
-    // Event handlers
-
-    async onGet(event) {
-        let result = await this.drinkClient.getAllDrinks(this.errorHandler);
-        this.dataStore.set("drink", result);
+        if (drinks && drinks.length > 0) {
+            renderArea.innerHtml = drinks.map(drink => `<p>${drink.name}</p>`).join('');
+        } else {
+            renderArea.innerHTML = "<p>No drinks available on the menu to display.</p>";
+        }
     }
 
 }
 const main = async () => {
     const menuPage = new MenuPage();
-    menuPage.mount();
+    await menuPage.mount();
 }
 window.addEventListener('DOMContentLoaded', main);

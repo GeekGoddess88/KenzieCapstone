@@ -9,7 +9,6 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -34,7 +33,7 @@ public class IngredientService {
     }
 
     @Async
-    public CompletableFuture<IngredientResponse> addIngredient(IngredientCreateRequest ingredientCreateRequest) throws IOException {
+    public CompletableFuture<IngredientResponse> addIngredient(IngredientCreateRequest ingredientCreateRequest) {
         return lambdaServiceClient.addIngredient(ingredientCreateRequest).thenApply(ingredientResponse -> {
             IngredientRecord ingredientRecord = new IngredientRecord(
                     ingredientResponse.getId(),
@@ -54,13 +53,7 @@ public class IngredientService {
                         record.getName(),
                         record.getQuantity()
                 )))
-                .orElseGet(() -> {
-                    try {
-                        return lambdaServiceClient.getIngredientById(id);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+                .orElseGet(() -> lambdaServiceClient.getIngredientById(id));
     }
 
     @Async
@@ -80,16 +73,12 @@ public class IngredientService {
             return null;
         }, taskExecutor).thenCompose(localResult -> {
             if (localResult == null) {
-                try {
-                    return lambdaServiceClient.getAllIngredients()
-                            .thenApply(List::of)
-                            .exceptionally(ex -> {
-                                System.err.println("Error fetching ingredients from Lambda: " + ex.getMessage());
-                                return List.of();
-                            });
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                return lambdaServiceClient.getAllIngredients()
+                        .thenApply(List::of)
+                        .exceptionally(ex -> {
+                            System.err.println("Error fetching ingredients from Lambda: " + ex.getMessage());
+                            return List.of();
+                        });
             }
             return CompletableFuture.completedFuture(localResult);
         });
@@ -97,52 +86,37 @@ public class IngredientService {
 
     @Async
     public CompletableFuture<IngredientResponse> updateIngredient(String ingredientId, IngredientUpdateRequest ingredientUpdateRequest) {
-        try {
-            return lambdaServiceClient.updateIngredient(ingredientId, ingredientUpdateRequest).thenApply(ingredientResponse -> {
-                IngredientRecord ingredientRecord = new IngredientRecord(
-                        ingredientResponse.getId(),
-                        ingredientResponse.getName(),
-                        ingredientResponse.getQuantity()
-                );
-                ingredientRepository.save(ingredientRecord);
-                return ingredientResponse;
-            });
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return lambdaServiceClient.updateIngredient(ingredientId, ingredientUpdateRequest).thenApply(ingredientResponse -> {
+            IngredientRecord ingredientRecord = new IngredientRecord(
+                    ingredientResponse.getId(),
+                    ingredientResponse.getName(),
+                    ingredientResponse.getQuantity()
+            );
+            ingredientRepository.save(ingredientRecord);
+            return ingredientResponse;
+        });
     }
 
     @Async
     public CompletableFuture<DeleteIngredientResponse> deleteIngredient(String ingredientId) {
-        try {
-            return lambdaServiceClient.deleteIngredientById(ingredientId).thenApply(deleteResponse -> {
-                if (deleteResponse != null && deleteResponse.getId() != null) {
-                    ingredientRepository.deleteById(deleteResponse.getId());
-                }
-                return deleteResponse;
-            });
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return lambdaServiceClient.deleteIngredientById(ingredientId).thenApply(deleteResponse -> {
+            if (deleteResponse != null && deleteResponse.getId() != null) {
+                ingredientRepository.deleteById(deleteResponse.getId());
+            }
+            return deleteResponse;
+        });
     }
 
     @Async
     @Qualifier("TaskScheduler-")
-    public CompletableFuture<Void> checkAndReplenishStock() {
+    public void checkAndReplenishStock() {
         List<IngredientRecord> ingredients = (List<IngredientRecord>) ingredientRepository.findAll();
-
         for (IngredientRecord ingredient : ingredients) {
-            if (ingredient.getQuantity() < 10) {
-                System.out.println("Low stock detected for: " + ingredient.getName() + ". Replenishing...");
-                replenishStock(ingredient);
+            if (ingredient.getQuantity() < 100) {
+                ingredient.setQuantity(ingredient.getQuantity() + 500);
+                ingredientRepository.save(ingredient);
+                System.out.println("Replenished stock for " + ingredient.getName());
             }
         }
-        return CompletableFuture.completedFuture(null);
-    }
-
-    private void replenishStock(IngredientRecord ingredientRecord) {
-        ingredientRecord.setQuantity(ingredientRecord.getQuantity() + 100);
-        ingredientRepository.save(ingredientRecord);
-        System.out.println("Replenished stock for ingredient: " + ingredientRecord.getName());
     }
 }

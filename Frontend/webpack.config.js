@@ -5,7 +5,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
   optimization: {
-    usedExports: true
+    usedExports: true,
   },
   entry: {
     inventoryManagementPage: path.resolve(__dirname, 'src', 'pages', 'inventoryManagementPage.js'),
@@ -17,6 +17,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
+    publicPath: '/',
   },
   devServer: {
     https: false,
@@ -29,48 +30,62 @@ module.exports = {
           '/drinks'
         ],
         target: 'http://localhost:5001'
-      }
-    ]
+      },
+    ],
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      },
+    ],
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/index.html',
       filename: 'index.html',
-      inject: false
+      chunks: [],
+      inject: true,
     }),
     new HtmlWebpackPlugin({
       template: './src/inventory-management.html',
       filename: 'inventory-management.html',
-      inject: false
+      chunks: ['inventoryManagementPage'],
+      inject: true,
     }),
     new HtmlWebpackPlugin({
       template: './src/menu-management.html',
       filename: 'menu-management.html',
-      inject: false
+      chunks: ['menuManagementPage'],
+      inject: true,
     }),
     new HtmlWebpackPlugin({
       template: './src/employee-portal.html',
       filename: 'employee-portal.html',
-      inject: false
+      chunks: ['employeePortalPage'],
+      inject: true,
     }),
     new HtmlWebpackPlugin({
       template: './src/menu.html',
       filename: 'menu.html',
-      inject: false
+      chunks: ['menuPage'],
+      inject: true,
     }),
     new HtmlWebpackPlugin({
       template: './src/barista-menu.html',
       filename: 'barista-menu.html',
-      inject: false
+      chunks: ['baristaMenuPage'],
+      inject: true
     }),
     new CopyPlugin({
       patterns: [
         {
           from: path.resolve('src/css'),
           to: path.resolve("dist/css")
-        }
-      ]
+        },
+      ],
     }),
-    new CleanWebpackPlugin()
-  ]
-}
+    new CleanWebpackPlugin(),
+  ],
+};

@@ -21,7 +21,7 @@ configurations {
   integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
 }
 
-task integrationTest(type: Test) {
+tasks.register('integrationTest', Test) {
   description = 'Runs integration tests'
   group = 'verification'
 

@@ -16,9 +16,9 @@ dependencies {
     implementation project(":ServiceLambda")
     implementation project(":ServiceLambdaModel")
     implementation project(":ServiceLambdaJavaClient")
-    implementation 'org.springframework:spring-context:5.3.19'
+    implementation 'org.springframework:spring-context:5.3.15'
     implementation 'org.springframework:spring-core:5.3.15'
-    implementation 'org.springframework:spring-beans:5.3.20'
+    implementation 'org.springframework:spring-beans:5.3.15'
     implementation 'org.springframework.boot:spring-boot-starter-web:2.6.6'
     implementation 'org.springframework.cloud:spring-cloud-function-adapter-aws:3.2.2'
 
@@ -59,7 +59,7 @@ processResources {
     expand(project.properties)
 }
 
-task buildZip(type: Zip) {
+tasks.register('buildZip', Zip) {
     from compileJava
     from processResources
     into('lib') {
@@ -79,7 +79,7 @@ repositories {
     }
 }
 
-task copyFrontend(type: Copy) {
+tasks.register('copyFrontend', Copy) {
     dependsOn(":Frontend:npm_run_build")
 
     from("../Frontend/dist")
@@ -88,7 +88,7 @@ task copyFrontend(type: Copy) {
 
 compileJava.dependsOn(copyFrontend)
 
-task bootRunDev {
+tasks.register('bootRunDev') {
     bootRun.configure {
         systemProperty "server.error.whitelabel.enabled", 'false'
         systemProperty "spring.devtools.restart.enabled", 'true'

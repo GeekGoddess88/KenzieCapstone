@@ -1,6 +1,7 @@
 package com.kenzie.appserver;
 
 import com.kenzie.appserver.service.IngredientService;
+import com.kenzie.capstone.service.model.IngredientRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,6 +20,6 @@ public class CoffeeStockScheduler {
     @Scheduled(fixedDelay = 60000)
     @Qualifier("TaskScheduler-")
     public void checkAndReplenishStock() {
-    ingredientService.checkAndReplenishStock();
+        ingredientService.checkAndReplenishStock();
     }
 }

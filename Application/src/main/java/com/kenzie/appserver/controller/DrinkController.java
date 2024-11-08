@@ -11,8 +11,6 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
 
-
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -28,35 +26,35 @@ public class DrinkController {
     }
 
     @PostMapping
-    public CompletableFuture<ResponseEntity<DrinkResponse>> addDrink(@RequestBody DrinkCreateRequest drinkCreateRequest) throws IOException {
+    public CompletableFuture<ResponseEntity<DrinkResponse>> addDrink(@RequestBody DrinkCreateRequest drinkCreateRequest) {
         return drinkService.addDrink(drinkCreateRequest)
                 .thenApply(drinkResponse -> new ResponseEntity<>(drinkResponse, HttpStatus.CREATED))
                 .exceptionally(ex -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @GetMapping("/{id}")
-    public CompletableFuture<ResponseEntity<DrinkResponse>> getDrinkById(@PathVariable String id) throws IOException {
+    public CompletableFuture<ResponseEntity<DrinkResponse>> getDrinkById(@PathVariable String id) {
         return drinkService.getDrinkById(id)
                 .thenApply(drinkResponse -> new ResponseEntity<>(drinkResponse, HttpStatus.OK))
                 .exceptionally(ex -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @GetMapping("/all")
-    public CompletableFuture<ResponseEntity<List<DrinkResponse>>> getAllDrinks() throws IOException {
+    public CompletableFuture<ResponseEntity<List<DrinkResponse>>> getAllDrinks() {
             return drinkService.getAllDrinks()
                     .thenApply(drinkResponse -> new ResponseEntity<>(drinkResponse, HttpStatus.OK))
                     .exceptionally(ex -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @PutMapping("/{id}")
-    public CompletableFuture<ResponseEntity<DrinkResponse>> updateDrink(@PathVariable String id, @RequestBody DrinkUpdateRequest drinkUpdateRequest) throws IOException {
+    public CompletableFuture<ResponseEntity<DrinkResponse>> updateDrink(@PathVariable String id, @RequestBody DrinkUpdateRequest drinkUpdateRequest) {
         return drinkService.updateDrink(id, drinkUpdateRequest)
                 .thenApply(drinkResponse -> new ResponseEntity<>(drinkResponse, HttpStatus.OK))
                 .exceptionally(ex -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @DeleteMapping("/{id}")
-    public CompletableFuture<ResponseEntity<DeleteDrinkResponse>> deleteDrinkById(@PathVariable String id) throws IOException {
+    public CompletableFuture<ResponseEntity<DeleteDrinkResponse>> deleteDrinkById(@PathVariable String id) {
         return drinkService.deleteDrinkById(id)
                 .thenApply(drinkResponse -> new ResponseEntity<>(drinkResponse, HttpStatus.OK))
                 .exceptionally(ex -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));

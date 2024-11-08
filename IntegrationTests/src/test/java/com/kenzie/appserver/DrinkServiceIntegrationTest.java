@@ -7,18 +7,12 @@ import com.kenzie.capstone.service.model.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -55,7 +49,7 @@ public class DrinkServiceIntegrationTest {
     }
 
     @Test
-    void addDrink_Failure() throws Exception {
+    void addDrink_Failure() {
         DrinkCreateRequest request = new DrinkCreateRequest(
                 "1","Espresso", "Simple espresso",
                 List.of(new IngredientCreateRequest("2", "", 10))
@@ -65,7 +59,7 @@ public class DrinkServiceIntegrationTest {
     }
 
     @Test
-    void getDrinkById_Success() throws Exception {
+    void getDrinkById_Success() {
         DrinkRecord drink = new DrinkRecord("1", "Americano",
                 List.of(new IngredientRecord("1", "Water", 10)), "Simple recipe");
         drinkRepository.save(drink);
@@ -77,12 +71,12 @@ public class DrinkServiceIntegrationTest {
     }
 
     @Test
-    void getDrinkById_Failure() throws Exception {
+    void getDrinkById_Failure() {
         assertThrows(RuntimeException.class, () -> drinkService.getDrinkById("99").join());
     }
 
     @Test
-    void getAllDrinks_Success() throws Exception {
+    void getAllDrinks_Success() {
         drinkRepository.save(new DrinkRecord("1", "Latte",
                 List.of(new IngredientRecord("1", "Milk", 20)), "Delicious Drink"));
         drinkRepository.save(new DrinkRecord("2", "Mocha",
@@ -94,7 +88,7 @@ public class DrinkServiceIntegrationTest {
     }
 
     @Test
-    void getAllDrinks_Failure() throws Exception {
+    void getAllDrinks_Failure() {
         List<DrinkResponse> drinks = drinkService.getAllDrinks().join();
 
         assertTrue(drinks.isEmpty());

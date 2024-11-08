@@ -131,9 +131,6 @@ Resources:
         SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
         SubnetIds:
           - !Ref PublicSubnet
-        Environment:
-          Variables:
-            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
       Events:
         UpdateResource:
           Type: Api
@@ -162,9 +159,6 @@ Resources:
         SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
         SubnetIds:
           - !Ref PublicSubnet
-        Environment:
-          Variables:
-            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
       Events:
         GetResource:
           Type: Api
@@ -193,9 +187,6 @@ Resources:
         SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
         SubnetIds:
           - !Ref PublicSubnet
-        Environment:
-          Variables:
-            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
       Events:
         DeleteResource:
           Type: Api
@@ -224,9 +215,6 @@ Resources:
         SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
         SubnetIds:
           - !Ref PublicSubnet
-        Environment:
-          Variables:
-            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
       Events:
         UpdateResource:
           Type: Api
@@ -255,9 +243,6 @@ Resources:
         SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
         SubnetIds:
           - !Ref PublicSubnet
-        Environment:
-          Variables:
-            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
       Events:
         GetResource:
           Type: Api
@@ -286,9 +271,6 @@ Resources:
         SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
         SubnetIds:
           - !Ref PublicSubnet
-        Environment:
-          Variables:
-            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
       Events:
         DeleteResource:
           Type: Api
@@ -317,9 +299,6 @@ Resources:
         SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
         SubnetIds:
           - !Ref PublicSubnet
-        Environment:
-          Variables:
-            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
       Events:
         GetResource:
           Type: Api
@@ -348,9 +327,6 @@ Resources:
         SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
         SubnetIds:
           - !Ref PublicSubnet
-        Environment:
-          Variables:
-            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
       Events:
         GetResource:
           Type: Api
@@ -379,9 +355,6 @@ Resources:
         SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
         SubnetIds:
           - !Ref PublicSubnet
-        Environment:
-          Variables:
-            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
       Events:
         UpdateResource:
           Type: Api
@@ -410,9 +383,6 @@ Resources:
         SecurityGroupIds: [ { "Fn::GetAtt": [ "SecurityGroup",  "GroupId" ] } ]
         SubnetIds:
           - !Ref PublicSubnet
-        Environment:
-          Variables:
-            JEDIS_URL: !GetAtt ReplicationGroup.PrimaryEndPoint.Address
       Events:
         UpdateResource:
           Type: Api

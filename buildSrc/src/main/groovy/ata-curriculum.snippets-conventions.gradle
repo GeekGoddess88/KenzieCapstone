@@ -14,7 +14,7 @@ repositories {
   }
 }
 
-task copyConfiguration(type: Copy) {
+tasks.register('copyConfiguration', Copy) {
   from 'configuration'
   into brazilOutputDir
 }
@@ -103,12 +103,12 @@ test.doFirst {
 }
 
 // For running subsets of unit tests that will fail the build if a test fails
-task wflowtest {
+tasks.register('wflowtest') {
   dependsOn test
   group = 'Verification'
 }
 
-task runMain(type: JavaExec) {
+tasks.register('runMain', JavaExec) {
   group = "Execution"
   description = "Run the main class with JavaExecTask"
   classpath = sourceSets.main.runtimeClasspath

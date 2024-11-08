@@ -45,7 +45,7 @@ dependencies {
 
 }
 
-task buildZip(type: Zip) {
+tasks.register('buildZip', Zip) {
     from compileJava
     from processResources
     into('lib') {

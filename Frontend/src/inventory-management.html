@@ -1,55 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <script type="text/javascript" src="inventoryManagementPage.js"></script>
+    <title>Inventory Management</title>
     <link rel="stylesheet" type="text/css" href="css/style.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 </head>
 <body class="background">
-<header class="header" id="header">
-    <div class="site-title">
-        <a class="header_home" href="employee-portal.html">EMPLOYEE PORTAL</a>
-        <p><br></p>
-        <h2>INVENTORY MANAGEMENT</h2>
-    </div>
-    <div>
-        <a href="index.html"><button><h3>Home</h3></button></a>
-    </div>
-</header>
-<div class="column-card">
-    <div class="menu-card">
-        <h2 class="menu-management-header">Add Item to Inventory</h2>
-        <form class="card-content" id="create-ingredient-form">
-            <p class="form-field">
-                <label>Name</label>
-                <input type="text" required class="validated-field" id="create-ingredient-name">
-            </p>
-            <label>Quantity</label>
-            <input type="number" required class="validated-field" id="create-ingredient-quantity">
-            </p>
-            <button type="submit" class="form-button">Confirm</button>
-        </form>
-    </div>
-    <div class="menu-card">
-        <h2 class="menu-management-header">Update Inventory Item</h2>
-        <form class="card-content" id="update-ingredient-form">
-            <!--      <p class="form-field">-->
-            <!--        <label>Name</label>-->
-            <!--        <input type="text" required class="validated-field" id="update-ingredient-name">-->
-            <!--      </p>-->
-            <p class="ingredient-select-boxes" id="ingredients-in-update-form"></p>
-            <label>Quantity</label>
-            <input type="number" required class="validated-field" id="update-ingredient-quantity">
-            </p>
-            <button type="submit" class="form-button">Confirm</button>
-        </form>
-    </div>
-    <div class="menu-card">
-        <h2 class="menu-management-header">Remove Item from Inventory</h2>
-        <form id="remove-ingredient-form">
-            <p id="ingredients-in-menu"></p>
-        </form>
-    </div>
-</div>
+    <header class="header" id="header">
+        <h1 class="site-title">INVENTORY MANAGEMENT</h1>
+        <nav class="nav-links">
+            <a class="home-button" href="index.html">Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="card">
+            <h2>Add Ingredient</h2>
+            <form id="create-ingredient-form">
+                <label for="create-ingredient-name">Name:</label>
+                <input type="text" id="create-ingredient-name" required aria-label="Enter ingredient name">
+
+                <label for="create-ingredient-quantity">Quantity:</label>
+                <input type="number" id="create-ingredient-quantity" required aria-label="Enter ingredient quantity">
+
+                <button type="submit" class="form-button">Add Ingredient</button>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>Update Ingredient</h2>
+            <form id="update-ingredient-form">
+                <label for="ingredient-update-options">Select Ingredient:</label>
+                <select id="ingredient-update-options" aria-label="Select ingredient to update"></select>
+
+                <label for="update-ingredient-quantity">New Quantity:</label>
+                <input type="number" id="update-ingredient-quantity" required aria-label="Enter new quantity">
+
+                <button type="submit" class="form-button">Update Ingredient</button>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>Delete Ingredient</h2>
+            <form id="remove-ingredient-form">
+                <label for="delete-options">Select Ingredient:</label>
+                <select id="delete-options" aria-label="Select ingredient to delete"></select>
+                <button type="submit" class="form-button">Remove Ingredient</button>
+            </form>
+        </section>
+    </main>
+
+    <script type="text/javascript" src="inventoryManagementPage.js"></script>
 </body>
 </html>

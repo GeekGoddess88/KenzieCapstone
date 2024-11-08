@@ -1,60 +1,60 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <script type="text/javascript" src="menuManagementPage.js"></script>
+    <title>Menu Management</title>
     <link rel="stylesheet" type="text/css" href="css/style.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 </head>
 <body class="background">
-<header class="header" id="header">
-    <div class="site-title">
-        <a class="header_home" href="employee-portal.html">EMPLOYEE PORTAL</a>
-        <p><br></p>
-        <h2>MENU MANAGEMENT</h2>
-    </div>
-    <div>
-        <a href="index.html"><button><h3>Home</h3></button></a>
-    </div>
-</header>
-<div class="column-card">
-    <div class="menu-card">
-        <h2 class="menu-management-header">Add Item to Menu</h2>
-        <form class="card-content" id="create-drink-form">
-            <p class="form-field">
-                <label>Name</label>
-                <input type="text" required class="validated-field" id="create-drink-name">
-            </p>
-            <p>Choose Ingredients: </p>
-            <p class="ingredient-select-boxes" id="ingredients-in-create-form"></p>
-            <p class="form-field">
-                <label>Recipe</label>
-                <input type="text" required class="validated-field" id="create-drink-recipe">
-            </p>
-            <button type="submit" class="form-button">Confirm</button>
-        </form>
-    </div>
-    <div class="menu-card">
-        <h2 class="menu-management-header">Update Existing Menu Item</h2>
-        <form class="card-content" id="update-drink-form">
-            <p class="form-field">
-                <label>Name</label>
-                <input type="text" required class="validated-field" id="update-drink-name">
-            </p>
-            <p>Choose Ingredients: </p>
-            <p class="ingredient-select-boxes" id="ingredients-in-update-form"></p>
-            <p class="form-field">
-                <label>Recipe</label>
-                <input type="text" required class="validated-field" id="update-drink-recipe">
-            </p>
-            <button type="submit" class="form-button">Confirm</button>
-        </form>
-    </div>
-    <div class="menu-card">
-        <h2 class="menu-management-header">Remove Item from Menu</h2>
-        <form id="remove-drink-form">
-            <p id="drinks-in-menu"></p>
-        </form>
-    </div>
-</div>
+    <header class="header" id="header">
+        <h1 class="site-title">MENU MANAGEMENT</h1>
+        <nav class="nav-links">
+            <a class="home-button" href="index.html">Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="card">
+            <h2>Add New Drink</h2>
+            <form id="create-drink-form">
+                <label for="create-drink-name">Name:</label>
+                <input type="text" id="create-drink-name" required>
+
+                <label for="create-drink-recipe">Recipe:</label>
+                <input type="text" id="create-drink-recipe" required>
+
+                <button type="submit" class="form-button">Add Drink</button>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>Update Drink</h2>
+            <form id="update-drink-form">
+                <label for="update-drink-select">Id:</label>
+                <select id="update-drink-select" required></select>
+
+                <label for="update-drink-name">Name:</label>
+                <input type="text" id="update-drink-name" required>
+
+                <label for="ingredients-update">Ingredients:</label>
+                <select id="ingredient-select-boxes"></select>
+
+                <label for="update-drink-recipe">Recipe:</label>
+                <input type="text" id="update-drink-recipe" required>
+
+                <button type="submit" class="form-button">Update Drink</button>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>Delete Drink</h2>
+            <form id="remove-drink-form">
+                <select id="delete-drink-select" required></select>
+                <button type="submit" class="form-button">Delete Drink</button>
+            </form>
+        </section>
+    </main>
+
+    <script type="text/javascript" src="menuManagementPage.js"></script>
 </body>
 </html>

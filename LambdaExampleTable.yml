@@ -1,24 +1,21 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
-  # DynamoDB table for Drinks
   DrinksTable:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: DrinksTable
       AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
+      - AttributeName: id
+        AttributeType: S
       KeySchema:
-        - AttributeName: id
-          KeyType: HASH
+      - AttributeName: id
+        KeyType: HASH
       BillingMode: PAY_PER_REQUEST
       Tags:
-        - Key: Name
-          Value: DrinksTable
+      - Key: Name
+        Value: DrinksTable
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: false
-
-  #DynamoDB table for Ingredients
   IngredientsTable:
     Type: AWS::DynamoDB::Table
     Properties:

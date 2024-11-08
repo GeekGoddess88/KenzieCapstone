@@ -1,36 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <script type="text/javascript" src="baristaMenuPage.js"></script>
+    <meta charset="UTF-8">
+    <title>Barista Menu</title>
     <link rel="stylesheet" type="text/css" href="css/style.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 </head>
 <body class="background">
-<header class="header" id="header">
-    <div class="site-title">
-        <a class="header_home" href="employee-portal.html">EMPLOYEE PORTAL</a>
-        <p><br></p>
-        <h2>BARISTA MENU</h2>
-    </div>
-    <div>
-        <a href="index.html"><button><h3>Home</h3></button></a>
-    </div>
-</header>
-<div class="barista-column-card">
-    <div class="barista-menu-card">
-        <h2 class="menu-management-header">Select Menu Item</h2>
-        <form id="display-drink-form">
-            <p id="drinks-in-menu"></p>
-        </form>
-    </div>
-    <div class="barista-menu-card" id="display-ingredients-list">
-        <h2 class="menu-management-header">Drink Ingredients</h2>
-        <p id="display-drink-ingredients"></p>
-    </div>
-</div>
-<div class="card">
-    <h2>Drink Recipe</h2>
-    <p id="display-drink-recipe"></p>
-</div>
+    <header class="header" id="header">
+        <h1 class="site-title">BARISTA MENU</h1>
+        <nav class="nav-links">
+            <a class="button home-button" href="index.html">Home</a>
+        </nav>
+    </header>
+
+    <main class="center-card">
+        <section class="card">
+            <h2>Select a Drink</h2>
+            <form id="drink-select-form">
+                <select id="drink-options"></select>
+                <button type="submit" class="form-button">Show Details</button>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>Drink Ingredients</h2>
+            <div id="ingredient-list"></div>
+        </section>
+
+        <section class="card">
+            <h2>Recipe</h2>
+            <div id="drink-recipe"></div>
+        </section>
+    </main>
+
+    <script type="text/javascript" src="baristaMenuPage.js"></script>
 </body>
 </html>

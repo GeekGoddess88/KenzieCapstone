@@ -89,7 +89,7 @@ Resources:
       ApplicationName: !Ref Application
       SourceBundle:
         S3Bucket: !Join
-          - ''
+          - Fn::GetAtt
           - - !Ref ProjectName
             - '-artifacts'
         S3Key: !Ref AppS3Key

@@ -41,30 +41,30 @@ public class IngredientServiceIntegrationTest {
     }
 
     @Test
-    void addIngredient_Failure() throws Exception {
+    void addIngredient_Failure() {
         IngredientCreateRequest request = new IngredientCreateRequest("2", "", 5);
 
         assertThrows(RuntimeException.class, () -> ingredientService.addIngredient(request).join());
     }
 
     @Test
-    void getIngredientById_Success() throws Exception {
+    void getIngredientById_Success() {
         IngredientRecord ingredient = new IngredientRecord("1", "Salt", 10);
         ingredientRepository.save(ingredient);
 
         IngredientResponse response = ingredientService.getIngredientById(ingredient.getId()).join();
 
-        assertNotNull(response);
+        Assertions.assertNotNull(response);
         assertEquals("Salt", response.getName());
     }
 
     @Test
-    void getIngredientById_Failure() throws Exception {
+    void getIngredientById_Failure() {
         assertThrows(RuntimeException.class, () -> ingredientService.getIngredientById("99").join());
     }
 
     @Test
-    void getAllIngredients_Success() throws Exception {
+    void getAllIngredients_Success() {
         ingredientRepository.save(new IngredientRecord("1", "Milk", 20));
         ingredientRepository.save(new IngredientRecord("2", "Chocolate", 15));
 
@@ -74,7 +74,7 @@ public class IngredientServiceIntegrationTest {
     }
 
     @Test
-    void getAllIngredients_Failure() throws Exception {
+    void getAllIngredients_Failure() {
         List<IngredientResponse> ingredients = ingredientService.getAllIngredients().join();
 
         assertTrue(ingredients.isEmpty());

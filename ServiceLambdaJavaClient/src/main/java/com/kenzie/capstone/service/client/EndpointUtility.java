@@ -5,20 +5,23 @@ import com.amazonaws.services.apigateway.AmazonApiGatewayClientBuilder;
 import com.amazonaws.services.apigateway.model.GetRestApisRequest;
 import com.amazonaws.services.apigateway.model.GetRestApisResult;
 import com.amazonaws.services.apigateway.model.RestApi;
-import org.springframework.context.annotation.Bean;
+
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 
 import static com.kenzie.capstone.service.client.EnvironmentVariableUtility.getEnvVarFromSetupEnvironment;
 
 @Component
 public class EndpointUtility {
-    private String apiEndpoint;
+
+    private final String apiEndpoint;
 
     //----------------------------------------------------------------------------------------------
     //do not modify any of the inbetween code unless explicitly told to do so
@@ -79,107 +82,63 @@ public class EndpointUtility {
 
     //The code below can be modified as needed to modify how it handles status codes, etc
 
-    @Bean
-    public String postEndpoint(String endpoint, String data) {
-        String api = getApiEndpint();
-        String url = api + endpoint;
+    public String postEndpoint(String postEndpoint, String body) {
+        String url = apiEndpoint + postEndpoint;
 
-        HttpClient client = HttpClient.newHttpClient();
-        URI uri = URI.create(url);
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(uri)
+                .uri(URI.create(url))
                 .header("Accept", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(data))
+                .POST(BodyPublishers.ofString(body))
                 .build();
-        try {
-            HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            int statusCode = httpResponse.statusCode();
-            if (statusCode == 200) {
-                return httpResponse.body();
-            } else {
-                throw new ApiGatewayException("POST request failed: " + statusCode + " status code received."
-                        + "\n body: " + httpResponse.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            return e.getMessage();
-        }
+        return sendRequest(request, "POST");
     }
 
-    @Bean
-    public String getEndpoint(String endpoint) {
-        String api = getApiEndpint();
-        String url = api + endpoint;
+    public String getEndpoint(String getEndpoint) {
+        String url = apiEndpoint + getEndpoint;
 
-        HttpClient client = HttpClient.newHttpClient();
-        URI uri = URI.create(url);
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(uri)
+                .uri(URI.create(url))
                 .header("Accept", "application/json")
                 .GET()
                 .build();
-        try {
-            HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            int statusCode = httpResponse.statusCode();
-            if (statusCode == 200) {
-                return httpResponse.body();
-            } else {
-                throw new ApiGatewayException("GET request failed: " + statusCode + " status code received"
-                        + "\n body: " + httpResponse.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            return e.getMessage();
-        }
+        return sendRequest(request, "GET");
     }
 
-    @Bean
-    public String deleteEndpoint(String endpoint) {
-        String api = getApiEndpint();
-        String url = api + endpoint;
+    public String deleteEndpoint(String deleteEndpoint) {
+        String url = apiEndpoint + deleteEndpoint;
 
-        HttpClient client = HttpClient.newHttpClient();
-        URI uri = URI.create(url);
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(uri)
+                .uri(URI.create(url))
                 .header("Accept", "application/json")
                 .DELETE()
                 .build();
-        try {
-            HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (httpResponse.statusCode() == 200) {
-               return httpResponse.body().isEmpty() ? "Success" : httpResponse.body();
-            } else {
-                throw new ApiGatewayException("DELETE request failed: " + httpResponse.statusCode() + " status code received");
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        return sendRequest(request, "DELETE");
     }
 
-        @Bean
-        public String putEndpoint(String endpoint, String data) {
-        String api = getApiEndpint();
-        String url = api + endpoint;
 
-        HttpClient client = HttpClient.newHttpClient();
-        URI uri = URI.create(url);
+    public String putEndpoint(String putEndpoint, String body) {
+        String url = apiEndpoint + putEndpoint;
+
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(uri)
+                .uri(URI.create(url))
                 .header("Accept", "application/json")
-                .PUT(HttpRequest.BodyPublishers.ofString(data))
+                .PUT(BodyPublishers.ofString(body))
                 .build();
+        return sendRequest(request, "PUT");
+    }
+
+    private String sendRequest(HttpRequest request, String method) {
+        HttpClient client = HttpClient.newHttpClient();
         try {
-            HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
-            int statusCode = httpResponse.statusCode();
+            HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+            int statusCode = response.statusCode();
             if (statusCode == 200) {
-                return httpResponse.body();
+                return response.body();
             } else {
-                throw new ApiGatewayException("PUT request failed: " + statusCode + " status code received."
-                + "\n body: " + httpResponse.body());
+                throw new ApiGatewayException("POST request failed: " + statusCode + " status code received");
             }
         } catch (IOException | InterruptedException e) {
-            return e.getMessage();
+            throw new RuntimeException(method + " request failed " + e.getMessage(), e);
         }
     }
 }
